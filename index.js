@@ -84,8 +84,90 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 
     showDashboard();
   } catch (err) {
-    alert("Erro: " + err.message);
-  } finally {
+
+  console.error("❌ ERRO COMPLETO NO LOGIN:", err);
+
+  let titulo = "Erro ao realizar login";
+  let mensagem = "Não foi possível concluir a autenticação.";
+  let detalhes = "";
+
+  // ============================================================
+  // ERRO DE CONEXÃO / FETCH
+  // ============================================================
+
+  if (err instanceof TypeError) {
+    titulo = "Falha de conexão";
+    mensagem = "Não foi possível conectar ao servidor.";
+
+    detalhes = `
+      <strong>Possíveis causas:</strong><br>
+      • API offline ou indisponível<br>
+      • Problema de internet<br>
+      • CORS bloqueando a requisição<br>
+      • URL da API incorreta<br><br>
+
+      <strong>Endpoint:</strong><br>
+      ${API_URL}/auth/login
+    `;
+  }
+
+  // ============================================================
+  // ERRO NORMAL DA API
+  // ============================================================
+
+  else {
+
+    mensagem = err.message || "Erro desconhecido.";
+
+    detalhes = `
+      <strong>Mensagem:</strong><br>
+      ${err.message || "Não informado"}<br><br>
+
+      <strong>Endpoint:</strong><br>
+      ${API_URL}/auth/login<br><br>
+
+      <strong>Tipo:</strong><br>
+      ${err.name || "Error"}
+    `;
+  }
+
+  Swal.fire({
+    icon: "error",
+    title: titulo,
+    html: `
+      <div style="
+        text-align: left;
+        font-size: 14px;
+        line-height: 1.6;
+      ">
+        <div style="
+          background: #fff5f5;
+          border: 1px solid #fecaca;
+          border-radius: 10px;
+          padding: 12px;
+          margin-bottom: 15px;
+        ">
+          <strong style="color:#b91c1c;">
+            ${mensagem}
+          </strong>
+        </div>
+
+        <div style="
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          padding: 12px;
+        ">
+          ${detalhes}
+        </div>
+      </div>
+    `,
+    confirmButtonText: "Entendi",
+    confirmButtonColor: "#9E7960",
+    width: 500
+  });
+
+} finally {
     // 🔄 LIBERA O BOTÃO: O bloco 'finally' garante a execução mesmo se houver erro ou acertos
     if (submitButton) {
       submitButton.disabled = false;
