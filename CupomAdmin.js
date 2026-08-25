@@ -1,5 +1,5 @@
 // Endereço do servidor Node.js/Express
-const API_BASE_URL = "https://prafoodapi.onrender.com/cupom/admin/coupons";
+const API_BASE_URL = "https://essenzaintimasapi.onrender.com/cupom/admin/coupons";
 
 // CONFIGURAÇÃO FINANCEIRA DINÂMICA: Recupera do LocalStorage ou define 40% como padrão
 let MARGEM_PADRAO = parseFloat(localStorage.getItem("companyMargin")) || 40;
