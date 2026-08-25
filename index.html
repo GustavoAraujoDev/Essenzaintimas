@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PratinhoPratudo - Portal do Parceiro</title>
+    <title>Essenza Intimas - Portal do Parceiro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -13,33 +13,104 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
     <style>
-      :root {
-        --ifood-red: #ea1d2c;
-        --ifood-bg: #f2f2f2;
-      }
-      body {
-        font-family: "Inter", sans-serif;
-        background-color: var(--ifood-bg);
-      }
-      .btn-primary {
-        background-color: var(--ifood-red);
-        color: white;
-        transition: 0.3s;
-      }
-      .btn-primary:hover {
-        background-color: #c4111e;
-      }
-      .status-active {
-        color: #00891f;
-        background: #e6f4ea;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: bold;
-      }
-      .hidden {
-        display: none;
-      }
+    :root {
+  /* ==========================================================
+     ESSENZA ÍNTIMAS — PALETA PRINCIPAL
+     ========================================================== */
+
+  --essenza-brown: #26211E;
+  --essenza-taupe: #9E7960;
+  --essenza-offwhite: #F8F5F2;
+  --essenza-champagne: #E8DED5;
+  --essenza-dark: #171311;
+  --essenza-rose: #C8A99A;
+
+  /* Cores funcionais */
+  --success: #2F7D4A;
+  --success-bg: #EAF4ED;
+
+  --error: #A64040;
+  --error-bg: #F8EAEA;
+
+  --warning: #A4773C;
+  --warning-bg: #F8F0E3;
+}
+
+/* ==========================================================
+   BODY
+   ========================================================== */
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: var(--essenza-offwhite);
+  color: var(--essenza-brown);
+}
+
+/* ==========================================================
+   BOTÃO PRINCIPAL
+   ========================================================== */
+
+.btn-primary {
+  background-color: var(--essenza-brown);
+  color: #FFFFFF;
+  transition: 0.3s ease;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--essenza-taupe);
+  color: #FFFFFF;
+}
+
+/* ==========================================================
+   BOTÃO SECUNDÁRIO
+   ========================================================== */
+
+.btn-secondary {
+  background-color: var(--essenza-champagne);
+  color: var(--essenza-brown);
+  border: 1px solid var(--essenza-champagne);
+  transition: 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--essenza-taupe);
+  color: #FFFFFF;
+}
+
+/* ==========================================================
+   STATUS ATIVO
+   ========================================================== */
+
+.status-active {
+  color: var(--success);
+  background: var(--success-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ==========================================================
+   STATUS INATIVO
+   ========================================================== */
+
+.status-inactive {
+  color: var(--error);
+  background: var(--error-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ==========================================================
+   HIDDEN
+   ========================================================== */
+
+.hidden {
+  display: none;
+}
     </style>
   </head>
   <body>
@@ -73,7 +144,7 @@
           <!-- Logo e Título -->
           <div class="text-left mb-10">
             <img
-              src="./logopratinho.jpeg"
+              src="./logoessenzaintimas.png"
               alt="PratinhoPraTudo Parceiros"
               class="w-32 mb-6"
             />
@@ -148,7 +219,7 @@
         <!-- Header da Sidebar com Logo -->
         <div class="p-6 mb-2">
           <img
-            src="./logopratinho.jpeg"
+            src="./logoessenzaintimas.png"
             alt="PratinhoPraTudo"
             class="w-32 transition-transform hover:scale-105"
           />
