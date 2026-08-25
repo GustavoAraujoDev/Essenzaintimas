@@ -294,8 +294,11 @@ body {
             onclick="toggleSection('menu')"
             class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all"
           >
-            <span class="text-xl opacity-70">🍔</span>
-            <span>Cardápio</span>
+            <i class="fas fa-store text-xl"></i>
+
+  <span class="text-[11px] font-medium">
+    Catálogo
+  </span>
           </a>
 
           <a
@@ -1013,7 +1016,7 @@ body {
       >
         <input type="hidden" id="prod-id" value="" />
         <h2 id="modal-title" class="text-2xl font-bold mb-6">
-          Cadastrar no Cardápio PratinhoPraTudo
+          Cadastrar no Catalogo Essenza Intimas
         </h2>
 
         <form id="product-form" class="space-y-4">
@@ -1147,7 +1150,7 @@ body {
               type="submit"
               class="bg-red-600 text-white px-6 py-2 rounded font-bold"
             >
-              Salvar no PratinhoPraTudo
+              Salvar no Essenza Intimas
             </button>
           </div>
         </form>
@@ -1174,14 +1177,18 @@ body {
         <span class="text-[11px] font-bold text-[#ea1d2c]">Pedidos</span>
       </button>
 
-      <!-- Item: Cardápio -->
-      <button
-        onclick="toggleSection('menu')"
-        class="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-gray-400 transition-all active:scale-90"
-      >
-        <i class="fas fa-utensils text-xl"></i>
-        <span class="text-[11px] font-medium italic">Cardápio</span>
-      </button>
+     <!-- Item: Catálogo -->
+<button
+  type="button"
+  onclick="toggleSection('menu')"
+  class="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-gray-400 transition-all active:scale-90"
+>
+  <i class="fas fa-store text-xl"></i>
+
+  <span class="text-[11px] font-medium">
+    Catálogo
+  </span>
+</button>
 
       <!-- Item: Mesas -->
       <button
