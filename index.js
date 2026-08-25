@@ -5,7 +5,7 @@
  */
 
 // 🌐 Endpoints e Recursos Estáticos
-const API_URL = "https://prafoodapi.onrender.com/products";
+const API_URL = "https://essenzaintimasapi.onrender.com/products";
 
 // 🔮 Instância Base de Alertas Flutuantes (SweetAlert2)
 const Toast = Swal.mixin({
@@ -967,7 +967,7 @@ function closeModal() {
  */
 async function loadOrders() {
   try {
-    const res = await fetch(`https://prafoodapi.onrender.com/pedidos`, {
+    const res = await fetch(`https://essenzaintimasapi.onrender.com/pedidos`, {
       method: "GET",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -1141,7 +1141,7 @@ async function updateOrderStatus(orderId, newStatus) {
 
   try {
     const response = await fetch(
-      `https://prafoodapi.onrender.com/pedidos/${orderId}/status`,
+      `https://essenzaintimasapi.onrender.com/pedidos/${orderId}/status`,
       {
         method: "PUT",
         credentials: "include",
@@ -1406,7 +1406,7 @@ async function printOrder(id) {
   });
 
   try {
-    const response = await fetch("https://prafoodapi.onrender.com/pedidos/imprimir", {
+    const response = await fetch("https://essenzaintimasapi.onrender.com/pedidos/imprimir", {
       method: "POST",
       credentials: "include",
       headers: {
@@ -1554,7 +1554,7 @@ let allOrdersData = []; // Variável global para guardar os pedidos sem precisar
  */
 async function loadDashboardData() {
   try {
-    const res = await fetch("https://prafoodapi.onrender.com/pedidos", {
+    const res = await fetch("https://essenzaintimasapi.onrender.com/pedidos", {
       method: "GET",
       credentials: "include",
       headers: {
@@ -1643,7 +1643,7 @@ setInterval(async () => {
       primeiraBusca = false;
     }
 
-    const res = await fetch("https://prafoodapi.onrender.com/pedidos/pendentes", {
+    const res = await fetch("https://essenzaintimasapi.onrender.com/pedidos/pendentes", {
       method: "GET",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -1997,7 +1997,7 @@ async function toggleSection(section) {
   if (section === "dashboard") {
     loadDashboardData();
     try {
-      const res = await fetch(`https://prafoodapi.onrender.com/pedidos`, {
+      const res = await fetch(`https://essenzaintimasapi.onrender.com/pedidos`, {
         method: "GET",
         credentials: "include",
       });
@@ -2037,7 +2037,7 @@ async function initTables() {
   try {
     // Busca o estado atual no servidor
     const res = await fetch(
-      `https://prafoodapi.onrender.com/products/tables/status/${companyId}`,
+      `https://essenzaintimasapi.onrender.com/products/tables/status/${companyId}`,
       {
         method: "GET", // Método padrão, mas deixamos explícito
         credentials: "include", // <--- ESSENCIAL: Envia os cookies/sessão para a API
@@ -2563,7 +2563,7 @@ async function criarPedidoNoSistema(pedidoFinal) {
     allowOutsideClick: false,
   });
 
-  const res = await fetch(`https://prafoodapi.onrender.com/pedidos`, {
+  const res = await fetch(`https://essenzaintimasapi.onrender.com/pedidos`, {
     // Usando a constante de ambiente que definimos antes
     method: "POST",
     credentials: "include",
@@ -2833,7 +2833,7 @@ async function saveTablesToStorage() {
 
   try {
     // 3. Sincronização com o Backend
-    const response = await fetch(`https://prafoodapi.onrender.com/products/tables/sync`, {
+    const response = await fetch(`https://essenzaintimasapi.onrender.com/products/tables/sync`, {
       method: "POST",
       // ADICIONE OU VERIFIQUE ESTAS DUAS LINHAS ABAIXO:
       credentials: "include", // Permite enviar cookies/sessão para o servidor
@@ -2907,7 +2907,7 @@ async function scanNetworkPrinters() {
   `;
 
   try {
-    const response = await fetch("https://prafoodapi.onrender.com/pedidos/discover");
+    const response = await fetch("https://essenzaintimasapi.onrender.com/pedidos/discover");
     if (!response.ok) throw new Error("Erro na requisição de busca");
 
     const printers = await response.json(); // Espera um array: [{ip, port, name}]
@@ -2962,7 +2962,7 @@ async function selectAndConnectPrinter(ip, name) {
   updateUIStatus("conectando", name, ip);
 
   try {
-    const response = await fetch("https://prafoodapi.onrender.com/pedidos/connect", {
+    const response = await fetch("https://essenzaintimasapi.onrender.com/pedidos/connect", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ip: ip }),
@@ -2997,7 +2997,7 @@ async function testPrint() {
   btnTest.innerText = "Enviando...";
 
   try {
-    const response = await fetch(`https://prafoodapi.onrender.com/pedidos/test-print`, {
+    const response = await fetch(`https://essenzaintimasapi.onrender.com/pedidos/test-print`, {
       method: "POST",
     });
     const result = await response.json();
@@ -3283,7 +3283,7 @@ async function printTablePartialOnly() {
 
   try {
     // MUDANÇA CRÍTICA: Envia para a rota de impressão parcial, evitando criação de pedido/baixa no banco
-    const res = await fetch(`https://prafoodapi.onrender.com/pedidos/imprimir-parcial`, {
+    const res = await fetch(`https://essenzaintimasapi.onrender.com/pedidos/imprimir-parcial`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -3426,7 +3426,7 @@ async function lancarAbatimentoParcialMesa() {
   try {
     // 4. ✅ CORRIGIDO: Rota alterada para bater no endpoint de mesas que criamos no Back (/tables/abater-parcial)
     const res = await fetch(
-      `https://prafoodapi.onrender.com/products/tables/abater-parcial`,
+      `https://essenzaintimasapi.onrender.com/products/tables/abater-parcial`,
       {
         method: "POST",
         credentials: "include",
