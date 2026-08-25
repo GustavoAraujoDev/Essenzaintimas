@@ -1,4 +1,4 @@
-const API_URL = "https://prafoodapi.onrender.com/taxas";
+const API_URL = "https://essenzaintimasapi.onrender.com/taxas";
 
 let state = {
   taxas: [],
