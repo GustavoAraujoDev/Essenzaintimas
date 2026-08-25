@@ -1,4 +1,4 @@
-const API_URL = "https://prafoodapi.onrender.com/products";
+const API_URL = "https://essenzaintimasapi.onrender.com/products";
 let allProducts = [];
 let selectedItems = [];
 
