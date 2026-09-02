@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Essenza Intimas - Portal do Parceiro</title>
+    <title>Essenza Íntimas — Portal do Parceiro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -13,341 +13,286 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
     <style>
-    :root {
-  /* ==========================================================
-     ESSENZA ÍNTIMAS — PALETA PRINCIPAL
-     ========================================================== */
+      :root {
+        --essenza-brown: #26211E;
+        --essenza-taupe: #9E7960;
+        --essenza-offwhite: #F8F5F2;
+        --essenza-champagne: #E8DED5;
+        --essenza-dark: #171311;
+        --essenza-rose: #C8A99A;
 
-  --essenza-brown: #26211E;
-  --essenza-taupe: #9E7960;
-  --essenza-offwhite: #F8F5F2;
-  --essenza-champagne: #E8DED5;
-  --essenza-dark: #171311;
-  --essenza-rose: #C8A99A;
+        --success: #2F7D4A;
+        --success-bg: #EAF4ED;
 
-  /* Cores funcionais */
-  --success: #2F7D4A;
-  --success-bg: #EAF4ED;
+        --error: #A64040;
+        --error-bg: #F8EAEA;
 
-  --error: #A64040;
-  --error-bg: #F8EAEA;
+        --warning: #A4773C;
+        --warning-bg: #F8F0E3;
+      }
 
-  --warning: #A4773C;
-  --warning-bg: #F8F0E3;
-}
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--essenza-offwhite);
+        color: var(--essenza-brown);
+      }
 
-/* ==========================================================
-   BODY
-   ========================================================== */
+      .btn-primary {
+        background-color: var(--essenza-brown);
+        color: #FFFFFF;
+        transition: 0.3s ease;
+        border: none;
+      }
 
-body {
-  font-family: "Inter", sans-serif;
-  background-color: var(--essenza-offwhite);
-  color: var(--essenza-brown);
-}
+      .btn-primary:hover {
+        background-color: var(--essenza-taupe);
+        color: #FFFFFF;
+      }
 
-/* ==========================================================
-   BOTÃO PRINCIPAL
-   ========================================================== */
+      .btn-secondary {
+        background-color: var(--essenza-champagne);
+        color: var(--essenza-brown);
+        border: 1px solid var(--essenza-champagne);
+        transition: 0.3s ease;
+      }
 
-.btn-primary {
-  background-color: var(--essenza-brown);
-  color: #FFFFFF;
-  transition: 0.3s ease;
-  border: none;
-}
+      .btn-secondary:hover {
+        background-color: var(--essenza-taupe);
+        color: #FFFFFF;
+      }
 
-.btn-primary:hover {
-  background-color: var(--essenza-taupe);
-  color: #FFFFFF;
-}
+      .status-active {
+        color: var(--success);
+        background: var(--success-bg);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
 
-/* ==========================================================
-   BOTÃO SECUNDÁRIO
-   ========================================================== */
+      .status-inactive {
+        color: var(--error);
+        background: var(--error-bg);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
 
-.btn-secondary {
-  background-color: var(--essenza-champagne);
-  color: var(--essenza-brown);
-  border: 1px solid var(--essenza-champagne);
-  transition: 0.3s ease;
-}
-
-.btn-secondary:hover {
-  background-color: var(--essenza-taupe);
-  color: #FFFFFF;
-}
-
-/* ==========================================================
-   STATUS ATIVO
-   ========================================================== */
-
-.status-active {
-  color: var(--success);
-  background: var(--success-bg);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-/* ==========================================================
-   STATUS INATIVO
-   ========================================================== */
-
-.status-inactive {
-  color: var(--error);
-  background: var(--error-bg);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-/* ==========================================================
-   HIDDEN
-   ========================================================== */
-
-.hidden {
-  display: none;
-}
+      .hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
+    <!-- Tela de Login -->
     <div
       id="login-screen"
-      class="min-h-screen flex flex-col md:flex-row bg-[#f7f7f7] font-sans"
+      class="min-h-screen flex flex-col md:flex-row bg-[#F8F5F2] font-sans"
     >
-      <!-- Lado Esquerdo: Banner Decorativo (Estilo Portal do Parceiro) -->
       <div
         class="hidden md:flex md:w-1/2 bg-[#9E7960] items-center justify-center p-12 relative overflow-hidden"
       >
         <div class="z-10 text-white">
-          <h1 class="text-4xl font-black mb-4">
-  Bem-vinda, Parceira!
-</h1>
-
-<p class="text-xl opacity-90">
-  Gerencie sua loja, produtos e pedidos com praticidade,
-  sofisticação e tudo o que você precisa para cuidar da
-  sua Essenza Íntimas.
-</p>
+          <h1 class="text-4xl font-serif font-bold mb-4 tracking-wide">
+            Bem-vinda, Parceira!
+          </h1>
+          <p class="text-lg opacity-90 leading-relaxed font-light">
+            Gerencie sua curadoria de moda íntima, coleções e pedidos com praticidade,
+            sofisticação e toda a exclusividade Essenza Íntimas.
+          </p>
         </div>
-        <!-- Círculos decorativos de fundo -->
-        <div
-          class="absolute -bottom-20 -left-20 w-64 h-64 bg-white opacity-10 rounded-full"
-        ></div>
-        <div
-          class="absolute -top-10 -right-10 w-96 h-96 bg-black opacity-5 rounded-full"
-        ></div>
+        <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-white opacity-10 rounded-full"></div>
+        <div class="absolute -top-10 -right-10 w-96 h-96 bg-black opacity-5 rounded-full"></div>
       </div>
 
-      <!-- Lado Direito: Formulário de Login -->
       <div class="flex-1 flex items-center justify-center p-8">
-        <div class="max-w-md w-full">
-          <!-- Logo e Título -->
-          <div class="text-left mb-10">
+        <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-[#E8DED5]">
+          <div class="text-left mb-8">
             <img
               src="./logoessenzaintimas.png"
-              alt="PratinhoPraTudo Parceiros"
-              class="w-32 mb-6"
+              alt="Essenza Íntimas"
+              class="w-32 mb-6 object-contain"
             />
-            <h2 class="text-3xl font-bold text-gray-800 tracking-tight">
-              Login do Parceiro
+            <h2 class="text-2xl font-serif font-bold text-[#26211E] tracking-tight">
+              Portal do Parceiro
             </h2>
-            <p class="text-gray-500 mt-2">
-              Acesse o seu painel de gerenciamento.
+            <p class="text-gray-500 text-sm mt-1">
+              Acesse o seu painel exclusivo de gestão.
             </p>
           </div>
 
-          <form id="login-form" class="space-y-6">
-            <!-- Campo E-mail -->
+          <form id="login-form" class="space-y-5">
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2"
-                >E-mail ou Usuário</label
-              >
+              <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">E-mail ou Usuário</label>
               <input
                 type="email"
                 id="login-email"
                 placeholder="seu@email.com"
                 required
-                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg outline-none transition-all focus:border-[#ea1d2c] focus:ring-1 focus:ring-[#ea1d2c]"
+                class="w-full px-4 py-3 bg-[#F8F5F2] border border-[#E8DED5] rounded-xl outline-none transition-all focus:border-[#9E7960] focus:ring-1 focus:ring-[#9E7960] text-sm"
               />
             </div>
 
-            <!-- Campo Senha -->
             <div>
               <div class="flex justify-between mb-2">
-                <label class="text-sm font-bold text-gray-700">Senha</label>
-                <a
-                  href="#"
-                  class="text-sm font-semibold text-[#ea1d2c] hover:underline"
-                  >Esqueceu a senha?</a
-                >
+                <label class="text-xs font-bold uppercase tracking-wider text-gray-600">Senha</label>
+                <a href="#" class="text-xs font-semibold text-[#9E7960] hover:underline">Esqueceu a senha?</a>
               </div>
               <input
                 type="password"
                 id="login-pass"
                 placeholder="••••••••"
                 required
-                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg outline-none transition-all focus:border-[#ea1d2c] focus:ring-1 focus:ring-[#ea1d2c]"
+                class="w-full px-4 py-3 bg-[#F8F5F2] border border-[#E8DED5] rounded-xl outline-none transition-all focus:border-[#9E7960] focus:ring-1 focus:ring-[#9E7960] text-sm"
               />
             </div>
 
-            <!-- Botão Entrar -->
-           <!-- Botão Entrar -->
-<button
-  type="submit"
-  class="w-full bg-[#9E7960] hover:bg-[#26211E] text-white py-3.5 rounded-lg font-bold text-base transition-colors shadow-md shadow-[#E8DED5]"
->
-  ACESSAR PORTAL
-</button>
+            <button
+              type="submit"
+              class="w-full bg-[#26211E] hover:bg-[#9E7960] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-md"
+            >
+              Acessar Painel
+            </button>
           </form>
 
-          <!-- Rodapé do Card -->
-          <div class="mt-10 pt-6 border-t border-gray-200">
-            <p class="text-gray-600 text-sm">
-              Ainda não é parceiro?
-              <a href="#" class="font-bold text-[#ea1d2c] ml-1"
-                >Cadastre seu restaurante</a
-              >
+          <div class="mt-8 pt-6 border-t border-[#E8DED5] text-center">
+            <p class="text-gray-500 text-xs">
+              Ainda não é parceira?
+              <a href="#" class="font-bold text-[#9E7960] ml-1 hover:underline">Solicite seu acesso</a>
             </p>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="main-app" class="hidden min-h-screen flex">
-      <aside
-        class="w-64 bg-white border-r hidden md:flex flex-col h-screen sticky top-0 p-0"
+    <!-- Aplicação Principal -->
+    <div id="main-app" class="hidden min-h-screen flex flex-col md:flex-row bg-[#F8F5F2]">
+      
+      <!-- Cabeçalho Mobile com Botão Hambúrguer -->
+      <div class="md:hidden bg-white border-b border-[#E8DED5] px-6 py-4 flex items-center justify-between sticky top-0 z-35 shadow-sm">
+        <img src="./logoessenzaintimas.png" alt="Essenza Íntimas" class="w-24 object-contain" />
+        <button 
+          onclick="toggleMobileSidebar()" 
+          class="p-2.5 bg-[#F8F5F2] text-[#26211E] rounded-xl border border-[#E8DED5] focus:outline-none flex items-center justify-center transition-transform active:scale-95"
+          aria-label="Abrir Menu"
+        >
+          <i id="mobile-menu-icon" class="fas fa-bars text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Overlay Fundo Escuro para Fechar o Menu no Mobile -->
+      <div 
+        id="sidebar-overlay" 
+        onclick="toggleMobileSidebar()" 
+        class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden transition-opacity"
+      ></div>
+
+      <!-- Menu Lateral (Drawer no Mobile / Fixo no Desktop) -->
+      <aside 
+        id="app-sidebar" 
+        class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-[#E8DED5] flex flex-col h-full transform -translate-x-full md:translate-x-0 md:static md:h-screen transition-transform duration-300 ease-in-out p-0 shadow-2xl md:shadow-none"
       >
-        <!-- Header da Sidebar com Logo -->
-        <div class="p-6 mb-2">
+        <div class="p-6 mb-2 flex justify-between items-center">
           <img
             src="./logoessenzaintimas.png"
-            alt="PratinhoPraTudo"
-            class="w-32 transition-transform hover:scale-105"
+            alt="Essenza Íntimas"
+            class="w-28 transition-transform hover:scale-105 object-contain"
           />
-          <div class="store-status-box hidden md:block"></div>
+          <!-- Botão fechar apenas visível no mobile dentro da gaveta -->
+          <button onclick="toggleMobileSidebar()" class="md:hidden text-gray-400 hover:text-gray-600 p-2 text-xl font-bold">
+            &times;
+          </button>
+          <div class="store-status-box hidden md:block mt-2"></div>
         </div>
 
-        <!-- Navegação Principal -->
-        <nav class="flex-1 px-4 space-y-1">
-          <!-- Item Ativo (Exemplo: Dashboard) -->
+        <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto">
           <a
             href="#"
             id="nav-dashboard"
-            onclick="toggleSection('dashboard')"
-            class="flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-lg bg-red-50 text-red-600 transition-all group"
+            onclick="toggleSection('dashboard'); closeMobileSidebarOnSelect();"
+            class="flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl bg-[#F8F5F2] text-[#9E7960] transition-all group"
           >
-            <span class="text-xl">📊</span>
+            <span class="text-lg">📊</span>
             <span>Dashboard</span>
           </a>
 
-          <!-- Item Padrão -->
           <a
             href="#"
             id="nav-orders"
-            onclick="toggleSection('orders')"
-            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all"
+            onclick="toggleSection('orders'); closeMobileSidebarOnSelect();"
+            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-[#F8F5F2] hover:text-[#26211E] transition-all"
           >
-            <span class="text-xl opacity-70">📋</span>
+            <span class="text-lg opacity-70">📋</span>
             <span>Pedidos</span>
-            <span
-              id="badge-orders-count"
-              class="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold hidden"
-              >0</span
-            >
+            <span id="badge-orders-count" class="ml-auto bg-[#9E7960] text-white text-[10px] px-2 py-0.5 rounded-full font-bold hidden">0</span>
           </a>
 
-          <!-- Novo Item: Taxas -->
           <a
             href="./admin-taxas.html"
             id="nav-taxes"
-            onclick="toggleSection('taxes')"
-            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all"
+            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-[#F8F5F2] hover:text-[#26211E] transition-all"
           >
-            <span class="text-xl opacity-70">💰</span>
+            <span class="text-lg opacity-70">💰</span>
             <span>Taxas</span>
-            <span
-              id="badge-taxes-count"
-              class="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold hidden"
-              >0</span
-            >
           </a>
 
-          <!-- Novo Item: Cupons -->
           <a
             href="./Cupom.html"
             id="nav-coupons"
-            onclick="toggleSection('coupons')"
-            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all"
+            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-[#F8F5F2] hover:text-[#26211E] transition-all"
           >
-            <span class="text-xl opacity-70">🎟️</span>
+            <span class="text-lg opacity-70">🎟️</span>
             <span>Cupons</span>
-            <span
-              id="badge-coupons-count"
-              class="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold hidden"
-              >0</span
-            >
           </a>
 
           <a
             href="#"
             id="nav-menu"
-            onclick="toggleSection('menu')"
-            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all"
+            onclick="toggleSection('menu'); closeMobileSidebarOnSelect();"
+            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-[#F8F5F2] hover:text-[#26211E] transition-all"
           >
-            <i class="fas fa-store text-xl"></i>
-
-  <span class="text-[11px] font-medium">
-    Catálogo
-  </span>
+            <i class="fas fa-store text-lg opacity-70"></i>
+            <span class="font-medium">Catálogo</span>
           </a>
 
           <a
             href="./combo.html"
             id="nav-combos"
-            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all"
+            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-[#F8F5F2] hover:text-[#26211E] transition-all"
           >
-            <span class="text-xl opacity-70">📦</span>
+            <span class="text-lg opacity-70">📦</span>
             <span>Combos e Ofertas</span>
           </a>
 
           <a
             href="#"
             id="nav-tables"
-            onclick="toggleSection('tables')"
-            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all"
+            onclick="toggleSection('tables'); closeMobileSidebarOnSelect();"
+            class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-[#F8F5F2] hover:text-[#26211E] transition-all"
           >
-            <span class="text-xl opacity-70">🪑</span>
+            <span class="text-lg opacity-70">🪑</span>
             <span>Gestão de Mesas</span>
           </a>
 
-          <!-- Divisor -->
-          <div class="my-6 border-t border-gray-100 mx-4"></div>
+          <div class="my-4 border-t border-[#E8DED5] mx-4"></div>
 
-          <!-- Seção de Utilidades -->
           <button
-            onclick="openPrinterModal()"
-            class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition-all group"
+            onclick="openPrinterModal(); closeMobileSidebarOnSelect();"
+            class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-[#F8F5F2] transition-all group text-left"
           >
             <div class="relative">
               <i class="fas fa-print text-lg opacity-70"></i>
-              <span
-                id="printer-dot"
-                class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-white animate-pulse"
-              ></span>
+              <span id="printer-dot" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-white animate-pulse"></span>
             </div>
             <span>Impressora</span>
           </button>
         </nav>
 
-        <!-- Rodapé da Sidebar (Usuário e Sair) -->
-        <div class="p-4 border-t border-gray-100">
+        <div class="p-4 border-t border-[#E8DED5]">
           <button
             onclick="logout()"
-            class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+            class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-500 hover:text-[#A64040] hover:bg-[#F8EAEA] rounded-xl transition-all"
           >
             <i class="fas fa-sign-out-alt text-lg"></i>
             <span>Sair da conta</span>
@@ -355,63 +300,51 @@ body {
         </div>
       </aside>
 
-      <main class="flex-1 p-8">
+      <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+        <!-- Seção Catálogo -->
         <section id="section-menu">
           <header class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">Gestão de Itens</h1>
-
+            <h1 class="text-3xl font-serif font-bold text-[#26211E]">Gestão de Coleção</h1>
             <button
               onclick="openModal()"
-              class="btn-primary px-6 py-2 rounded-lg font-bold shadow-md"
+              class="btn-primary px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-md flex items-center gap-2"
             >
-              <i class="fas fa-plus mr-2"></i> Novo Produto
+              <i class="fas fa-plus"></i> Novo Produto
             </button>
           </header>
-          <div
-            class="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-wrap gap-4 items-end"
-          >
+
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#E8DED5] mb-6 flex flex-wrap gap-4 items-end">
             <div class="flex-1 min-w-[200px]">
-              <label
-                class="block text-xs font-bold text-gray-500 mb-1 uppercase"
-                >Buscar Produto</label
-              >
+              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Buscar Produto</label>
               <div class="relative">
-                <span
-                  class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"
-                >
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
                   <i class="fas fa-search"></i>
                 </span>
                 <input
                   type="text"
                   id="filter-menu-search"
                   onkeyup="filterMenu()"
-                  placeholder="Nome do item..."
-                  class="w-full pl-10 pr-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-red-500"
+                  placeholder="Nome do item ou referência..."
+                  class="w-full pl-10 pr-4 py-2.5 bg-[#F8F5F2] border border-[#E8DED5] rounded-xl outline-none focus:ring-1 focus:ring-[#9E7960] text-sm"
                 />
               </div>
             </div>
             <div>
-              <label
-                class="block text-xs font-bold text-gray-500 mb-1 uppercase"
-                >Categoria</label
-              >
+              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Categoria</label>
               <select
                 id="filter-menu-cat"
                 onchange="filterMenu()"
-                class="border rounded-lg p-2 bg-gray-50 outline-none focus:ring-2 focus:ring-red-500"
+                class="border border-[#E8DED5] rounded-xl p-2.5 bg-[#F8F5F2] outline-none focus:ring-1 focus:ring-[#9E7960] text-sm"
               >
-                <option value="all">Todas as Categorias</option>
+                <option value="all">Todas as Coleções</option>
               </select>
             </div>
             <div>
-              <label
-                class="block text-xs font-bold text-gray-500 mb-1 uppercase"
-                >Status</label
-              >
+              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Status</label>
               <select
                 id="filter-menu-status"
                 onchange="filterMenu()"
-                class="border rounded-lg p-2 bg-gray-50 outline-none focus:ring-2 focus:ring-red-500"
+                class="border border-[#E8DED5] rounded-xl p-2.5 bg-[#F8F5F2] outline-none focus:ring-1 focus:ring-[#9E7960] text-sm"
               >
                 <option value="all">Todos</option>
                 <option value="ACTIVE">Disponível</option>
@@ -420,9 +353,9 @@ body {
             </div>
           </div>
 
-          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-            <table class="w-full text-left">
-              <thead class="bg-gray-50 border-b text-gray-600">
+          <div class="bg-white rounded-2xl shadow-sm border border-[#E8DED5] overflow-hidden">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-[#F8F5F2] border-b border-[#E8DED5] text-gray-600">
                 <tr>
                   <th class="px-6 py-4 font-semibold">Produto</th>
                   <th class="px-6 py-4 font-semibold">Categoria</th>
@@ -431,75 +364,50 @@ body {
                   <th class="px-6 py-4 font-semibold text-right">Ações</th>
                 </tr>
               </thead>
-              <tbody id="product-list"></tbody>
+              <tbody id="product-list" class="divide-y divide-[#E8DED5]"></tbody>
             </table>
           </div>
         </section>
 
+        <!-- Seção Mesas -->
         <section id="section-tables" class="hidden">
           <header class="flex justify-between items-center mb-8">
             <div>
-              <h1 class="text-3xl font-bold text-gray-800">Mapa de Mesas</h1>
-              <p class="text-gray-500 text-sm">
-                Gerencie pedidos presenciais e comandas
-              </p>
+              <h1 class="text-3xl font-serif font-bold text-[#26211E]">Gestão de Provadores / Mesas</h1>
+              <p class="text-gray-500 text-sm mt-1">Gerencie atendimentos e comandas personalizadas</p>
             </div>
-            <div
-              id="selected-table-badge"
-              class="hidden bg-red-100 text-red-600 px-4 py-2 rounded-full font-bold animate-pulse"
-            >
-              Editando Mesa <span id="active-table-number">0</span>
+            <div id="selected-table-badge" class="hidden bg-[#E8DED5] text-[#26211E] px-4 py-2 rounded-full font-bold text-xs uppercase tracking-wider animate-pulse">
+              Editando Atendimento <span id="active-table-number">0</span>
             </div>
           </header>
 
-          <div
-            id="tables-grid"
-            class="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-4 mb-10"
-          ></div>
+          <div id="tables-grid" class="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-4 mb-10"></div>
 
           <div id="table-workspace" class="hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div
-                class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
-              >
+              <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5]">
                 <div class="flex justify-between items-center mb-4">
-                  <h3
-                    class="font-bold text-gray-700 uppercase tracking-wider text-sm"
-                  >
-                    Adicionar ao Pedido
-                  </h3>
+                  <h3 class="font-bold text-gray-700 uppercase tracking-wider text-xs">Adicionar ao Atendimento</h3>
                   <input
                     type="text"
                     id="search-table-product"
                     onkeyup="filterMenuTable()"
-                    placeholder="Buscar no cardápio..."
-                    class="text-xs border rounded-lg px-3 py-1 outline-none focus:ring-1 focus:ring-red-500"
+                    placeholder="Buscar na curadoria..."
+                    class="text-xs border border-[#E8DED5] rounded-xl px-3 py-2 bg-[#F8F5F2] outline-none focus:ring-1 focus:ring-[#9E7960]"
                   />
                 </div>
-                <div
-                  id="table-menu-container"
-                  class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto pr-2"
-                ></div>
+                <div id="table-menu-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto pr-2"></div>
               </div>
 
-              <div
-                class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-red-600 flex flex-col h-fit"
-              >
-                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">
-                  Comanda Atual
-                </h3>
-                <div
-                  id="current-table-items"
-                  class="space-y-3 mb-6 min-h-[100px]"
-                ></div>
-                <div class="border-t pt-4 space-y-2">
-                  <div class="flex justify-between text-gray-500">
+              <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5] border-t-4 border-t-[#9E7960] flex flex-col h-fit">
+                <h3 class="font-bold text-[#26211E] mb-4 border-b border-[#E8DED5] pb-2 text-sm uppercase tracking-wider">Comanda Atual</h3>
+                <div id="current-table-items" class="space-y-3 mb-6 min-h-[100px]"></div>
+                <div class="border-t border-[#E8DED5] pt-4 space-y-2">
+                  <div class="flex justify-between text-gray-500 text-sm">
                     <span>Subtotal</span>
                     <span id="table-subtotal">R$ 0,00</span>
                   </div>
-                  <div
-                    class="flex justify-between text-xl font-black text-gray-800"
-                  >
+                  <div class="flex justify-between text-xl font-bold text-[#26211E]">
                     <span>Total</span>
                     <span id="table-total">R$ 0,00</span>
                   </div>
@@ -507,159 +415,136 @@ body {
 
                 <div id="table-print-actions"></div>
 
-                <div
-                  class="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200"
-                >
+                <div class="mt-4 p-4 bg-[#F8F5F2] rounded-xl border border-[#E8DED5]">
                   <label class="flex items-start gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       id="check-termos"
                       required
-                      class="mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500 transition-all"
+                      class="mt-1 h-4 w-4 text-[#9E7960] border-gray-300 rounded focus:ring-[#9E7960] transition-all"
                     />
                     <span class="text-xs text-gray-600 leading-normal">
                       Li e concordo com os
-                      <button
-                        type="button"
-                        onclick="openLegalModal('termos')"
-                        class="text-red-600 underline font-semibold hover:text-red-700"
-                      >
-                        Termos de Uso
-                      </button>
+                      <button type="button" onclick="openLegalModal('termos')" class="text-[#9E7960] underline font-semibold">Termos</button>
                       e a
-                      <button
-                        type="button"
-                        onclick="openLegalModal('privacidade')"
-                        class="text-red-600 underline font-semibold hover:text-red-700"
-                      >
-                        Política de Privacidade</button
-                      >.
+                      <button type="button" onclick="openLegalModal('privacidade')" class="text-[#9E7960] underline font-semibold">Política</button>.
                     </span>
                   </label>
                 </div>
-                <button
-                  onclick="closeTableAccount()"
-                  class="w-full btn-primary mt-6 py-3 rounded-xl font-bold shadow-lg"
-                >
-                  Fechar e Imprimir
+                <button onclick="closeTableAccount()" class="w-full btn-primary mt-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-md">
+                  Fechar e Imprimir Comanda
                 </button>
-                <button
-                  onclick="cancelTableSelection()"
-                  class="w-full text-gray-400 text-sm mt-3"
-                >
-                  Sair da Mesa
+                <button onclick="cancelTableSelection()" class="w-full text-gray-400 text-xs mt-3 uppercase tracking-wider hover:text-gray-600">
+                  Sair do Atendimento
                 </button>
               </div>
             </div>
           </div>
         </section>
 
-     <section id="section-orders" class="hidden">
-  <header class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-800">Pedidos Recentes</h1>
-  </header>
-
-  <div class="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-wrap gap-4 items-end">
-    <div class="flex-1 min-w-[200px]">
-      <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Nº do Pedido ou Cliente</label>
-      <input
-        type="text"
-        id="filter-order-search"
-        onkeyup="filterOrders()"
-        placeholder="Ex: #4052 ou João..."
-        class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-red-500 text-sm"
-      />
-    </div>
-
-    <div>
-      <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Status do Pedido</label>
-      <select
-        id="filter-order-status"
-        onchange="filterOrders()"
-        class="border rounded-lg p-2 bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-red-500"
-      >
-        <option value="all">Todos os Status</option>
-        <option value="CREATED">Pendentes</option>
-        <option value="PREPARING">Em Preparo</option>
-        <option value="READY">Pronto para Retirada</option>
-        <option value="OUT_FOR_DELIVERY">Saiu para Entrega</option>
-        <option value="DELIVERED">Concluído</option>
-        <option value="CANCELED">Cancelado</option>
-      </select>
-    </div>
-
-    <div>
-      <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Tipo</label>
-      <select
-        id="filter-order-type"
-        onchange="filterOrders()"
-        class="border rounded-lg p-2 bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-red-500"
-      >
-        <option value="all">Todos os Tipos</option>
-        <option value="DELIVERY">Entrega</option>
-        <option value="PICKUP">Retirada</option>
-      </select>
-    </div>
-
-    <div>
-      <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Período</label>
-      <select
-        id="filter-order-period"
-        onchange="toggleCustomDateRange(); filterOrders();"
-        class="border rounded-lg p-2 bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-red-500"
-      >
-        <option value="all">Todo o Histórico</option>
-        <option value="today">Hoje</option>
-        <option value="yesterday">Ontem</option>
-        <option value="7days">Últimos 7 dias</option>
-        <option value="15days">Últimos 15 dias</option>
-        <option value="30days">Últimos 30 dias</option>
-        <option value="custom">Intervalo de Datas...</option>
-      </select>
-    </div>
-
-    <div id="custom-date-container" class="hidden gap-2">
-      <div>
-        <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Início</label>
-        <input
-          type="date"
-          id="filter-order-start-date"
-          onchange="filterOrders()"
-          class="border rounded-lg p-1.5 bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-red-500"
-        />
-      </div>
-      <div>
-        <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Fim</label>
-        <input
-          type="date"
-          id="filter-order-end-date"
-          onchange="filterOrders()"
-          class="border rounded-lg p-1.5 bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-red-500"
-        />
-      </div>
-    </div>
-  </div>
-
-  <div id="orders-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
-</section>
-        
-        <section id="section-dashboard" class="hidden">
+        <!-- Seção Pedidos -->
+        <section id="section-orders" class="hidden">
           <header class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">Desempenho da Loja</h1>
+            <h1 class="text-3xl font-serif font-bold text-[#26211E]">Pedidos Recentes</h1>
           </header>
 
-          <div
-            class="flex flex-wrap gap-4 mb-8 bg-white p-4 rounded-xl shadow-sm items-end"
-          >
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#E8DED5] mb-6 flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Nº do Pedido ou Cliente</label>
+              <input
+                type="text"
+                id="filter-order-search"
+                onkeyup="filterOrders()"
+                placeholder="Ex: #4052 ou Camila..."
+                class="w-full px-4 py-2.5 bg-[#F8F5F2] border border-[#E8DED5] rounded-xl outline-none focus:ring-1 focus:ring-[#9E7960] text-sm"
+              />
+            </div>
+
             <div>
-              <label
-                class="block text-xs font-bold text-gray-500 mb-1 uppercase"
-                >Período</label
+              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Status do Pedido</label>
+              <select
+                id="filter-order-status"
+                onchange="filterOrders()"
+                class="border border-[#E8DED5] rounded-xl p-2.5 bg-[#F8F5F2] text-sm outline-none focus:ring-1 focus:ring-[#9E7960]"
               >
+                <option value="all">Todos os Status</option>
+                <option value="CREATED">Pendentes</option>
+                <option value="PREPARING">Em Preparo</option>
+                <option value="READY">Pronto para Retirada</option>
+                <option value="OUT_FOR_DELIVERY">Saiu para Entrega</option>
+                <option value="DELIVERED">Concluído</option>
+                <option value="CANCELED">Cancelado</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Tipo</label>
+              <select
+                id="filter-order-type"
+                onchange="filterOrders()"
+                class="border border-[#E8DED5] rounded-xl p-2.5 bg-[#F8F5F2] text-sm outline-none focus:ring-1 focus:ring-[#9E7960]"
+              >
+                <option value="all">Todos os Tipos</option>
+                <option value="DELIVERY">Entrega</option>
+                <option value="PICKUP">Retirada</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Período</label>
+              <select
+                id="filter-order-period"
+                onchange="toggleCustomDateRange(); filterOrders();"
+                class="border border-[#E8DED5] rounded-xl p-2.5 bg-[#F8F5F2] text-sm outline-none focus:ring-1 focus:ring-[#9E7960]"
+              >
+                <option value="all">Todo o Histórico</option>
+                <option value="today">Hoje</option>
+                <option value="yesterday">Ontem</option>
+                <option value="7days">Últimos 7 dias</option>
+                <option value="15days">Últimos 15 dias</option>
+                <option value="30days">Últimos 30 dias</option>
+                <option value="custom">Intervalo de Datas...</option>
+              </select>
+            </div>
+
+            <div id="custom-date-container" class="hidden gap-2">
+              <div>
+                <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Início</label>
+                <input
+                  type="date"
+                  id="filter-order-start-date"
+                  onchange="filterOrders()"
+                  class="border border-[#E8DED5] rounded-xl p-2 bg-[#F8F5F2] text-sm outline-none focus:ring-1 focus:ring-[#9E7960]"
+                />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Fim</label>
+                <input
+                  type="date"
+                  id="filter-order-end-date"
+                  onchange="filterOrders()"
+                  class="border border-[#E8DED5] rounded-xl p-2 bg-[#F8F5F2] text-sm outline-none focus:ring-1 focus:ring-[#9E7960]"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div id="orders-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+        </section>
+
+        <!-- Seção Dashboard -->
+        <section id="section-dashboard" class="hidden">
+          <header class="mb-8">
+            <h1 class="text-3xl font-serif font-bold text-[#26211E]">Desempenho da Loja</h1>
+          </header>
+
+          <div class="flex flex-wrap gap-4 mb-8 bg-white p-5 rounded-2xl shadow-sm border border-[#E8DED5] items-end">
+            <div>
+              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Período</label>
               <select
                 id="dash-filter-period"
                 onchange="applyDashFilters()"
-                class="border rounded-lg p-2 bg-gray-50 outline-none focus:ring-2 focus:ring-red-500"
+                class="border border-[#E8DED5] rounded-xl p-2.5 bg-[#F8F5F2] outline-none focus:ring-1 focus:ring-[#9E7960] text-sm"
               >
                 <option value="today">Hoje</option>
                 <option value="yesterday">Ontem</option>
@@ -669,14 +554,11 @@ body {
               </select>
             </div>
             <div>
-              <label
-                class="block text-xs font-bold text-gray-500 mb-1 uppercase"
-                >Método de Pagamento</label
-              >
+              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Método de Pagamento</label>
               <select
                 id="dash-filter-payment"
                 onchange="applyDashFilters()"
-                class="border rounded-lg p-2 bg-gray-50 outline-none focus:ring-2 focus:ring-red-500"
+                class="border border-[#E8DED5] rounded-xl p-2.5 bg-[#F8F5F2] outline-none focus:ring-1 focus:ring-[#9E7960] text-sm"
               >
                 <option value="all">Todos os métodos</option>
                 <option value="PIX">PIX</option>
@@ -686,46 +568,38 @@ body {
             </div>
             <button
               onclick="loadDashboardData()"
-              class="text-sm text-red-600 hover:underline ml-auto"
+              class="text-xs font-bold text-[#9E7960] hover:underline ml-auto uppercase tracking-wider"
             >
-              <i class="fas fa-sync-alt"></i> Atualizar Dados
+              <i class="fas fa-sync-alt mr-1"></i> Atualizar Dados
             </button>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div
-              class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-red-500"
-            >
-              <p class="text-gray-500 text-sm font-medium">Vendas Hoje</p>
-              <h3 id="kpi-vendas" class="text-2xl font-bold">R$ 0,00</h3>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5] border-t-4 border-t-[#9E7960]">
+              <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Vendas Hoje</p>
+              <h3 id="kpi-vendas" class="text-2xl font-bold text-[#26211E] mt-1">R$ 0,00</h3>
             </div>
-            <div
-              class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-blue-500"
-            >
-              <p class="text-gray-500 text-sm font-medium">Pedidos Totais</p>
-              <h3 id="kpi-pedidos" class="text-2xl font-bold">0</h3>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5] border-t-4 border-t-[#26211E]">
+              <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Pedidos Totais</p>
+              <h3 id="kpi-pedidos" class="text-2xl font-bold text-[#26211E] mt-1">0</h3>
             </div>
-            <div
-              class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-green-500"
-            >
-              <p class="text-gray-500 text-sm font-medium">Ticket Médio</p>
-              <h3 id="kpi-ticket" class="text-2xl font-bold">R$ 0,00</h3>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5] border-t-4 border-t-[#C8A99A]">
+              <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Ticket Médio</p>
+              <h3 id="kpi-ticket" class="text-2xl font-bold text-[#26211E] mt-1">R$ 0,00</h3>
             </div>
-            <div
-              class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-yellow-500"
-            >
-              <p class="text-gray-500 text-sm font-medium">Taxa de Entrega</p>
-              <h3 id="kpi-entrega" class="text-2xl font-bold">DELIVERY</h3>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5] border-t-4 border-t-[#E8DED5]">
+              <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Modalidade</p>
+              <h3 id="kpi-entrega" class="text-2xl font-bold text-[#26211E] mt-1">DELIVERY</h3>
             </div>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm">
-              <h4 class="font-bold mb-4">Vendas por Status</h4>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5]">
+              <h4 class="font-serif font-bold text-[#26211E] mb-4">Vendas por Status</h4>
               <canvas id="chartStatus"></canvas>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm">
-              <h4 class="font-bold mb-4">Formas de Pagamento</h4>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5]">
+              <h4 class="font-serif font-bold text-[#26211E] mb-4">Formas de Pagamento</h4>
               <canvas id="chartPayments"></canvas>
             </div>
           </div>
@@ -733,59 +607,35 @@ body {
       </main>
     </div>
 
-    <footer
-      class="w-full bg-white border-t border-gray-100 pt-10 pb-28 mt-auto"
-    >
+    <!-- Rodapé Principal -->
+    <footer class="w-full bg-white border-t border-[#E8DED5] pt-10 pb-10 mt-auto">
       <div class="max-w-md mx-auto px-6">
         <div class="flex flex-col items-center text-center">
-          <div class="grayscale opacity-50 mb-6">
-            <img
-              src="./logoessenzaintimas.png"
-              alt="Pratinhopratudo"
-              class="h-8 w-auto rounded-lg"
-            />
+          <div class="grayscale opacity-65 mb-6">
+            <img src="./logoessenzaintimas.png" alt="Essenza Íntimas" class="h-8 w-auto rounded-lg object-contain" />
           </div>
 
-          <nav
-            class="flex gap-6 mb-8 text-xs font-semibold text-gray-400 uppercase tracking-widest"
-          >
-            <button
-              onclick="openLegalModal('termos')"
-              class="hover:text-red-600 transition-colors uppercase"
-            >
-              Termos
-            </button>
-            <button
-              onclick="openLegalModal('privacidade')"
-              class="hover:text-red-600 transition-colors uppercase"
-            >
-              Privacidade
-            </button>
-            <a href="#" class="hover:text-red-600 transition-colors uppercase"
-              >Ajuda</a
-            >
+          <nav class="flex gap-6 mb-8 text-xs font-semibold text-gray-400 uppercase tracking-widest">
+            <button onclick="openLegalModal('termos')" class="hover:text-[#9E7960] transition-colors">Termos</button>
+            <button onclick="openLegalModal('privacidade')" class="hover:text-[#9E7960] transition-colors">Privacidade</button>
+            <a href="#" class="hover:text-[#9E7960] transition-colors">Ajuda</a>
           </nav>
 
           <div class="space-y-2">
-            <p class="text-sm text-gray-500">
-              © 2026
-              <span class="font-bold text-gray-800">Essenza Intimas</span>.
-              Todos os direitos reservados.
+            <p class="text-sm text-gray-500 font-light">
+              © 2026 <span class="font-bold text-[#26211E]">Essenza Íntimas</span>. Todos os direitos reservados.
             </p>
-            <p class="text-[10px]">
+            <p class="text-[10px] text-gray-400">
               CNPJ: 00.000.000/0001-00 | Rua Mario Studart, 530, Monte Castelo
-
             </p>
-            <div
-              class="flex items-center justify-center gap-2 text-xs text-gray-400"
-            >
+            <div class="flex items-center justify-center gap-2 text-xs text-gray-400 pt-2">
               <span>Desenvolvido com</span>
-              <i class="fas fa-heart text-red-500 animate-pulse"></i>
+              <i class="fas fa-heart text-[#9E7960] animate-pulse"></i>
               <span>por</span>
               <a
                 href="https://wa.me/5588999935987?text=Olá%20Gustavo,%20gostaria%20de%20solicitar%20um%20orçamento!"
                 target="_blank"
-                class="font-bold text-gray-600 hover:text-red-600 transition-all underline underline-offset-4"
+                class="font-bold text-gray-600 hover:text-[#9E7960] transition-all underline underline-offset-4"
               >
                 Gustavo Araújo
               </a>
@@ -801,69 +651,31 @@ body {
       </div>
     </footer>
 
-    <div
-      id="legalModal"
-      class="fixed inset-0 z-[100] hidden items-center justify-center p-4"
-    >
-      <div
-        class="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onclick="closeLegalModal()"
-      ></div>
-
-      <div
-        class="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in duration-200"
-      >
-        <div
-          class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50"
-        >
-          <h2
-            id="modalTitle"
-            class="text-lg font-bold text-gray-800 uppercase tracking-tight text-red-600"
-          >
-            Título
-          </h2>
-          <button
-            onclick="closeLegalModal()"
-            class="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-400 text-xl"
-          >
-            &times;
-          </button>
+    <!-- Modais -->
+    <div id="legalModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeLegalModal()"></div>
+      <div class="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        <div class="px-6 py-4 border-b border-[#E8DED5] flex justify-between items-center bg-[#F8F5F2]">
+          <h2 id="modalTitle" class="text-lg font-serif font-bold text-[#26211E] uppercase tracking-tight">Título</h2>
+          <button onclick="closeLegalModal()" class="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-400 text-xl">&times;</button>
         </div>
-
-        <div
-          id="modalContent"
-          class="p-6 overflow-y-auto text-sm text-gray-600 leading-relaxed space-y-4"
-        ></div>
-
-        <div class="p-4 border-t border-gray-100 bg-white">
-          <button
-            onclick="closeLegalModal()"
-            class="w-full py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors uppercase tracking-widest text-xs"
-          >
+        <div id="modalContent" class="p-6 overflow-y-auto text-sm text-gray-600 leading-relaxed space-y-4"></div>
+        <div class="p-4 border-t border-[#E8DED5] bg-white">
+          <button onclick="closeLegalModal()" class="w-full py-3 bg-[#26211E] text-white font-bold rounded-xl hover:bg-[#9E7960] transition-colors uppercase tracking-widest text-xs">
             Entendido
           </button>
         </div>
       </div>
     </div>
 
-    <div
-      id="printer-modal"
-      class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] flex items-center justify-center p-4"
-    >
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+    <div id="printer-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-[#E8DED5]">
         <div class="flex justify-between items-center mb-6">
           <div>
-            <h2 class="text-xl font-bold text-gray-800">
-              Gerenciar Impressora
-            </h2>
-            <p class="text-xs text-gray-500">
-              Configure o dispositivo térmico do caixa
-            </p>
+            <h2 class="text-xl font-serif font-bold text-[#26211E]">Gerenciar Impressora</h2>
+            <p class="text-xs text-gray-500">Configure o dispositivo térmico do caixa</p>
           </div>
-          <button
-            onclick="closePrinterModal()"
-            class="text-gray-400 hover:text-gray-600 transition"
-          >
+          <button onclick="closePrinterModal()" class="text-gray-400 hover:text-gray-600 transition">
             <i class="fas fa-times text-xl"></i>
           </button>
         </div>
@@ -871,42 +683,25 @@ body {
         <div class="space-y-4">
           <button
             onclick="scanNetworkPrinters()"
-            class="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-dashed border-blue-300 rounded-xl text-sm text-blue-600 bg-blue-50/30 hover:bg-blue-50 transition font-semibold"
+            class="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-dashed border-[#9E7960] rounded-xl text-sm text-[#9E7960] bg-[#F8F5F2] hover:bg-[#E8DED5] transition font-semibold"
           >
-            <i id="scan-icon" class="fas fa-sync-alt"></i> Buscar Impressoras no
-            Wi-Fi
+            <i id="scan-icon" class="fas fa-sync-alt"></i> Buscar Impressoras no Wi-Fi
           </button>
 
-          <div
-            id="printer-list"
-            class="space-y-2 max-h-40 overflow-y-auto pr-1"
-          >
-            <p class="text-center text-xs text-gray-400 py-2">
-              Clique acima para escanear a rede local.
-            </p>
+          <div id="printer-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+            <p class="text-center text-xs text-gray-400 py-2">Clique acima para escanear a rede local.</p>
           </div>
 
-          <hr class="border-gray-100" />
+          <hr class="border-[#E8DED5]" />
 
-          <div
-            id="status-container"
-            class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100"
-          >
+          <div id="status-container" class="flex items-center justify-between p-4 bg-[#F8F5F2] rounded-xl border border-[#E8DED5]">
             <div class="flex items-center gap-3">
-              <div
-                id="status-badge"
-                class="p-3 bg-gray-100 text-gray-400 rounded-lg transition-colors duration-300"
-              >
+              <div id="status-badge" class="p-3 bg-white text-gray-400 rounded-lg transition-colors duration-300">
                 <i class="fas fa-print"></i>
               </div>
               <div>
                 <p class="text-xs text-gray-500">Status do Caixa</p>
-                <p
-                  id="printer-status-text"
-                  class="font-bold text-gray-400 text-sm"
-                >
-                  Desconectada
-                </p>
+                <p id="printer-status-text" class="font-bold text-gray-400 text-sm">Desconectada</p>
               </div>
             </div>
             <button
@@ -919,319 +714,131 @@ body {
             </button>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-gray-100">
-            <p class="text-[10px] font-semibold text-gray-400 uppercase mb-2">
-              Não encontrou? Digite o IP manualmente
-            </p>
+          <div class="mt-4 pt-3 border-t border-[#E8DED5]">
+            <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Não encontrou? Digite o IP manualmente</p>
             <div class="flex gap-2">
               <input
                 type="text"
                 id="manual-printer-ip"
                 placeholder="Ex: 192.168.1.150"
-                class="flex-1 text-xs border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500"
+                class="flex-1 text-xs border border-[#E8DED5] rounded-xl px-3 py-2 bg-[#F8F5F2] focus:outline-none focus:border-[#9E7960]"
               />
-              <button
-                onclick="connectManualPrinter()"
-                class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition"
-              >
+              <button onclick="connectManualPrinter()" class="bg-[#26211E] hover:bg-[#9E7960] text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
                 Conectar
               </button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div class="p-3 border rounded-xl bg-white">
-              <p class="text-xs text-gray-500">Dispositivo</p>
-              <p
-                id="active-printer-name"
-                class="font-semibold text-sm truncate text-gray-400"
-              >
-                Nenhum
-              </p>
-            </div>
-            <div class="p-3 border rounded-xl bg-white">
-              <p class="text-xs text-gray-500">Endereço IP</p>
-              <p
-                id="active-printer-ip"
-                class="font-semibold text-sm text-gray-400"
-              >
-                0.0.0.0
-              </p>
-            </div>
-          </div>
-
-          <div class="p-3 border rounded-xl bg-yellow-50 border-yellow-100">
-            <div class="flex gap-2">
-              <i class="fas fa-info-circle text-yellow-600 mt-0.5 text-sm"></i>
-              <p class="text-xs text-yellow-700 leading-relaxed">
-                Certifique-se de que a impressora está ligada e conectada na
-                mesma rede Wi-Fi deste terminal.
-              </p>
             </div>
           </div>
         </div>
 
         <div class="mt-6 flex gap-3">
-          <button
-            onclick="closePrinterModal()"
-            class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold text-sm transition"
-          >
+          <button onclick="closePrinterModal()" class="flex-1 py-2.5 bg-[#F8F5F2] hover:bg-[#E8DED5] text-gray-600 rounded-xl font-bold text-sm transition">
             Fechar
           </button>
         </div>
       </div>
     </div>
 
-    <div
-      id="admin-table-item-modal"
-      class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-    >
-      <div
-        class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-      >
-        <div
-          id="product-details-content"
-          class="overflow-y-auto p-6 scrollbar-hide"
-        ></div>
-
-        <div class="p-6 border-t bg-gray-50 flex gap-4">
-          <button
-            onclick="closeAdminTableModal()"
-            class="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition"
-          >
-            Cancelar
-          </button>
-          <button
-            id="btn-add-to-table"
-            class="flex-[2] btn-primary py-3 rounded-xl font-bold shadow-lg transform active:scale-95 transition"
-          >
-            ADICIONAR À MESA
+    <div id="admin-table-item-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-[#E8DED5]">
+        <div id="product-details-content" class="overflow-y-auto p-6 scrollbar-hide"></div>
+        <div class="p-6 border-t border-[#E8DED5] bg-[#F8F5F2] flex gap-4">
+          <button onclick="closeAdminTableModal()" class="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-200 rounded-xl transition text-sm">Cancelar</button>
+          <button id="btn-add-to-table" class="flex-[2] btn-primary py-3 rounded-xl font-bold shadow-lg transform active:scale-95 transition text-xs uppercase tracking-wider">
+            Adicionar ao Atendimento
           </button>
         </div>
       </div>
     </div>
 
-    <div
-      id="product-modal"
-      class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-    >
-      <div
-        class="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl overflow-y-auto max-h-[90vh]"
-      >
+    <div id="product-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+      <div class="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl overflow-y-auto max-h-[90vh] border border-[#E8DED5]">
         <input type="hidden" id="prod-id" value="" />
-        <h2 id="modal-title" class="text-2xl font-bold mb-6">
-          Cadastrar no Catalogo Essenza Intimas
-        </h2>
+        <h2 id="modal-title" class="text-2xl font-serif font-bold mb-6 text-[#26211E]">Cadastrar no Catálogo Essenza Íntimas</h2>
 
         <form id="product-form" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div class="col-span-2">
-              <label class="block text-sm font-bold text-gray-700"
-                >Nome do Item</label
-              >
-              <input
-                type="text"
-                id="prod-name"
-                required
-                class="w-full p-2 border rounded"
-              />
+              <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Nome do Item</label>
+              <input type="text" id="prod-name" required class="w-full p-3 bg-[#F8F5F2] border border-[#E8DED5] rounded-xl text-sm outline-none focus:ring-1 focus:ring-[#9E7960]" />
             </div>
             <div class="col-span-2">
-              <label class="block text-sm font-bold text-gray-700"
-                >Descrição</label
-              >
-              <textarea
-                id="prod-description"
-                rows="2"
-                class="w-full p-2 border rounded"
-              ></textarea>
+              <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Descrição</label>
+              <textarea id="prod-description" rows="2" class="w-full p-3 bg-[#F8F5F2] border border-[#E8DED5] rounded-xl text-sm outline-none focus:ring-1 focus:ring-[#9E7960]"></textarea>
             </div>
             <div>
-              <label class="block text-sm font-bold text-gray-700"
-                >Preço Base (R$)</label
-              >
-              <input
-                type="number"
-                step="0.01"
-                id="prod-base-price"
-                required
-                class="w-full p-2 border rounded"
-              />
+              <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Preço Base (R$)</label>
+              <input type="number" step="0.01" id="prod-base-price" required class="w-full p-3 bg-[#F8F5F2] border border-[#E8DED5] rounded-xl text-sm outline-none focus:ring-1 focus:ring-[#9E7960]" />
             </div>
             <div>
-              <label class="block text-sm font-bold text-gray-700"
-                >Categoria (ID)</label
-              >
-              <input
-                type="text"
-                id="prod-cat-id"
-                required
-                class="w-full p-2 border rounded"
-              />
+              <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Categoria (ID)</label>
+              <input type="text" id="prod-cat-id" required class="w-full p-3 bg-[#F8F5F2] border border-[#E8DED5] rounded-xl text-sm outline-none focus:ring-1 focus:ring-[#9E7960]" />
             </div>
             <div class="col-span-2">
-              <label class="block text-sm font-bold text-gray-700"
-                >URL da Imagem</label
-              >
-              <input
-                type="url"
-                id="prod-image"
-                class="w-full p-2 border rounded"
-              />
+              <label class="block text-xs font-bold text-gray-600 uppercase mb-1">URL da Imagem</label>
+              <input type="url" id="prod-image" class="w-full p-3 bg-[#F8F5F2] border border-[#E8DED5] rounded-xl text-sm outline-none focus:ring-1 focus:ring-[#9E7960]" />
             </div>
           </div>
 
-          <hr />
+          <hr class="border-[#E8DED5]" />
 
           <div class="space-y-2">
             <div class="flex justify-between items-center">
-              <h3 class="font-bold text-gray-600">Variações (Tamanhos/SKUs)</h3>
-              <button
-                type="button"
-                onclick="addSkuRow()"
-                class="text-xs bg-gray-200 px-2 py-1 rounded"
-              >
-                + Add SKU
-              </button>
+              <h3 class="font-bold text-gray-700 text-xs uppercase tracking-wider">Variações (Tamanhos/SKUs)</h3>
+              <button type="button" onclick="addSkuRow()" class="text-xs bg-[#E8DED5] px-3 py-1.5 rounded-lg font-semibold text-[#26211E]">+ Add SKU</button>
             </div>
             <div id="skus-container" class="space-y-2"></div>
           </div>
 
-          <hr />
+          <hr class="border-[#E8DED5]" />
 
           <div class="space-y-2">
             <div class="flex justify-between items-center">
-              <h3 class="font-bold text-gray-600">
-                Grupos (Acompanhamento/Proteinas)
-              </h3>
-              <button
-                type="button"
-                onclick="addGroup()"
-                class="bg-gray-800 text-white px-2 py-1 rounded"
-              >
-                + Novo Grupo (Proteína/Acomp)
-              </button>
+              <h3 class="font-bold text-gray-700 text-xs uppercase tracking-wider">Grupos de Adicionais</h3>
+              <button type="button" onclick="addGroup()" class="bg-[#26211E] text-white px-3 py-1.5 rounded-lg text-xs font-semibold">+ Novo Grupo</button>
             </div>
             <div id="modifiers-container" class="space-y-2"></div>
           </div>
 
-          <hr />
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-bold text-gray-700"
-                >Abre às:</label
-              >
-              <input
-                type="time"
-                id="avail-start"
-                value="18:00"
-                class="w-full p-2 border rounded"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-700"
-                >Fecha às:</label
-              >
-              <input
-                type="time"
-                id="avail-end"
-                value="23:00"
-                class="w-full p-2 border rounded"
-              />
-            </div>
-          </div>
-
           <div class="flex justify-end space-x-3 mt-6">
-            <button
-              type="button"
-              onclick="closeModal()"
-              class="px-4 py-2 text-gray-500"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              class="bg-red-600 text-white px-6 py-2 rounded font-bold"
-            >
-              Salvar no Essenza Intimas
+            <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-500 text-sm font-semibold">Cancelar</button>
+            <button type="submit" class="btn-primary px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-md">
+              Salvar Produto
             </button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Bottom Navigation Mobile -->
-    <div
-      class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-100 flex justify-around items-end pb-safe pt-2 px-2 z-[200] shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
-    >
-      <!-- Item Ativo (Exemplo: Pedidos) -->
-      <button
-        onclick="toggleSection('orders')"
-        class="flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-all active:scale-90"
-      >
-        <div class="relative">
-          <i class="fas fa-clipboard-list text-xl text-[#ea1d2c]"></i>
-          <!-- Badge de Alerta para novos pedidos -->
-          <span
-            class="absolute -top-1 -right-2 bg-[#ea1d2c] text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full border-2 border-white font-black"
-            >3</span
-          >
-        </div>
-        <span class="text-[11px] font-bold text-[#ea1d2c]">Pedidos</span>
-      </button>
+    <!-- Script de Controle do Menu Lateral Mobile (Drawer) -->
+    <script>
+      function toggleMobileSidebar() {
+        const sidebar = document.getElementById('app-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const icon = document.getElementById('mobile-menu-icon');
 
-     <!-- Item: Catálogo -->
-<button
-  type="button"
-  onclick="toggleSection('menu')"
-  class="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-gray-400 transition-all active:scale-90"
->
-  <i class="fas fa-store text-xl"></i>
+        const isOpen = sidebar.classList.contains('translate-x-0');
 
-  <span class="text-[11px] font-medium">
-    Catálogo
-  </span>
-</button>
+        if (isOpen) {
+          sidebar.classList.remove('translate-x-0');
+          sidebar.classList.add('-translate-x-full');
+          overlay.classList.add('hidden');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        } else {
+          sidebar.classList.remove('-translate-x-full');
+          sidebar.classList.add('translate-x-0');
+          overlay.classList.remove('hidden');
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        }
+      }
 
-      <!-- Item: Mesas -->
-      <button
-        onclick="toggleSection('tables')"
-        class="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-gray-400 transition-all active:scale-90"
-      >
-        <i class="fas fa-th-large text-xl"></i>
-        <span class="text-[11px] font-medium">Mesas</span>
-      </button>
-
-      <!-- Item: Dashboard -->
-      <button
-        onclick="toggleSection('dashboard')"
-        class="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-gray-400 transition-all active:scale-90"
-      >
-        <i class="fas fa-chart-line text-xl"></i>
-        <span class="text-[11px] font-medium">Dashboard</span>
-      </button>
-
-      <a
-        href="combo.html"
-        class="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-gray-400 transition-all active:scale-90"
-      >
-        <i class="fas fa-box-open text-xl"></i>
-        <span class="text-[11px] font-medium">Combos</span>
-      </a>
-
-      <div
-        class="store-status-box flex-1 flex items-center justify-center"
-      ></div>
-
-      <button
-        onclick="logout()"
-        class="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-gray-400 transition-all active:scale-90"
-      >
-        <i class="fas fa-sign-out-alt text-xl"></i>
-        <span class="text-[11px] font-medium">Sair</span>
-      </button>
-    </div>
+      function closeMobileSidebarOnSelect() {
+        if (window.innerWidth < 768) {
+          toggleMobileSidebar();
+        }
+      }
+    </script>
 
     <script src="./index.js"></script>
   </body>
