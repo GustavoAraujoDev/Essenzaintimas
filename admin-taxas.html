@@ -3,224 +3,182 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Painel EssenzaIntimas | Logística Pro Enterprise</title>
+    <title>Essenza Íntimas — Gestão de Taxas e Logística</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="shortcut icon" href="./logoessenzaintimas.png" type="image/x-icon" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap");
+      :root {
+        --essenza-brown: #26211E;
+        --essenza-taupe: #9E7960;
+        --essenza-offwhite: #F8F5F2;
+        --essenza-champagne: #E8DED5;
+        --essenza-dark: #171311;
+        --essenza-rose: #C8A99A;
+
+        --success: #2F7D4A;
+        --success-bg: #EAF4ED;
+
+        --error: #A64040;
+        --error-bg: #F8EAEA;
+
+        --warning: #A4773C;
+        --warning-bg: #F8F0E3;
+      }
+
       body {
         font-family: "Inter", sans-serif;
+        background-color: var(--essenza-offwhite);
+        color: var(--essenza-brown);
       }
-      .bg-ifood-red {
-        background-color: #ea1d2c;
+
+      .btn-primary {
+        background-color: var(--essenza-brown);
+        color: #FFFFFF;
+        transition: 0.3s ease;
+        border: none;
       }
-      .text-ifood-red {
-        color: #ea1d2c;
-      }
-      .border-ifood-red {
-        border-color: #ea1d2c;
+
+      .btn-primary:hover {
+        background-color: var(--essenza-taupe);
+        color: #FFFFFF;
       }
     </style>
   </head>
-  <body class="bg-gray-50 min-h-screen text-gray-800">
-    <header
-      class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm"
-    >
-      <div
-        class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center"
-      >
+  <body class="min-h-screen text-[#26211E] flex flex-col justify-between">
+    <!-- Cabeçalho -->
+    <header class="bg-white border-b border-[#E8DED5] sticky top-0 z-50 shadow-sm">
+      <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
         <div class="flex items-center gap-3">
-          <div
-            class="w-10 h-10 rounded-xl overflow-hidden border border-gray-100"
-          >
+          <div class="w-10 h-10 rounded-xl overflow-hidden border border-[#E8DED5] bg-[#F8F5F2] flex items-center justify-center">
             <img
               src="./logoessenzaintimas.png"
               alt="Logo"
-              class="w-full h-full object-cover"
-              onerror="this.src = 'https://placehold.co/100x100?text=P'"
+              class="w-full h-full object-contain"
+              onerror="this.src = 'https://placehold.co/100x100?text=E'"
             />
           </div>
           <div>
-            <h1 class="text-xl font-black tracking-tight">
-              Essenza<span class="text-ifood-red">Intimas</span>
-              <span
-                class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-md ml-1"
-                >PRO</span
-              >
-            </h1>
-            <p
-              class="text-[10px] text-gray-400 uppercase font-bold tracking-wider"
-            >
-              Módulo de Logística e Vendas
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl font-serif font-bold tracking-tight text-[#26211E]">
+                Essenza Íntimas
+              </h1>
+              <span class="text-[10px] font-bold bg-[#E8DED5] text-[#9E7960] px-2 py-0.5 rounded-md uppercase tracking-wider">
+                Logística
+              </span>
+            </div>
+            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
+              Módulo de Taxas e Fretes
             </p>
           </div>
         </div>
+        
         <div class="flex items-center gap-3">
+          <a
+            href="./index.html"
+            class="text-xs font-bold text-[#26211E] bg-[#F8F5F2] hover:bg-[#E8DED5] px-3.5 py-2.5 rounded-xl border border-[#E8DED5] transition-all flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-arrow-left text-xs"></i> Voltar ao Painel
+          </a>
           <button
             onclick="exportarRelatorioCSV()"
-            class="text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-xl border border-gray-200 transition-all flex items-center gap-1.5"
+            class="text-xs font-bold text-gray-600 bg-[#F8F5F2] hover:bg-[#E8DED5] px-3.5 py-2.5 rounded-xl border border-[#E8DED5] transition-all flex items-center gap-1.5"
           >
-            <i class="fa-solid fa-file-csv text-base"></i> Exportar Dados
+            <i class="fa-solid fa-file-csv text-base text-[#9E7960]"></i> Exportar Dados
           </button>
-          <div
-            class="text-sm font-semibold text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100 flex items-center gap-1.5"
-          >
-            <span
-              class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"
-            ></span>
-            Servidor Ativo
-          </div>
         </div>
       </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-8">
-      <section
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
-      >
-        <div
-          class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between"
-        >
+    <!-- Conteúdo Principal -->
+    <main class="max-w-6xl mx-auto px-6 py-8 flex-1 w-full">
+      <!-- Seção de KPIs -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white p-5 rounded-2xl border border-[#E8DED5] shadow-sm flex items-center justify-between">
           <div>
-            <span
-              class="text-xs font-bold text-gray-400 uppercase tracking-wider"
-              >Regiões Atendidas</span
-            >
-            <h3
-              id="kpi-total-bairros"
-              class="text-2xl font-black text-gray-900 mt-1"
-            >
-              --
-            </h3>
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Regiões Atendidas</span>
+            <h3 id="kpi-total-bairros" class="text-2xl font-black text-[#26211E] mt-1">--</h3>
           </div>
-          <div
-            class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-ifood-red text-xl"
-          >
+          <div class="w-12 h-12 rounded-xl bg-[#F8F5F2] flex items-center justify-center text-[#9E7960] text-xl">
             <i class="fa-solid fa-map-location-dot"></i>
           </div>
         </div>
-        <div
-          class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between"
-        >
+        <div class="bg-white p-5 rounded-2xl border border-[#E8DED5] shadow-sm flex items-center justify-between">
           <div>
-            <span
-              class="text-xs font-bold text-gray-400 uppercase tracking-wider"
-              >Taxa Média de Entrega</span
-            >
-            <h3
-              id="kpi-taxa-media"
-              class="text-2xl font-black text-gray-900 mt-1"
-            >
-              R$ --
-            </h3>
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Taxa Média de Entrega</span>
+            <h3 id="kpi-taxa-media" class="text-2xl font-black text-[#26211E] mt-1">R$ --</h3>
           </div>
-          <div
-            class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 text-xl"
-          >
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 text-xl">
             <i class="fa-solid fa-hand-holding-dollar"></i>
           </div>
         </div>
-        <div
-          class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between"
-        >
+        <div class="bg-white p-5 rounded-2xl border border-[#E8DED5] shadow-sm flex items-center justify-between">
           <div>
-            <span
-              class="text-xs font-bold text-gray-400 uppercase tracking-wider"
-              >Tempo Médio Global</span
-            >
-            <h3
-              id="kpi-tempo-medio"
-              class="text-2xl font-black text-gray-900 mt-1"
-            >
-              -- <span class="text-xs font-medium text-gray-400">min</span>
-            </h3>
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tempo Médio Global</span>
+            <h3 id="kpi-tempo-medio" class="text-2xl font-black text-[#26211E] mt-1">-- <span class="text-xs font-medium text-gray-400">min</span></h3>
           </div>
-          <div
-            class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl"
-          >
+          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">
             <i class="fa-solid fa-clock"></i>
           </div>
         </div>
-        <div
-          class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between"
-        >
+        <div class="bg-white p-5 rounded-2xl border border-[#E8DED5] shadow-sm flex items-center justify-between">
           <div>
-            <span
-              class="text-xs font-bold text-gray-400 uppercase tracking-wider"
-              >Bloqueios Ativos</span
-            >
-            <h3
-              id="kpi-inativos"
-              class="text-2xl font-black text-gray-900 mt-1"
-            >
-              -- <span class="text-xs font-medium text-gray-400">regiões</span>
-            </h3>
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Bloqueios Ativos</span>
+            <h3 id="kpi-inativos" class="text-2xl font-black text-[#26211E] mt-1">-- <span class="text-xs font-medium text-gray-400">regiões</span></h3>
           </div>
-          <div
-            class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-xl"
-          >
+          <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-xl">
             <i class="fa-solid fa-triangle-exclamation"></i>
           </div>
         </div>
       </section>
 
-      <div
-        class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6"
-      >
+      <!-- Cabeçalho de Ações da Tabela -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h2 class="text-2xl font-black text-gray-900 tracking-tight">
+          <h2 class="text-2xl font-serif font-bold text-[#26211E] tracking-tight">
             Configurações de Vendas & Delivery
           </h2>
           <p class="text-sm text-gray-500">
-            Defina valores de frete, barreiras de pedido mínimo e tempo estimado
-            para proteger seu faturamento.
+            Defina valores de frete, barreiras de pedido mínimo e tempo estimado para proteger seu faturamento.
           </p>
         </div>
-        <div
-          class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto"
-        >
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
           <button
             onclick="alternarStatusGeral(false)"
-            class="bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs px-4 py-3 rounded-xl border border-amber-200 transition-all w-full sm:w-auto flex items-center justify-center gap-2"
+            class="bg-[#F8F0E3] hover:bg-[#E8DED5] text-[#A4773C] font-bold text-xs px-4 py-3 rounded-xl border border-[#E8DED5] transition-all w-full sm:w-auto flex items-center justify-center gap-2"
           >
-            <i class="fa-solid fa-cloud-showers-heavy"></i> Pausar Logística por
-            Chuva
+            <i class="fa-solid fa-cloud-showers-heavy"></i> Pausar Logística por Chuva
           </button>
           <button
             onclick="abrirModalCadastro()"
-            class="bg-ifood-red hover:bg-[#d91a29] text-white font-bold text-sm px-5 py-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2 w-full sm:w-auto justify-center"
+            class="btn-primary hover:bg-[#9E7960] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2 w-full sm:w-auto justify-center"
           >
             <i class="fa-solid fa-plus"></i> Novo Bairro
           </button>
         </div>
       </div>
 
-      <div
-        class="bg-white p-4 rounded-t-2xl border border-b-0 border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between"
-      >
+      <!-- Barra de Filtros e Busca -->
+      <div class="bg-white p-4 rounded-t-2xl border border-b-0 border-[#E8DED5] shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
         <div class="relative w-full md:w-80">
-          <i
-            class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-400 text-sm"
-          ></i>
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-400 text-sm"></i>
           <input
             id="input-busca"
             type="text"
             placeholder="Buscar bairro ou tempo..."
-            class="w-full pl-10 pr-4 py-2.5 border-2 border-gray-100 rounded-xl outline-none focus:border-ifood-red transition-all text-sm"
+            class="w-full pl-10 pr-4 py-2.5 border border-[#E8DED5] rounded-xl outline-none focus:border-[#9E7960] bg-[#F8F5F2] transition-all text-sm"
           />
         </div>
 
-        <div
-          class="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl w-full md:w-auto text-xs font-bold text-gray-600"
-        >
+        <div class="flex items-center gap-1.5 bg-[#F8F5F2] p-1 rounded-xl w-full md:w-auto text-xs font-bold text-gray-600 border border-[#E8DED5]">
           <button
             onclick="filtrarPorAba('todos')"
             id="aba-todos"
-            class="px-3 py-2 rounded-lg bg-white shadow-sm text-gray-900 transition-all"
+            class="px-3 py-2 rounded-lg bg-white shadow-sm text-[#26211E] transition-all"
           >
             Todos
           </button>
@@ -247,23 +205,17 @@
           </button>
         </div>
 
-        <div
-          class="text-xs font-semibold text-gray-400 whitespace-nowrap"
-          id="contador-resultados"
-        >
+        <div class="text-xs font-semibold text-gray-400 whitespace-nowrap" id="contador-resultados">
           Mostrando 0 bairros
         </div>
       </div>
 
-      <div
-        class="bg-white rounded-b-2xl border border-gray-200 shadow-sm overflow-hidden"
-      >
+      <!-- Tabela -->
+      <div class="bg-white rounded-b-2xl border border-[#E8DED5] shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr
-                class="bg-gray-50/70 border-b border-gray-200 text-xs font-black text-gray-400 uppercase tracking-widest"
-              >
+              <tr class="bg-[#F8F5F2] border-b border-[#E8DED5] text-xs font-black text-gray-500 uppercase tracking-widest">
                 <th class="px-6 py-4">Bairro</th>
                 <th class="px-6 py-4">Taxa do Frete</th>
                 <th class="px-6 py-4">Pedido Mínimo</th>
@@ -272,18 +224,10 @@
                 <th class="px-6 py-4 text-right">Ações</th>
               </tr>
             </thead>
-            <tbody
-              id="lista-taxas-body"
-              class="divide-y divide-gray-100 text-sm"
-            >
+            <tbody id="lista-taxas-body" class="divide-y divide-[#E8DED5] text-sm">
               <tr>
-                <td
-                  colspan="6"
-                  class="px-6 py-12 text-center text-gray-400 font-medium"
-                >
-                  <i
-                    class="fa-solid fa-spinner animate-spin text-xl text-ifood-red mb-2 block"
-                  ></i>
+                <td colspan="6" class="px-6 py-12 text-center text-gray-400 font-medium">
+                  <i class="fa-solid fa-spinner animate-spin text-xl text-[#9E7960] mb-2 block"></i>
                   Carregando inteligência comercial...
                 </td>
               </tr>
@@ -292,6 +236,11 @@
         </div>
       </div>
     </main>
+
+    <!-- Rodapé Discreto -->
+    <footer class="w-full bg-white border-t border-[#E8DED5] py-6 text-center text-xs text-gray-400">
+      <p>© 2026 <span class="font-bold text-[#26211E]">Essenza Íntimas</span>. Todos os direitos reservados.</p>
+    </footer>
 
     <script src="./admin-taxasjs.js"></script>
   </body>
