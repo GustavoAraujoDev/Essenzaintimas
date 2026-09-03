@@ -3595,3 +3595,1926 @@ async function lancarAbatimentoParcialMesa() {
     });
   }
 }
+
+
+/* ============================================================
+   ESSENZA ÍNTIMAS
+   DASHBOARD ESTRATÉGICO — MOTOR LOCAL
+   Rotas existentes utilizadas:
+   GET /products
+   GET /pedidos
+   GET /cupom/admin/coupons
+   GET /taxas
+   Nenhuma rota nova é necessária.
+   ============================================================ */
+/* ============================================================
+   CONFIGURAÇÃO
+   ============================================================ */
+const DASH_API_BASE =
+  "https://essenzaintimasapi.onrender.com";
+const DASH_ROUTES = {
+  products: `${DASH_API_BASE}/products`,
+  orders: `${DASH_API_BASE}/pedidos`,
+  coupons: `${DASH_API_BASE}/cupom/admin/coupons`,
+  taxes: `${DASH_API_BASE}/taxas`,
+};
+/* ============================================================
+   ESTADO LOCAL
+   ============================================================ */
+const strategicDashboardState = {
+  products: [],
+  orders: [],
+  coupons: [],
+  taxes: [],
+  filteredOrders: [],
+  charts: {},
+  autoRefresh: true,
+  refreshInterval: null,
+  loading: false,
+  initialized: false,
+};
+/* ============================================================
+   CONFIGURAÇÃO DE STATUS
+   ============================================================ */
+const DASH_STATUS = {
+  completed: [
+    "DELIVERED",
+    "COMPLETED",
+    "DONE",
+    "FINALIZADO",
+    "ENTREGUE",
+  ],
+  cancelled: [
+    "CANCELLED",
+    "CANCELED",
+    "CANCELADO",
+  ],
+  pending: [
+    "PENDING",
+    "WAITING",
+    "AGUARDANDO",
+    "NOVO",
+    "RECEIVED",
+    "RECEBIDO",
+  ],
+};
+/* ============================================================
+   FORMATADORES
+   ============================================================ */
+function dashMoney(value) {
+  const number = Number(value) || 0;
+  return number.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+function dashNumber(value) {
+  return Number(value || 0).toLocaleString("pt-BR");
+}
+function dashPercent(value) {
+  return `${Number(value || 0).toFixed(1).replace(".", ",")}%`;
+}
+function dashNormalize(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toUpperCase();
+}
+/* ============================================================
+   HELPERS DOM
+   ============================================================ */
+function dashEl(id) {
+  return document.getElementById(id);
+}
+function dashSetText(id, value) {
+  const element = dashEl(id);
+  if (element) {
+    element.innerText = value;
+  }
+}
+/* ============================================================
+   NORMALIZAÇÃO DE RESPOSTA DA API
+   ============================================================ */
+function dashExtractArray(data) {
+  if (Array.isArray(data)) {
+    return data;
+  }
+  if (Array.isArray(data?.data)) {
+    return data.data;
+  }
+  if (Array.isArray(data?.items)) {
+    return data.items;
+  }
+  if (Array.isArray(data?.orders)) {
+    return data.orders;
+  }
+  if (Array.isArray(data?.products)) {
+    return data.products;
+  }
+  if (Array.isArray(data?.coupons)) {
+    return data.coupons;
+  }
+  return [];
+}
+/* ============================================================
+   FETCH SEGURO
+   ============================================================ */
+async function dashFetchArray(url) {
+  const response = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Erro ${response.status} ao acessar ${url}`
+    );
+  }
+  const data = await response.json();
+  return dashExtractArray(data);
+}
+/* ============================================================
+   DATA
+   ============================================================ */
+function dashGetOrderDate(order) {
+  const value =
+    order?.createdAt ||
+    order?.created_at ||
+    order?.date ||
+    order?.data ||
+    order?.created ||
+    order?.timestamp;
+  if (!value) {
+    return null;
+  }
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? null
+    : date;
+}
+/* ============================================================
+   TOTAL DO PEDIDO
+   ============================================================ */
+function dashGetOrderTotal(order) {
+  const values = [
+    order?.pagamento?.total,
+    order?.payment?.total,
+    order?.total,
+    order?.totalPrice,
+    order?.grandTotal,
+    order?.valorTotal,
+    order?.amount,
+  ];
+  for (const value of values) {
+    const number = Number(value);
+    if (Number.isFinite(number)) {
+      return number;
+    }
+  }
+  return 0;
+}
+/* ============================================================
+   MÉTODO DE PAGAMENTO
+   ============================================================ */
+function dashGetPaymentMethod(order) {
+  return dashNormalize(
+    order?.pagamento?.metodo ||
+    order?.pagamento?.method ||
+    order?.payment?.method ||
+    order?.paymentMethod ||
+    order?.metodoPagamento ||
+    "OUTROS"
+  );
+}
+/* ============================================================
+   STATUS
+   ============================================================ */
+function dashGetStatus(order) {
+  return dashNormalize(
+    order?.status ||
+    order?.orderStatus ||
+    order?.situacao ||
+    "UNKNOWN"
+  );
+}
+/* ============================================================
+   TIPO DE ENTREGA
+   ============================================================ */
+function dashGetDeliveryType(order) {
+  return dashNormalize(
+    order?.deliveryType ||
+    order?.deliveryMode ||
+    order?.tipoEntrega ||
+    order?.modalidade ||
+    order?.tipo ||
+    order?.entrega?.tipo ||
+    "OUTROS"
+  );
+}
+/* ============================================================
+   CLIENTE
+   ============================================================ */
+function dashGetCustomerKey(order) {
+  const phone =
+    order?.customer?.phone ||
+    order?.cliente?.telefone ||
+    order?.customerPhone ||
+    order?.phone ||
+    order?.telefone ||
+    order?.customer?.telephone ||
+    order?.cliente?.phone;
+  if (phone) {
+    return String(phone)
+      .replace(/\D/g, "");
+  }
+  const name =
+    order?.customer?.name ||
+    order?.cliente?.nome ||
+    order?.customerName ||
+    order?.nomeCliente ||
+    order?.nome;
+  if (name) {
+    return dashNormalize(name);
+  }
+  return null;
+}
+/* ============================================================
+   NOME DO CLIENTE
+   ============================================================ */
+function dashGetCustomerName(order) {
+  return (
+    order?.customer?.name ||
+    order?.cliente?.nome ||
+    order?.customerName ||
+    order?.nomeCliente ||
+    order?.nome ||
+    "Cliente"
+  );
+}
+/* ============================================================
+   ITENS DO PEDIDO
+   ============================================================ */
+function dashGetOrderItems(order) {
+  const items =
+    order?.items ||
+    order?.itens ||
+    order?.products ||
+    order?.produtos ||
+    order?.cart ||
+    order?.cartItems ||
+    [];
+  return Array.isArray(items)
+    ? items
+    : [];
+}
+/* ============================================================
+   NOME DO PRODUTO
+   ============================================================ */
+function dashGetItemName(item) {
+  return (
+    item?.name ||
+    item?.nome ||
+    item?.productName ||
+    item?.produto?.name ||
+    item?.produto?.nome ||
+    "Produto sem nome"
+  );
+}
+/* ============================================================
+   QUANTIDADE DO ITEM
+   ============================================================ */
+function dashGetItemQuantity(item) {
+  const quantity = Number(
+    item?.quantity ??
+    item?.qty ??
+    item?.quantidade ??
+    item?.qtd ??
+    1
+  );
+  return quantity > 0 ? quantity : 1;
+}
+/* ============================================================
+   CATEGORIA DO ITEM
+   ============================================================ */
+function dashGetItemCategory(item) {
+  return (
+    item?.category ||
+    item?.categoria ||
+    item?.product?.category ||
+    item?.produto?.category ||
+    item?.produto?.categoria ||
+    "Sem categoria"
+  );
+}
+/* ============================================================
+   CUPOM DO PEDIDO
+   ============================================================ */
+function dashGetOrderCoupon(order) {
+  return (
+    order?.coupon ||
+    order?.cupom ||
+    order?.couponCode ||
+    order?.codigoCupom ||
+    order?.discount?.coupon ||
+    null
+  );
+}
+/* ============================================================
+   DESCONTO DO PEDIDO
+   ============================================================ */
+function dashGetOrderDiscount(order) {
+  const values = [
+    order?.discount,
+    order?.discountValue,
+    order?.desconto,
+    order?.descontoValor,
+    order?.couponDiscount,
+    order?.pagamento?.desconto,
+  ];
+  for (const value of values) {
+    const number = Number(value);
+    if (Number.isFinite(number)) {
+      return number;
+    }
+  }
+  return 0;
+}
+/* ============================================================
+   STATUS CONCLUÍDO
+   ============================================================ */
+function dashIsCompleted(order) {
+  return DASH_STATUS.completed.includes(
+    dashGetStatus(order)
+  );
+}
+/* ============================================================
+   STATUS CANCELADO
+   ============================================================ */
+function dashIsCancelled(order) {
+  return DASH_STATUS.cancelled.includes(
+    dashGetStatus(order)
+  );
+}
+/* ============================================================
+   INTERVALO DO FILTRO
+   ============================================================ */
+function dashGetPeriodRange() {
+  const period =
+    dashEl("dash-filter-period")?.value || "7days";
+  const now = new Date();
+  let start = null;
+  let end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+  if (period === "today") {
+    start = new Date(now);
+    start.setHours(0, 0, 0, 0);
+  }
+  else if (period === "yesterday") {
+    start = new Date(now);
+    start.setDate(start.getDate() - 1);
+    start.setHours(0, 0, 0, 0);
+    end = new Date(start);
+    end.setHours(23, 59, 59, 999);
+  }
+  else if (period === "7days") {
+    start = new Date(now);
+    start.setDate(start.getDate() - 6);
+    start.setHours(0, 0, 0, 0);
+  }
+  else if (period === "30days") {
+    start = new Date(now);
+    start.setDate(start.getDate() - 29);
+    start.setHours(0, 0, 0, 0);
+  }
+  else if (period === "90days") {
+    start = new Date(now);
+    start.setDate(start.getDate() - 89);
+    start.setHours(0, 0, 0, 0);
+  }
+  else if (period === "custom") {
+    const startValue =
+      dashEl("dash-start-date")?.value;
+    const endValue =
+      dashEl("dash-end-date")?.value;
+    if (startValue) {
+      start = new Date(
+        `${startValue}T00:00:00`
+      );
+    }
+    if (endValue) {
+      end = new Date(
+        `${endValue}T23:59:59`
+      );
+    }
+  }
+  return {
+    start,
+    end,
+    period,
+  };
+}
+/* ============================================================
+   FILTRO PRINCIPAL
+   ============================================================ */
+function applyStrategicDashboardFilters() {
+  const {
+    start,
+    end,
+  } = dashGetPeriodRange();
+  const payment =
+    dashNormalize(
+      dashEl("dash-filter-payment")?.value || "all"
+    );
+  const status =
+    dashNormalize(
+      dashEl("dash-filter-status")?.value || "all"
+    );
+  const deliveryType =
+    dashNormalize(
+      dashEl("dash-filter-type")?.value || "all"
+    );
+  strategicDashboardState.filteredOrders =
+    strategicDashboardState.orders.filter(order => {
+      const orderDate =
+        dashGetOrderDate(order);
+      if (!orderDate) {
+        return false;
+      }
+      if (start && orderDate < start) {
+        return false;
+      }
+      if (end && orderDate > end) {
+        return false;
+      }
+      const orderPayment =
+        dashGetPaymentMethod(order);
+      if (
+        payment !== "ALL" &&
+        orderPayment !== payment
+      ) {
+        return false;
+      }
+      const orderStatus =
+        dashGetStatus(order);
+      if (
+        status !== "ALL" &&
+        orderStatus !== status
+      ) {
+        return false;
+      }
+      const orderType =
+        dashGetDeliveryType(order);
+      if (
+        deliveryType !== "ALL" &&
+        orderType !== deliveryType
+      ) {
+        return false;
+      }
+      return true;
+    });
+  renderStrategicDashboard(
+    strategicDashboardState.filteredOrders
+  );
+}
+/* ============================================================
+   COMPARAÇÃO COM PERÍODO ANTERIOR
+   ============================================================ */
+function dashGetPreviousPeriodOrders() {
+  const {
+    start,
+    end,
+  } = dashGetPeriodRange();
+  if (!start || !end) {
+    return [];
+  }
+  const duration =
+    end.getTime() - start.getTime();
+  const previousEnd =
+    new Date(start.getTime() - 1);
+  const previousStart =
+    new Date(previousEnd.getTime() - duration);
+  return strategicDashboardState.orders.filter(order => {
+    const date =
+      dashGetOrderDate(order);
+    if (!date) {
+      return false;
+    }
+    return (
+      date >= previousStart &&
+      date <= previousEnd
+    );
+  });
+}
+/* ============================================================
+   CÁLCULO PRINCIPAL
+   ============================================================ */
+function calculateStrategicMetrics(orders) {
+  const completed =
+    orders.filter(dashIsCompleted);
+  const cancelled =
+    orders.filter(dashIsCancelled);
+  const pending =
+    orders.filter(order => {
+      const status =
+        dashGetStatus(order);
+      return (
+        !dashIsCompleted(order) &&
+        !dashIsCancelled(order) &&
+        (
+          DASH_STATUS.pending.includes(status) ||
+          true
+        )
+      );
+    });
+  const revenue =
+    completed.reduce(
+      (total, order) =>
+        total + dashGetOrderTotal(order),
+      0
+    );
+  const ticket =
+    completed.length > 0
+      ? revenue / completed.length
+      : 0;
+  const customers =
+    new Map();
+  orders.forEach(order => {
+    const key =
+      dashGetCustomerKey(order);
+    if (!key) {
+      return;
+    }
+    if (!customers.has(key)) {
+      customers.set(key, {
+        name: dashGetCustomerName(order),
+        orders: 0,
+      });
+    }
+    customers.get(key).orders++;
+  });
+  const uniqueCustomers =
+    customers.size;
+  const recurringCustomers =
+    [...customers.values()]
+      .filter(customer => customer.orders > 1)
+      .length;
+  const newCustomers =
+    [...customers.values()]
+      .filter(customer => customer.orders === 1)
+      .length;
+  const delivery = orders.filter(order => {
+    return dashGetDeliveryType(order) === "DELIVERY";
+  }).length;
+  const pickup = orders.filter(order => {
+    const type =
+      dashGetDeliveryType(order);
+    return (
+      type === "PICKUP" ||
+      type === "RETIRADA"
+    );
+  }).length;
+  const cancelledRate =
+    orders.length > 0
+      ? (cancelled.length / orders.length) * 100
+      : 0;
+  const completionRate =
+    orders.length > 0
+      ? (completed.length / orders.length) * 100
+      : 0;
+  return {
+    revenue,
+    totalOrders: orders.length,
+    completedOrders: completed.length,
+    cancelledOrders: cancelled.length,
+    pendingOrders: pending.length,
+    ticket,
+    uniqueCustomers,
+    recurringCustomers,
+    newCustomers,
+    delivery,
+    pickup,
+    cancelledRate,
+    completionRate,
+  };
+}
+/* ============================================================
+   KPI
+   ============================================================ */
+function renderStrategicKPIs(metrics) {
+  dashSetText(
+    "kpi-vendas",
+    dashMoney(metrics.revenue)
+  );
+  dashSetText(
+    "kpi-pedidos",
+    dashNumber(metrics.totalOrders)
+  );
+  dashSetText(
+    "kpi-ticket",
+    dashMoney(metrics.ticket)
+  );
+  dashSetText(
+    "kpi-clientes",
+    dashNumber(metrics.uniqueCustomers)
+  );
+  dashSetText(
+    "kpi-pedidos-sub",
+    `${dashNumber(metrics.completedOrders)} concluídos`
+  );
+  dashSetText(
+    "kpi-clientes-sub",
+    `${dashNumber(metrics.recurringCustomers)} recorrentes`
+  );
+  dashSetText(
+    "kpi-pendentes",
+    dashNumber(metrics.pendingOrders)
+  );
+  dashSetText(
+    "kpi-entregues",
+    dashNumber(metrics.completedOrders)
+  );
+  dashSetText(
+    "kpi-cancelados",
+    dashNumber(metrics.cancelledOrders)
+  );
+  dashSetText(
+    "kpi-conversao",
+    dashPercent(metrics.completionRate)
+  );
+  dashSetText(
+    "dash-clientes-unicos",
+    dashNumber(metrics.uniqueCustomers)
+  );
+  dashSetText(
+    "dash-clientes-novos",
+    dashNumber(metrics.newCustomers)
+  );
+  dashSetText(
+    "dash-clientes-recorrentes",
+    dashNumber(metrics.recurringCustomers)
+  );
+  const ordersPerCustomer =
+    metrics.uniqueCustomers > 0
+      ? metrics.totalOrders / metrics.uniqueCustomers
+      : 0;
+  dashSetText(
+    "dash-pedidos-cliente",
+    ordersPerCustomer
+      .toFixed(2)
+      .replace(".", ",")
+  );
+}
+/* ============================================================
+   COMPARAÇÃO
+   ============================================================ */
+function renderPeriodComparison(
+  currentMetrics,
+  previousOrders
+) {
+  const previousCompleted =
+    previousOrders.filter(dashIsCompleted);
+  const previousRevenue =
+    previousCompleted.reduce(
+      (total, order) =>
+        total + dashGetOrderTotal(order),
+      0
+    );
+  if (previousRevenue <= 0) {
+    dashSetText(
+      "kpi-vendas-comparison",
+      "Sem período anterior para comparar"
+    );
+    return;
+  }
+  const growth =
+    (
+      (
+        currentMetrics.revenue -
+        previousRevenue
+      ) /
+      previousRevenue
+    ) * 100;
+  const arrow =
+    growth >= 0
+      ? "↑"
+      : "↓";
+  const color =
+    growth >= 0
+      ? "text-emerald-600"
+      : "text-red-600";
+  const element =
+    dashEl("kpi-vendas-comparison");
+  if (element) {
+    element.className =
+      `text-[11px] mt-2 font-semibold ${color}`;
+    element.innerText =
+      `${arrow} ${Math.abs(growth).toFixed(1).replace(".", ",")}% vs período anterior`;
+  }
+  const badge =
+    dashEl("dash-growth-badge");
+  if (badge) {
+    badge.innerHTML = `
+      <i class="fa-solid ${
+        growth >= 0
+          ? "fa-arrow-trend-up"
+          : "fa-arrow-trend-down"
+      }"></i>
+      ${
+        growth >= 0
+          ? "Crescimento"
+          : "Queda"
+      } ${Math.abs(growth).toFixed(1).replace(".", ",")}%
+    `;
+  }
+}
+/* ============================================================
+   TOP PRODUTOS
+   ============================================================ */
+function calculateTopProducts(orders) {
+  const ranking =
+    new Map();
+  orders.forEach(order => {
+    if (dashIsCancelled(order)) {
+      return;
+    }
+    const items =
+      dashGetOrderItems(order);
+    items.forEach(item => {
+      const name =
+        dashGetItemName(item);
+      const quantity =
+        dashGetItemQuantity(item);
+      const existing =
+        ranking.get(name) || {
+          name,
+          quantity: 0,
+          revenue: 0,
+          category: dashGetItemCategory(item),
+        };
+      const unitPrice =
+        Number(
+          item?.unitPrice ??
+          item?.price ??
+          item?.preco ??
+          item?.valorUnitario ??
+          0
+        );
+      existing.quantity += quantity;
+      existing.revenue +=
+        unitPrice * quantity;
+      ranking.set(
+        name,
+        existing
+      );
+    });
+  });
+  return [...ranking.values()]
+    .sort(
+      (a, b) =>
+        b.quantity - a.quantity
+    )
+    .slice(0, 5);
+}
+/* ============================================================
+   RENDER TOP PRODUTOS
+   ============================================================ */
+function renderTopProducts(orders) {
+  const container =
+    dashEl("dash-top-products");
+  if (!container) {
+    return;
+  }
+  const products =
+    calculateTopProducts(orders);
+  if (!products.length) {
+    container.innerHTML = `
+      <div class="text-center py-8 text-gray-400 text-sm">
+        Nenhum produto encontrado no período.
+      </div>
+    `;
+    return;
+  }
+  container.innerHTML =
+    products.map((product, index) => {
+      const position =
+        index + 1;
+      const medal =
+        position === 1
+          ? "🥇"
+          : position === 2
+          ? "🥈"
+          : position === 3
+          ? "🥉"
+          : `#${position}`;
+      return `
+        <div
+          class="flex items-center gap-3 p-3
+                 rounded-xl bg-[#F8F5F2]
+                 border border-[#E8DED5]"
+        >
+          <div
+            class="w-9 h-9 rounded-lg bg-white
+                   flex items-center justify-center
+                   text-sm font-bold text-[#9E7960]"
+          >
+            ${medal}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p
+              class="font-semibold text-sm text-[#26211E]
+                     truncate"
+            >
+              ${dashEscape(product.name)}
+            </p>
+            <p class="text-[10px] text-gray-400 mt-0.5">
+              ${dashEscape(product.category)}
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-sm text-[#26211E]">
+              ${dashNumber(product.quantity)}
+            </p>
+            <p class="text-[10px] text-gray-400">
+              vendas
+            </p>
+          </div>
+        </div>
+      `;
+    }).join("");
+}
+/* ============================================================
+   CATEGORIAS
+   ============================================================ */
+function calculateCategories(orders) {
+  const categories =
+    new Map();
+  orders.forEach(order => {
+    if (dashIsCancelled(order)) {
+      return;
+    }
+    dashGetOrderItems(order)
+      .forEach(item => {
+        const category =
+          dashGetItemCategory(item);
+        const quantity =
+          dashGetItemQuantity(item);
+        categories.set(
+          category,
+          (
+            categories.get(category) || 0
+          ) + quantity
+        );
+      });
+  });
+  return [...categories.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+}
+/* ============================================================
+   EVOLUÇÃO DAS VENDAS
+   ============================================================ */
+function calculateSalesEvolution(orders) {
+  const {
+    start,
+    end,
+    period,
+  } = dashGetPeriodRange();
+  const grouped =
+    new Map();
+  const source =
+    orders.filter(dashIsCompleted);
+  source.forEach(order => {
+    const date =
+      dashGetOrderDate(order);
+    if (!date) {
+      return;
+    }
+    const key =
+      date.toLocaleDateString(
+        "pt-BR",
+        {
+          day: "2-digit",
+          month: "2-digit",
+        }
+      );
+    const iso =
+      `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}-${String(
+        date.getDate()
+      ).padStart(2, "0")}`;
+    const current =
+      grouped.get(iso) || {
+        label: key,
+        sales: 0,
+        orders: 0,
+      };
+    current.sales +=
+      dashGetOrderTotal(order);
+    current.orders++;
+    grouped.set(
+      iso,
+      current
+    );
+  });
+  return [...grouped.entries()]
+    .sort((a, b) =>
+      a[0].localeCompare(b[0])
+    )
+    .map(entry => entry[1]);
+}
+/* ============================================================
+   GRÁFICOS
+   ============================================================ */
+function destroyDashChart(name) {
+  if (
+    strategicDashboardState.charts[name]
+  ) {
+    strategicDashboardState
+      .charts[name]
+      .destroy();
+    delete strategicDashboardState
+      .charts[name];
+  }
+}
+/* ============================================================
+   GRÁFICO EVOLUÇÃO
+   ============================================================ */
+function renderSalesEvolutionChart(orders) {
+  const canvas =
+    dashEl("chartSalesEvolution");
+  if (!canvas) {
+    return;
+  }
+  destroyDashChart(
+    "salesEvolution"
+  );
+  const data =
+    calculateSalesEvolution(orders);
+  strategicDashboardState
+    .charts
+    .salesEvolution =
+    new Chart(
+      canvas.getContext("2d"),
+      {
+        type: "line",
+        data: {
+          labels:
+            data.map(item => item.label),
+          datasets: [
+            {
+              label: "Faturamento",
+              data:
+                data.map(item => item.sales),
+              borderColor: "#9E7960",
+              backgroundColor:
+                "rgba(158,121,96,0.10)",
+              fill: true,
+              tension: 0.35,
+              pointRadius: 3,
+              pointHoverRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: "index",
+          },
+          plugins: {
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              callbacks: {
+                label: context =>
+                  dashMoney(
+                    context.raw
+                  ),
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: value =>
+                  dashMoney(value),
+              },
+            },
+            x: {
+              grid: {
+                display: false,
+              },
+            },
+          },
+        },
+      }
+    );
+}
+/* ============================================================
+   GRÁFICO CATEGORIAS
+   ============================================================ */
+function renderCategoriesChart(orders) {
+  const canvas =
+    dashEl("chartCategories");
+  if (!canvas) {
+    return;
+  }
+  destroyDashChart(
+    "categories"
+  );
+  const data =
+    calculateCategories(orders);
+  strategicDashboardState
+    .charts
+    .categories =
+    new Chart(
+      canvas.getContext("2d"),
+      {
+        type: "doughnut",
+        data: {
+          labels:
+            data.map(item => item[0]),
+          datasets: [
+            {
+              data:
+                data.map(item => item[1]),
+              backgroundColor: [
+                "#9E7960",
+                "#C8A99A",
+                "#E8DED5",
+                "#26211E",
+                "#B89B87",
+                "#D8C6BA",
+              ],
+              borderWidth: 2,
+              borderColor: "#ffffff",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "65%",
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                usePointStyle: true,
+                padding: 15,
+              },
+            },
+          },
+        },
+      }
+    );
+}
+/* ============================================================
+   PAGAMENTOS
+   ============================================================ */
+function renderPaymentsChart(orders) {
+  const canvas =
+    dashEl("chartPayments");
+  if (!canvas) {
+    return;
+  }
+  destroyDashChart(
+    "payments"
+  );
+  const counts =
+    {};
+  orders.forEach(order => {
+    const method =
+      dashGetPaymentMethod(order);
+    counts[method] =
+      (counts[method] || 0) + 1;
+  });
+  const labels =
+    Object.keys(counts);
+  strategicDashboardState
+    .charts
+    .payments =
+    new Chart(
+      canvas.getContext("2d"),
+      {
+        type: "doughnut",
+        data: {
+          labels,
+          datasets: [
+            {
+              data:
+                Object.values(counts),
+              backgroundColor: [
+                "#9E7960",
+                "#26211E",
+                "#C8A99A",
+                "#E8DED5",
+                "#B89B87",
+              ],
+              borderWidth: 2,
+              borderColor: "#fff",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "60%",
+          plugins: {
+            legend: {
+              position: "bottom",
+            },
+          },
+        },
+      }
+    );
+}
+/* ============================================================
+   STATUS
+   ============================================================ */
+function renderStatusChart(orders) {
+  const canvas =
+    dashEl("chartStatus");
+  if (!canvas) {
+    return;
+  }
+  destroyDashChart(
+    "status"
+  );
+  const counts =
+    {};
+  orders.forEach(order => {
+    const status =
+      dashGetStatus(order);
+    counts[status] =
+      (counts[status] || 0) + 1;
+  });
+  strategicDashboardState
+    .charts
+    .status =
+    new Chart(
+      canvas.getContext("2d"),
+      {
+        type: "bar",
+        data: {
+          labels:
+            Object.keys(counts),
+          datasets: [
+            {
+              label: "Pedidos",
+              data:
+                Object.values(counts),
+              backgroundColor:
+                "#9E7960",
+              borderRadius: 8,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0,
+              },
+            },
+            x: {
+              grid: {
+                display: false,
+              },
+            },
+          },
+        },
+      }
+    );
+}
+/* ============================================================
+   DELIVERY
+   ============================================================ */
+function renderDeliveryChart(orders) {
+  const canvas =
+    dashEl("chartDelivery");
+  if (!canvas) {
+    return;
+  }
+  destroyDashChart(
+    "delivery"
+  );
+  let delivery = 0;
+  let pickup = 0;
+  let other = 0;
+  orders.forEach(order => {
+    const type =
+      dashGetDeliveryType(order);
+    if (type === "DELIVERY") {
+      delivery++;
+    }
+    else if (
+      type === "PICKUP" ||
+      type === "RETIRADA"
+    ) {
+      pickup++;
+    }
+    else {
+      other++;
+    }
+  });
+  strategicDashboardState
+    .charts
+    .delivery =
+    new Chart(
+      canvas.getContext("2d"),
+      {
+        type: "doughnut",
+        data: {
+          labels: [
+            "Delivery",
+            "Retirada",
+            "Outros",
+          ],
+          datasets: [
+            {
+              data: [
+                delivery,
+                pickup,
+                other,
+              ],
+              backgroundColor: [
+                "#9E7960",
+                "#26211E",
+                "#E8DED5",
+              ],
+              borderWidth: 2,
+              borderColor: "#fff",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "62%",
+          plugins: {
+            legend: {
+              position: "bottom",
+            },
+          },
+        },
+      }
+    );
+}
+/* ============================================================
+   ESTOQUE
+   ============================================================ */
+function getProductStock(product) {
+  const directValues = [
+    product?.stock,
+    product?.estoque,
+    product?.quantity,
+    product?.quantidade,
+    product?.availableStock,
+    product?.estoqueAtual,
+  ];
+  for (const value of directValues) {
+    if (
+      value !== undefined &&
+      value !== null &&
+      Number.isFinite(Number(value))
+    ) {
+      return Number(value);
+    }
+  }
+  const skus =
+    product?.skus ||
+    product?.variants ||
+    product?.variacoes ||
+    [];
+  if (Array.isArray(skus)) {
+    return skus.reduce(
+      (total, sku) => {
+        return total +
+          Number(
+            sku?.stock ??
+            sku?.estoque ??
+            sku?.quantity ??
+            0
+          );
+      },
+      0
+    );
+  }
+  return 0;
+}
+/* ============================================================
+   ESTOQUE
+   ============================================================ */
+function renderStockMetrics() {
+  const products =
+    strategicDashboardState.products;
+  let available = 0;
+  let low = 0;
+  let zero = 0;
+  products.forEach(product => {
+    const stock =
+      getProductStock(product);
+    if (stock <= 0) {
+      zero++;
+    }
+    else if (stock <= 5) {
+      low++;
+    }
+    else {
+      available++;
+    }
+  });
+  dashSetText(
+    "dash-stock-products",
+    dashNumber(products.length)
+  );
+  dashSetText(
+    "dash-stock-available",
+    dashNumber(available)
+  );
+  dashSetText(
+    "dash-stock-low",
+    dashNumber(low)
+  );
+  dashSetText(
+    "dash-stock-zero",
+    dashNumber(zero)
+  );
+}
+/* ============================================================
+   CUPONS
+   ============================================================ */
+function renderCouponMetrics(orders) {
+  const coupons =
+    strategicDashboardState.coupons;
+  const active =
+    coupons.filter(
+      coupon =>
+        coupon?.isActive === true
+    );
+  const couponOrders =
+    orders.filter(order =>
+      Boolean(
+        dashGetOrderCoupon(order)
+      )
+    );
+  const discount =
+    orders.reduce(
+      (total, order) =>
+        total +
+        dashGetOrderDiscount(order),
+      0
+    );
+  dashSetText(
+    "dash-cupons-total",
+    dashNumber(coupons.length)
+  );
+  dashSetText(
+    "dash-cupons-ativos",
+    dashNumber(active.length)
+  );
+  dashSetText(
+    "dash-cupons-pedidos",
+    dashNumber(couponOrders.length)
+  );
+  dashSetText(
+    "dash-desconto-total",
+    dashMoney(discount)
+  );
+}
+/* ============================================================
+   ALERTAS
+   ============================================================ */
+function renderAlerts(metrics) {
+  const container =
+    dashEl("dash-alerts");
+  if (!container) {
+    return;
+  }
+  const alerts = [];
+  if (
+    metrics.pendingOrders >= 5
+  ) {
+    alerts.push({
+      icon: "fa-clock",
+      title: "Pedidos aguardando atenção",
+      text:
+        `${metrics.pendingOrders} pedido(s) ainda estão em aberto.`,
+      type: "warning",
+    });
+  }
+  if (
+    metrics.cancelledRate >= 10
+  ) {
+    alerts.push({
+      icon: "fa-circle-xmark",
+      title: "Cancelamentos elevados",
+      text:
+        `A taxa de cancelamento está em ${dashPercent(metrics.cancelledRate)}.`,
+      type: "danger",
+    });
+  }
+  const lowStock =
+    strategicDashboardState.products
+      .filter(product =>
+        getProductStock(product) <= 5
+      ).length;
+  if (lowStock > 0) {
+    alerts.push({
+      icon: "fa-box-open",
+      title: "Estoque requer atenção",
+      text:
+        `${lowStock} produto(s) estão com estoque baixo ou zerado.`,
+      type: "warning",
+    });
+  }
+  if (!alerts.length) {
+    container.innerHTML = `
+      <div
+        class="p-4 rounded-xl bg-emerald-50
+               border border-emerald-100
+               text-emerald-700 text-sm"
+      >
+        <i class="fa-solid fa-circle-check mr-2"></i>
+        Operação sem alertas críticos no momento.
+      </div>
+    `;
+    return;
+  }
+  container.innerHTML =
+    alerts.map(alert => {
+      const style =
+        alert.type === "danger"
+          ? "bg-red-50 border-red-100 text-red-700"
+          : "bg-amber-50 border-amber-100 text-amber-700";
+      return `
+        <div
+          class="p-4 rounded-xl border ${style}"
+        >
+          <div class="flex items-start gap-3">
+            <i class="fa-solid ${alert.icon} mt-0.5"></i>
+            <div>
+              <p class="font-bold text-sm">
+                ${dashEscape(alert.title)}
+              </p>
+              <p class="text-xs mt-1 opacity-80">
+                ${dashEscape(alert.text)}
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+}
+/* ============================================================
+   INSIGHTS ESTRATÉGICOS
+   ============================================================ */
+function renderInsights(
+  metrics,
+  previousOrders
+) {
+  const container =
+    dashEl("dash-insights");
+  if (!container) {
+    return;
+  }
+  const insights = [];
+  if (metrics.ticket > 0) {
+    insights.push(
+      `Seu ticket médio no período está em <strong>${dashMoney(metrics.ticket)}</strong>.`
+    );
+  }
+  if (
+    metrics.recurringCustomers >
+    metrics.newCustomers
+  ) {
+    insights.push(
+      `A base recorrente está maior que a base de compradores de primeira compra.`
+    );
+  }
+  else if (
+    metrics.newCustomers >
+    metrics.recurringCustomers
+  ) {
+    insights.push(
+      `O período trouxe mais compradores novos do que recorrentes.`
+    );
+  }
+  if (
+    metrics.delivery >
+    metrics.pickup
+  ) {
+    insights.push(
+      `Delivery representa a principal modalidade operacional da loja.`
+    );
+  }
+  if (
+    metrics.cancelledRate > 0
+  ) {
+    insights.push(
+      `A taxa de cancelamento atual é de <strong>${dashPercent(metrics.cancelledRate)}</strong>.`
+    );
+  }
+  if (
+    previousOrders.length > 0
+  ) {
+    const previousCompleted =
+      previousOrders.filter(
+        dashIsCompleted
+      );
+    const previousRevenue =
+      previousCompleted.reduce(
+        (total, order) =>
+          total +
+          dashGetOrderTotal(order),
+        0
+      );
+    if (
+      previousRevenue > 0
+    ) {
+      const growth =
+        (
+          (
+            metrics.revenue -
+            previousRevenue
+          ) /
+          previousRevenue
+        ) * 100;
+      insights.push(
+        growth >= 0
+          ? `O faturamento está <strong>${dashPercent(growth)}</strong> acima do período anterior.`
+          : `O faturamento está <strong>${dashPercent(Math.abs(growth))}</strong> abaixo do período anterior.`
+      );
+    }
+  }
+  if (!insights.length) {
+    insights.push(
+      "Continue registrando pedidos para gerar análises estratégicas mais completas."
+    );
+  }
+  container.innerHTML =
+    insights
+      .slice(0, 5)
+      .map(text => `
+        <div
+          class="flex gap-3 p-3 rounded-xl
+                 bg-white/5 border border-white/10"
+        >
+          <span class="text-[#E8DED5] mt-0.5">
+            <i class="fa-solid fa-angle-right"></i>
+          </span>
+          <p class="text-xs text-white/70 leading-relaxed">
+            ${text}
+          </p>
+        </div>
+      `)
+      .join("");
+}
+/* ============================================================
+   ESCAPE HTML
+   ============================================================ */
+function dashEscape(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+/* ============================================================
+   RENDER PRINCIPAL
+   ============================================================ */
+function renderStrategicDashboard(
+  orders
+) {
+  const metrics =
+    calculateStrategicMetrics(
+      orders
+    );
+  const previousOrders =
+    dashGetPreviousPeriodOrders();
+  renderStrategicKPIs(
+    metrics
+  );
+  renderPeriodComparison(
+    metrics,
+    previousOrders
+  );
+  renderTopProducts(
+    orders
+  );
+  renderCategoriesChart(
+    orders
+  );
+  renderSalesEvolutionChart(
+    orders
+  );
+  renderPaymentsChart(
+    orders
+  );
+  renderStatusChart(
+    orders
+  );
+  renderDeliveryChart(
+    orders
+  );
+  renderStockMetrics();
+  renderCouponMetrics(
+    orders
+  );
+  renderAlerts(
+    metrics
+  );
+  renderInsights(
+    metrics,
+    previousOrders
+  );
+  strategicDashboardState
+    .initialized = true;
+}
+/* ============================================================
+   CARREGAMENTO DOS DADOS
+   ============================================================ */
+async function loadStrategicDashboard(
+  forceRefresh = false
+) {
+  if (
+    strategicDashboardState.loading
+  ) {
+    return;
+  }
+  strategicDashboardState.loading =
+    true;
+  updateDashboardLoadingState(
+    true
+  );
+  try {
+    const [
+      products,
+      orders,
+      coupons,
+      taxes,
+    ] = await Promise.all([
+      dashFetchArray(
+        DASH_ROUTES.products
+      ),
+      dashFetchArray(
+        DASH_ROUTES.orders
+      ),
+      dashFetchArray(
+        DASH_ROUTES.coupons
+      ).catch(() => []),
+      dashFetchArray(
+        DASH_ROUTES.taxes
+      ).catch(() => []),
+    ]);
+    strategicDashboardState.products =
+      products;
+    strategicDashboardState.orders =
+      orders;
+    strategicDashboardState.coupons =
+      coupons;
+    strategicDashboardState.taxes =
+      taxes;
+    strategicDashboardState
+      .filteredOrders =
+      orders;
+    applyStrategicDashboardFilters();
+    const now =
+      new Date();
+    dashSetText(
+      "dash-last-update",
+      `Atualizado às ${now.toLocaleTimeString(
+        "pt-BR",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      )}`
+    );
+    const dot =
+      dashEl("dash-status-dot");
+    if (dot) {
+      dot.className =
+        "w-1.5 h-1.5 rounded-full bg-emerald-500";
+    }
+    if (
+      forceRefresh &&
+      typeof Toast !== "undefined"
+    ) {
+      Toast.fire({
+        icon: "success",
+        title: "Dashboard atualizado",
+      });
+    }
+  }
+  catch (error) {
+    console.error(
+      "❌ Dashboard estratégico:",
+      error
+    );
+    const dot =
+      dashEl("dash-status-dot");
+    if (dot) {
+      dot.className =
+        "w-1.5 h-1.5 rounded-full bg-red-500";
+    }
+    dashSetText(
+      "dash-last-update",
+      "Falha ao atualizar"
+    );
+    if (
+      forceRefresh
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Não foi possível atualizar",
+        html: `
+          <div class="text-left text-sm">
+            <p class="mb-3">
+              O dashboard não conseguiu carregar
+              os dados da API.
+            </p>
+            <div
+              class="bg-gray-50 rounded-xl p-3
+                     border border-gray-200"
+            >
+              <strong>Erro:</strong><br>
+              ${dashEscape(error.message)}
+            </div>
+          </div>
+        `,
+        confirmButtonColor:
+          "#9E7960",
+      });
+    }
+  }
+  finally {
+    strategicDashboardState.loading =
+      false;
+    updateDashboardLoadingState(
+      false
+    );
+  }
+}
+/* ============================================================
+   LOADING
+   ============================================================ */
+function updateDashboardLoadingState(
+  loading
+) {
+  const button =
+    document.getElementById(
+      "dash-auto-refresh-btn"
+    );
+  if (
+    loading &&
+    button
+  ) {
+    button.classList.add(
+      "opacity-60"
+    );
+  }
+  else if (button) {
+    button.classList.remove(
+      "opacity-60"
+    );
+  }
+}
+/* ============================================================
+   AUTO REFRESH
+   ============================================================ */
+function startDashboardAutoRefresh() {
+  clearInterval(
+    strategicDashboardState
+      .refreshInterval
+  );
+  if (
+    !strategicDashboardState
+      .autoRefresh
+  ) {
+    return;
+  }
+  strategicDashboardState
+    .refreshInterval =
+    setInterval(
+      () => {
+        loadStrategicDashboard(
+          false
+        );
+      },
+      120000
+    );
+}
+/* ============================================================
+   LIGA/DESLIGA AUTO
+   ============================================================ */
+function toggleDashboardAutoRefresh() {
+  strategicDashboardState
+    .autoRefresh =
+    !strategicDashboardState
+      .autoRefresh;
+  const button =
+    dashEl(
+      "dash-auto-refresh-btn"
+    );
+  if (button) {
+    button.innerHTML =
+      strategicDashboardState.autoRefresh
+        ? `
+          <i class="fa-solid fa-rotate"></i>
+          <span>Auto ON</span>
+        `
+        : `
+          <i class="fa-solid fa-pause"></i>
+          <span>Auto OFF</span>
+        `;
+  }
+  startDashboardAutoRefresh();
+}
+/* ============================================================
+   MOSTRAR DASHBOARD
+   ============================================================ */
+function initStrategicDashboard() {
+  if (
+    !document.getElementById(
+      "section-dashboard"
+    )
+  ) {
+    return;
+  }
+  const period =
+    dashEl(
+      "dash-filter-period"
+    );
+  if (period) {
+    period.addEventListener(
+      "change",
+      () => {
+        const custom =
+          dashEl(
+            "dash-custom-dates"
+          );
+        if (
+          period.value === "custom"
+        ) {
+          custom?.classList.remove(
+            "hidden"
+          );
+          custom?.classList.add(
+            "flex"
+          );
+        }
+        else {
+          custom?.classList.add(
+            "hidden"
+          );
+          custom?.classList.remove(
+            "flex"
+          );
+        }
+      }
+    );
+  }
+  loadStrategicDashboard(
+    false
+  );
+  startDashboardAutoRefresh();
+}
+/* ============================================================
+   INICIALIZAÇÃO
+   ============================================================ */
+if (
+  document.readyState === "loading"
+) {
+  document.addEventListener(
+    "DOMContentLoaded",
+    initStrategicDashboard
+  );
+}
+else {
+  initStrategicDashboard();
+}
+/* ============================================================
+   INTEGRAÇÃO COM SUA NAVEGAÇÃO EXISTENTE
+   Se seu toggleSection("dashboard") já existe,
+   você pode chamar:
+   initStrategicDashboard();
+   ao abrir a aba.
+   A função é segura para ser chamada novamente.
+   ============================================================ */
