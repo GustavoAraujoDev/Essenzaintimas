@@ -539,78 +539,681 @@
           <div id="orders-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
         </section>
 
-        <!-- Seção Dashboard -->
-        <section id="section-dashboard" class="hidden">
-          <header class="mb-8">
-            <h1 class="text-3xl font-serif font-bold text-[#26211E]">Desempenho da Loja</h1>
-          </header>
-
-          <div class="flex flex-wrap gap-4 mb-8 bg-white p-5 rounded-2xl shadow-sm border border-[#E8DED5] items-end">
-            <div>
-              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Período</label>
-              <select
-                id="dash-filter-period"
-                onchange="applyDashFilters()"
-                class="border border-[#E8DED5] rounded-xl p-2.5 bg-[#F8F5F2] outline-none focus:ring-1 focus:ring-[#9E7960] text-sm"
-              >
-                <option value="today">Hoje</option>
-                <option value="yesterday">Ontem</option>
-                <option value="7days" selected>Últimos 7 dias</option>
-                <option value="30days">Últimos 30 dias</option>
-                <option value="all">Todo o período</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-[10px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Método de Pagamento</label>
-              <select
-                id="dash-filter-payment"
-                onchange="applyDashFilters()"
-                class="border border-[#E8DED5] rounded-xl p-2.5 bg-[#F8F5F2] outline-none focus:ring-1 focus:ring-[#9E7960] text-sm"
-              >
-                <option value="all">Todos os métodos</option>
-                <option value="PIX">PIX</option>
-                <option value="CREDIT_CARD">Cartão de Crédito</option>
-                <option value="CASH">Dinheiro</option>
-              </select>
-            </div>
-            <button
-              onclick="loadDashboardData()"
-              class="text-xs font-bold text-[#9E7960] hover:underline ml-auto uppercase tracking-wider"
-            >
-              <i class="fas fa-sync-alt mr-1"></i> Atualizar Dados
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5] border-t-4 border-t-[#9E7960]">
-              <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Vendas Hoje</p>
-              <h3 id="kpi-vendas" class="text-2xl font-bold text-[#26211E] mt-1">R$ 0,00</h3>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5] border-t-4 border-t-[#26211E]">
-              <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Pedidos Totais</p>
-              <h3 id="kpi-pedidos" class="text-2xl font-bold text-[#26211E] mt-1">0</h3>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5] border-t-4 border-t-[#C8A99A]">
-              <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Ticket Médio</p>
-              <h3 id="kpi-ticket" class="text-2xl font-bold text-[#26211E] mt-1">R$ 0,00</h3>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5] border-t-4 border-t-[#E8DED5]">
-              <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Modalidade</p>
-              <h3 id="kpi-entrega" class="text-2xl font-bold text-[#26211E] mt-1">DELIVERY</h3>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5]">
-              <h4 class="font-serif font-bold text-[#26211E] mb-4">Vendas por Status</h4>
-              <canvas id="chartStatus"></canvas>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DED5]">
-              <h4 class="font-serif font-bold text-[#26211E] mb-4">Formas de Pagamento</h4>
-              <canvas id="chartPayments"></canvas>
-            </div>
-          </div>
-        </section>
+       <!-- ============================================================
+     ESSENZA ÍNTIMAS — DASHBOARD ESTRATÉGICO
+     Dados calculados LOCALMENTE usando as APIs existentes
+     ============================================================ -->
+<section id="section-dashboard" class="hidden">
+  <!-- ==========================================================
+       HEADER
+       ========================================================== -->
+  <header class="mb-8">
+    <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5">
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full
+                   bg-[#F8F5F2] border border-[#E8DED5]
+                   text-[10px] font-bold uppercase tracking-[0.18em]
+                   text-[#9E7960]"
+          >
+            <span
+              id="dash-status-dot"
+              class="w-1.5 h-1.5 rounded-full bg-emerald-500"
+            ></span>
+            Gestão inteligente
+          </span>
+          <span
+            id="dash-last-update"
+            class="text-[10px] text-gray-400"
+          >
+            Aguardando dados...
+          </span>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-serif font-bold text-[#26211E]">
+          Desempenho da Loja
+        </h1>
+        <p class="text-sm text-gray-500 mt-2">
+          Visão estratégica das vendas, clientes, produtos e operação.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onclick="toggleDashboardAutoRefresh()"
+          id="dash-auto-refresh-btn"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl
+                 border border-[#E8DED5] bg-white text-xs font-bold
+                 text-[#26211E] hover:bg-[#F8F5F2] transition"
+        >
+          <i class="fa-solid fa-rotate"></i>
+          <span>Auto</span>
+        </button>
+        <button
+          type="button"
+          onclick="loadStrategicDashboard(true)"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl
+                 bg-[#26211E] text-white text-xs font-bold
+                 hover:bg-[#171311] transition shadow-sm"
+        >
+          <i class="fa-solid fa-arrows-rotate"></i>
+          Atualizar
+        </button>
+      </div>
+    </div>
+  </header>
+  <!-- ==========================================================
+       FILTROS
+       ========================================================== -->
+  <div
+    class="bg-white p-5 rounded-2xl shadow-sm
+           border border-[#E8DED5] mb-8"
+  >
+    <div class="flex flex-col lg:flex-row lg:items-end gap-4">
+      <!-- Período -->
+      <div class="min-w-[180px]">
+        <label
+          class="block text-[10px] font-bold text-gray-400
+                 mb-1.5 uppercase tracking-wider"
+        >
+          Período
+        </label>
+        <select
+          id="dash-filter-period"
+          onchange="applyStrategicDashboardFilters()"
+          class="w-full border border-[#E8DED5] rounded-xl p-3
+                 bg-[#F8F5F2] outline-none
+                 focus:ring-1 focus:ring-[#9E7960]
+                 text-sm text-[#26211E]"
+        >
+          <option value="today">Hoje</option>
+          <option value="yesterday">Ontem</option>
+          <option value="7days" selected>Últimos 7 dias</option>
+          <option value="30days">Últimos 30 dias</option>
+          <option value="90days">Últimos 90 dias</option>
+          <option value="all">Todo o período</option>
+          <option value="custom">Período personalizado</option>
+        </select>
+      </div>
+      <!-- Pagamento -->
+      <div class="min-w-[190px]">
+        <label
+          class="block text-[10px] font-bold text-gray-400
+                 mb-1.5 uppercase tracking-wider"
+        >
+          Pagamento
+        </label>
+        <select
+          id="dash-filter-payment"
+          onchange="applyStrategicDashboardFilters()"
+          class="w-full border border-[#E8DED5] rounded-xl p-3
+                 bg-[#F8F5F2] outline-none
+                 focus:ring-1 focus:ring-[#9E7960]
+                 text-sm text-[#26211E]"
+        >
+          <option value="all">Todos os métodos</option>
+          <option value="PIX">PIX</option>
+          <option value="CREDIT_CARD">Cartão de crédito</option>
+          <option value="DEBIT_CARD">Cartão de débito</option>
+          <option value="CASH">Dinheiro</option>
+        </select>
+      </div>
+      <!-- Status -->
+      <div class="min-w-[180px]">
+        <label
+          class="block text-[10px] font-bold text-gray-400
+                 mb-1.5 uppercase tracking-wider"
+        >
+          Status
+        </label>
+        <select
+          id="dash-filter-status"
+          onchange="applyStrategicDashboardFilters()"
+          class="w-full border border-[#E8DED5] rounded-xl p-3
+                 bg-[#F8F5F2] outline-none
+                 focus:ring-1 focus:ring-[#9E7960]
+                 text-sm text-[#26211E]"
+        >
+          <option value="all">Todos os status</option>
+          <option value="PENDING">Pendente</option>
+          <option value="CONFIRMED">Confirmado</option>
+          <option value="PREPARING">Preparando</option>
+          <option value="READY">Pronto</option>
+          <option value="OUT_FOR_DELIVERY">Saiu para entrega</option>
+          <option value="DELIVERED">Entregue</option>
+          <option value="CANCELLED">Cancelado</option>
+        </select>
+      </div>
+      <!-- Tipo -->
+      <div class="min-w-[180px]">
+        <label
+          class="block text-[10px] font-bold text-gray-400
+                 mb-1.5 uppercase tracking-wider"
+        >
+          Modalidade
+        </label>
+        <select
+          id="dash-filter-type"
+          onchange="applyStrategicDashboardFilters()"
+          class="w-full border border-[#E8DED5] rounded-xl p-3
+                 bg-[#F8F5F2] outline-none
+                 focus:ring-1 focus:ring-[#9E7960]
+                 text-sm text-[#26211E]"
+        >
+          <option value="all">Todas</option>
+          <option value="DELIVERY">Delivery</option>
+          <option value="PICKUP">Retirada</option>
+        </select>
+      </div>
+      <!-- Datas -->
+      <div
+        id="dash-custom-dates"
+        class="hidden flex-wrap items-end gap-3"
+      >
+        <div>
+          <label
+            class="block text-[10px] font-bold text-gray-400
+                   mb-1.5 uppercase tracking-wider"
+          >
+            De
+          </label>
+          <input
+            type="date"
+            id="dash-start-date"
+            onchange="applyStrategicDashboardFilters()"
+            class="border border-[#E8DED5] rounded-xl p-3
+                   bg-[#F8F5F2] text-sm outline-none"
+          >
+        </div>
+        <div>
+          <label
+            class="block text-[10px] font-bold text-gray-400
+                   mb-1.5 uppercase tracking-wider"
+          >
+            Até
+          </label>
+          <input
+            type="date"
+            id="dash-end-date"
+            onchange="applyStrategicDashboardFilters()"
+            class="border border-[#E8DED5] rounded-xl p-3
+                   bg-[#F8F5F2] text-sm outline-none"
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ==========================================================
+       KPI PRINCIPAIS
+       ========================================================== -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+    <!-- Faturamento -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5] relative overflow-hidden"
+    >
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+            Faturamento
+          </p>
+          <h3
+            id="kpi-vendas"
+            class="text-2xl font-bold text-[#26211E] mt-2"
+          >
+            R$ 0,00
+          </h3>
+          <p
+            id="kpi-vendas-comparison"
+            class="text-[11px] mt-2 text-gray-400"
+          >
+            Sem comparação
+          </p>
+        </div>
+        <div
+          class="w-10 h-10 rounded-xl bg-[#F8F5F2]
+                 flex items-center justify-center text-[#9E7960]"
+        >
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+      </div>
+    </div>
+    <!-- Pedidos -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+            Pedidos
+          </p>
+          <h3
+            id="kpi-pedidos"
+            class="text-2xl font-bold text-[#26211E] mt-2"
+          >
+            0
+          </h3>
+          <p
+            id="kpi-pedidos-sub"
+            class="text-[11px] mt-2 text-gray-400"
+          >
+            0 concluídos
+          </p>
+        </div>
+        <div
+          class="w-10 h-10 rounded-xl bg-[#F8F5F2]
+                 flex items-center justify-center text-[#26211E]"
+        >
+          <i class="fa-solid fa-bag-shopping"></i>
+        </div>
+      </div>
+    </div>
+    <!-- Ticket -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+            Ticket Médio
+          </p>
+          <h3
+            id="kpi-ticket"
+            class="text-2xl font-bold text-[#26211E] mt-2"
+          >
+            R$ 0,00
+          </h3>
+          <p class="text-[11px] mt-2 text-gray-400">
+            Por pedido concluído
+          </p>
+        </div>
+        <div
+          class="w-10 h-10 rounded-xl bg-[#F8F5F2]
+                 flex items-center justify-center text-[#C8A99A]"
+        >
+          <i class="fa-solid fa-receipt"></i>
+        </div>
+      </div>
+    </div>
+    <!-- Clientes -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+            Clientes
+          </p>
+          <h3
+            id="kpi-clientes"
+            class="text-2xl font-bold text-[#26211E] mt-2"
+          >
+            0
+          </h3>
+          <p
+            id="kpi-clientes-sub"
+            class="text-[11px] mt-2 text-gray-400"
+          >
+            0 recorrentes
+          </p>
+        </div>
+        <div
+          class="w-10 h-10 rounded-xl bg-[#F8F5F2]
+                 flex items-center justify-center text-[#9E7960]"
+        >
+          <i class="fa-solid fa-users"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ==========================================================
+       INDICADORES OPERACIONAIS
+       ========================================================== -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white border border-[#E8DED5] rounded-2xl p-5">
+      <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400">
+        Em aberto
+      </p>
+      <p id="kpi-pendentes" class="text-xl font-bold text-amber-600 mt-1">
+        0
+      </p>
+    </div>
+    <div class="bg-white border border-[#E8DED5] rounded-2xl p-5">
+      <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400">
+        Entregues
+      </p>
+      <p id="kpi-entregues" class="text-xl font-bold text-emerald-600 mt-1">
+        0
+      </p>
+    </div>
+    <div class="bg-white border border-[#E8DED5] rounded-2xl p-5">
+      <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400">
+        Cancelados
+      </p>
+      <p id="kpi-cancelados" class="text-xl font-bold text-red-600 mt-1">
+        0
+      </p>
+    </div>
+    <div class="bg-white border border-[#E8DED5] rounded-2xl p-5">
+      <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400">
+        Conversão operacional
+      </p>
+      <p id="kpi-conversao" class="text-xl font-bold text-[#26211E] mt-1">
+        0%
+      </p>
+    </div>
+  </div>
+  <!-- ==========================================================
+       GRÁFICO PRINCIPAL
+       ========================================================== -->
+  <div
+    class="bg-white p-6 rounded-2xl shadow-sm
+           border border-[#E8DED5] mb-8"
+  >
+    <div class="flex flex-col sm:flex-row sm:items-center
+                sm:justify-between gap-3 mb-5">
+      <div>
+        <h4 class="font-serif font-bold text-lg text-[#26211E]">
+          Evolução das vendas
+        </h4>
+        <p class="text-xs text-gray-400 mt-1">
+          Faturamento e volume de pedidos no período selecionado.
+        </p>
+      </div>
+      <div
+        id="dash-growth-badge"
+        class="inline-flex items-center gap-2
+               px-3 py-1.5 rounded-full
+               bg-[#F8F5F2] text-[#9E7960]
+               text-[10px] font-bold"
+      >
+        <i class="fa-solid fa-chart-line"></i>
+        Análise do período
+      </div>
+    </div>
+    <div class="h-[320px]">
+      <canvas id="chartSalesEvolution"></canvas>
+    </div>
+  </div>
+  <!-- ==========================================================
+       PRODUTOS + CATEGORIAS
+       ========================================================== -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Mais vendidos -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h4 class="font-serif font-bold text-lg text-[#26211E]">
+            Produtos mais vendidos
+          </h4>
+          <p class="text-xs text-gray-400 mt-1">
+            Ranking baseado nos pedidos do período.
+          </p>
+        </div>
+        <i class="fa-solid fa-trophy text-[#9E7960]"></i>
+      </div>
+      <div id="dash-top-products" class="space-y-3">
+        <div class="text-center py-8 text-gray-400 text-sm">
+          Carregando...
+        </div>
+      </div>
+    </div>
+    <!-- Categorias -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <div class="mb-5">
+        <h4 class="font-serif font-bold text-lg text-[#26211E]">
+          Desempenho por categoria
+        </h4>
+        <p class="text-xs text-gray-400 mt-1">
+          Participação das categorias nas vendas.
+        </p>
+      </div>
+      <div class="h-[260px]">
+        <canvas id="chartCategories"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- ==========================================================
+       PAGAMENTOS + STATUS + ENTREGA
+       ========================================================== -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+    <!-- Pagamentos -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <h4 class="font-serif font-bold text-[#26211E] mb-1">
+        Formas de pagamento
+      </h4>
+      <p class="text-xs text-gray-400 mb-4">
+        Distribuição dos pedidos.
+      </p>
+      <div class="h-[230px]">
+        <canvas id="chartPayments"></canvas>
+      </div>
+    </div>
+    <!-- Status -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <h4 class="font-serif font-bold text-[#26211E] mb-1">
+        Status dos pedidos
+      </h4>
+      <p class="text-xs text-gray-400 mb-4">
+        Situação operacional atual.
+      </p>
+      <div class="h-[230px]">
+        <canvas id="chartStatus"></canvas>
+      </div>
+    </div>
+    <!-- Entrega -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <h4 class="font-serif font-bold text-[#26211E] mb-1">
+        Modalidade
+      </h4>
+      <p class="text-xs text-gray-400 mb-4">
+        Delivery x retirada.
+      </p>
+      <div class="h-[230px]">
+        <canvas id="chartDelivery"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- ==========================================================
+       CLIENTES + CUPONS + ESTOQUE
+       ========================================================== -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+    <!-- Clientes -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h4 class="font-serif font-bold text-[#26211E]">
+            Relacionamento
+          </h4>
+          <p class="text-xs text-gray-400 mt-1">
+            Perfil dos compradores.
+          </p>
+        </div>
+        <i class="fa-solid fa-users text-[#9E7960]"></i>
+      </div>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Clientes únicos</span>
+          <strong id="dash-clientes-unicos" class="text-[#26211E]">0</strong>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Novos</span>
+          <strong id="dash-clientes-novos" class="text-emerald-600">0</strong>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Recorrentes</span>
+          <strong id="dash-clientes-recorrentes" class="text-[#9E7960]">0</strong>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Pedidos por cliente</span>
+          <strong id="dash-pedidos-cliente" class="text-[#26211E]">0,00</strong>
+        </div>
+      </div>
+    </div>
+    <!-- Cupons -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h4 class="font-serif font-bold text-[#26211E]">
+            Cupons
+          </h4>
+          <p class="text-xs text-gray-400 mt-1">
+            Situação da campanha promocional.
+          </p>
+        </div>
+        <i class="fa-solid fa-ticket text-[#C8A99A]"></i>
+      </div>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Cupons cadastrados</span>
+          <strong id="dash-cupons-total" class="text-[#26211E]">0</strong>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Cupons ativos</span>
+          <strong id="dash-cupons-ativos" class="text-emerald-600">0</strong>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Pedidos com cupom</span>
+          <strong id="dash-cupons-pedidos" class="text-[#9E7960]">0</strong>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Desconto estimado</span>
+          <strong id="dash-desconto-total" class="text-[#26211E]">R$ 0,00</strong>
+        </div>
+      </div>
+    </div>
+    <!-- Estoque -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h4 class="font-serif font-bold text-[#26211E]">
+            Saúde do estoque
+          </h4>
+          <p class="text-xs text-gray-400 mt-1">
+            Visão do catálogo atual.
+          </p>
+        </div>
+        <i class="fa-solid fa-boxes-stacked text-[#9E7960]"></i>
+      </div>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Produtos</span>
+          <strong id="dash-stock-products" class="text-[#26211E]">0</strong>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Com estoque</span>
+          <strong id="dash-stock-available" class="text-emerald-600">0</strong>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Estoque baixo</span>
+          <strong id="dash-stock-low" class="text-amber-600">0</strong>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Sem estoque</span>
+          <strong id="dash-stock-zero" class="text-red-600">0</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ==========================================================
+       ALERTAS E INSIGHTS
+       ========================================================== -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Alertas -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm
+             border border-[#E8DED5]"
+    >
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h4 class="font-serif font-bold text-lg text-[#26211E]">
+            Alertas operacionais
+          </h4>
+          <p class="text-xs text-gray-400 mt-1">
+            Pontos que merecem atenção.
+          </p>
+        </div>
+        <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+      </div>
+      <div id="dash-alerts" class="space-y-3">
+        <div class="text-sm text-gray-400">
+          Nenhum alerta no momento.
+        </div>
+      </div>
+    </div>
+    <!-- Insights -->
+    <div
+      class="bg-[#26211E] p-6 rounded-2xl shadow-sm text-white"
+    >
+      <div class="flex items-center gap-3 mb-5">
+        <div
+          class="w-10 h-10 rounded-xl bg-white/10
+                 flex items-center justify-center"
+        >
+          <i class="fa-solid fa-lightbulb text-[#E8DED5]"></i>
+        </div>
+        <div>
+          <h4 class="font-serif font-bold text-lg">
+            Inteligência da loja
+          </h4>
+          <p class="text-xs text-white/50">
+            Leitura estratégica dos dados.
+          </p>
+        </div>
+      </div>
+      <div id="dash-insights" class="space-y-3">
+        <div class="text-sm text-white/60">
+          Analisando seus dados...
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ==========================================================
+       RODAPÉ DO DASHBOARD
+       ========================================================== -->
+  <div
+    class="flex flex-col sm:flex-row sm:items-center
+           sm:justify-between gap-3
+           px-1 pb-10"
+  >
+    <p class="text-[10px] uppercase tracking-wider text-gray-400">
+      Essenza Íntimas • Painel de gestão
+    </p>
+    <p
+      id="dash-data-source"
+      class="text-[10px] text-gray-400"
+    >
+      Dados calculados localmente
+    </p>
+  </div>
+</section>
       </main>
     </div>
 
