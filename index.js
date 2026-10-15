@@ -175,18 +175,18 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
     }
   }
 });
-/**
- * Recupera o perfil do usuário logado na sessão ativa.
- * Injeta o status da loja e atualiza o estado global `currentUser`.
- */
+
+// ============================================================
+// ESSENZA ÍNTIMAS — CARREGAR USUÁRIO AUTENTICADO
+// ============================================================
 async function fetchUserData() {
   try {
     const response = await fetch(`${API_URL}/users/me`, {
       method: "GET",
       credentials: "include",
       headers: {
-        Accept: "application/json"
-      }
+        Accept: "application/json",
+      },
     });
     if (!response.ok) {
       throw new Error(
@@ -194,47 +194,63 @@ async function fetchUserData() {
       );
     }
     const data = await response.json();
-    // Mantém compatibilidade com respostas de API comuns.
-    currentUser =
-      data.user ||
-      data.usuario ||
-      data.data?.user ||
-      data.data?.usuario ||
-      data.data ||
+    // Normaliza formatos comuns de resposta da API.
+    const profile =
+      data?.user ??
+      data?.usuario ??
+      data?.data?.user ??
+      data?.data?.usuario ??
+      data?.data ??
       data;
-    // Atualiza os dados da conta no cabeçalho.
+    if (!profile || typeof profile !== "object") {
+      throw new Error("A API não retornou um perfil válido.");
+    }
+    // Atualiza o usuário global.
+    currentUser = profile;
+    // Atualiza cabeçalho e menu da conta.
     renderAdminAccount(currentUser);
-    // Preserva a funcionalidade que você já possui.
+    // Mantém a funcionalidade existente da loja.
     if (typeof renderStoreStatus === "function") {
       renderStoreStatus(currentUser);
     }
-    console.log("Essenza: usuário autenticado carregado.", {
-      name: currentUser.name ?? currentUser.nome,
-      email: currentUser.email
+    console.info("Essenza: usuário autenticado carregado.", {
+      name:
+        currentUser.name ??
+        currentUser.nome ??
+        currentUser.fullName ??
+        "",
+      email:
+        currentUser.email ??
+        currentUser.e_mail ??
+        "",
     });
     return currentUser;
-  } catch (err) {
-    console.error("Erro ao buscar dados do usuário:", err);
-    throw err;
+  } catch (error) {
+    console.error(
+      "Essenza: erro ao buscar dados do usuário:",
+      error
+    );
+    throw error;
   }
 }
 
 // ============================================================
-// 👤 CONTA DO USUÁRIO LOGADO — ESSENZA
-// Aproveita o currentUser já carregado pela API
+// ESSENZA ÍNTIMAS — RENDERIZAR CONTA DO USUÁRIO
 // ============================================================
 function renderAdminAccount(user = currentUser) {
-  if (!user) {
-    console.warn("Essenza: currentUser ainda não foi carregado.");
+  if (!user || typeof user !== "object") {
+    console.warn(
+      "Essenza: os dados do usuário ainda não foram carregados."
+    );
     return;
   }
-  // Aceita respostas com os dados dentro de user ou data.
+  // Compatibilidade com respostas aninhadas da API.
   const profile =
-    user.user ||
-    user.usuario ||
-    user.data?.user ||
-    user.data?.usuario ||
-    user.data ||
+    user.user ??
+    user.usuario ??
+    user.data?.user ??
+    user.data?.usuario ??
+    user.data ??
     user;
   const name = String(
     profile.name ??
@@ -248,33 +264,43 @@ function renderAdminAccount(user = currentUser) {
     profile.e_mail ??
     ""
   ).trim();
-  const nameElement = document.getElementById("adminAccountName");
-  const emailElement = document.getElementById("adminAccountEmail");
-  const menuNameElement = document.getElementById("adminAccountMenuName");
-  const menuEmailElement = document.getElementById("adminAccountMenuEmail");
+  // Elementos do cabeçalho.
+  const nameElement =
+    document.getElementById("adminAccountName");
+  const emailElement =
+    document.getElementById("adminAccountEmail");
+  const avatarElement =
+    document.getElementById("adminAccountAvatar");
+  // Elementos do menu suspenso.
+  const menuNameElement =
+    document.getElementById("adminAccountMenuName");
+  const menuEmailElement =
+    document.getElementById("adminAccountMenuEmail");
+  // Nome no cabeçalho.
   if (nameElement) {
     nameElement.textContent = name || "Usuário";
   }
+  // E-mail no cabeçalho.
   if (emailElement) {
-    emailElement.textContent = email || "E-mail não informado";
+    emailElement.textContent =
+      email || "E-mail não informado";
   }
-  const avatar = document.getElementById("adminAccountAvatar");
-
-if (avatar) {
-  const nome = user?.name || user?.nome || user?.fullName || "";
-  avatar.textContent = nome.trim()
-    ? nome.trim().charAt(0).toUpperCase()
-    : "E";
-}
+  // Inicial do usuário no avatar.
+  if (avatarElement) {
+    avatarElement.textContent = name
+      ? name.charAt(0).toLocaleUpperCase("pt-BR")
+      : "E";
   }
+  // Nome dentro do menu.
   if (menuNameElement) {
     menuNameElement.textContent = name || "Minha conta";
   }
+  // E-mail dentro do menu.
   if (menuEmailElement) {
-    menuEmailElement.textContent = email || "E-mail não informado";
+    menuEmailElement.textContent =
+      email || "E-mail não informado";
   }
 }
-
 
 /**
  * Encerra a sessão ativa do usuário tanto no servidor quanto no cliente.
