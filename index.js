@@ -250,7 +250,6 @@ function renderAdminAccount(user = currentUser) {
   ).trim();
   const nameElement = document.getElementById("adminAccountName");
   const emailElement = document.getElementById("adminAccountEmail");
-  const avatarElement = document.getElementById("adminAccountAvatar");
   const menuNameElement = document.getElementById("adminAccountMenuName");
   const menuEmailElement = document.getElementById("adminAccountMenuEmail");
   if (nameElement) {
@@ -259,10 +258,14 @@ function renderAdminAccount(user = currentUser) {
   if (emailElement) {
     emailElement.textContent = email || "E-mail não informado";
   }
-  if (avatarElement) {
-    avatarElement.textContent = name
-      ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
-      : "E";
+  const avatar = document.getElementById("adminAccountAvatar");
+
+if (avatar) {
+  const nome = user?.name || user?.nome || user?.fullName || "";
+  avatar.textContent = nome.trim()
+    ? nome.trim().charAt(0).toUpperCase()
+    : "E";
+}
   }
   if (menuNameElement) {
     menuNameElement.textContent = name || "Minha conta";
