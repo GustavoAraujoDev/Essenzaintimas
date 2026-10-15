@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#26211e">
+  <title>Essenza | Cadastro de usuários</title>
+
+  <style>
+    :root {
+      --brown: #26211e;
+      --taupe: #9e7960;
+      --background: #f8f5f2;
+      --border: #e8ded5;
+      --text: #332b26;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      background: var(--background);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      margin: 20px auto;
+      padding: 28px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 15px 45px rgba(38, 33, 30, .07);
+    }
+
+    .brand {
+      color: var(--taupe);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0;
+      font-family: Georgia, serif;
+      font-size: 30px;
+      font-weight: 500;
+    }
+
+    .description {
+      margin-bottom: 24px;
+      color: #766c65;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 7px;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    input, select {
+      display: block;
+      width: 100%;
+      min-height: 46px;
+      padding: 12px;
+      border: 1px solid #ded5ce;
+      border-radius: 10px;
+      outline: none;
+      background: white;
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--taupe);
+      box-shadow: 0 0 0 3px rgba(158, 121, 96, .12);
+    }
+
+    .section-title {
+      margin-top: 27px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .hint {
+      color: #81766f;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    button {
+      width: 100%;
+      min-height: 49px;
+      margin-top: 25px;
+      padding: 13px;
+      border: none;
+      border-radius: 11px;
+      background: var(--brown);
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    #mensagem {
+      display: none;
+      margin-top: 18px;
+      padding: 13px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    #mensagem.sucesso {
+      display: block;
+      background: #edf7ef;
+      color: #246238;
+    }
+
+    #mensagem.erro {
+      display: block;
+      background: #fff0ef;
+      color: #a12f2f;
+    }
+
+    #mensagem.info {
+      display: block;
+      background: #f4eee9;
+      color: #5e493a;
+    }
+
+    .footer {
+      margin-top: 22px;
+      color: #93877e;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container" id="container" hidden>
+    <div class="brand">Essenza Íntimas</div>
+    <h1>Novo cadastro</h1>
+
+    <p class="description">
+      Crie uma nova conta e seu perfil pessoal.
+      Acesso administrativo restrito.
+    </p>
+
+    <form id="formCadastro">
+      <label for="role">Tipo de usuário *</label>
+      <select id="role" name="role" required>
+        <option value="CUSTOMER">Cliente (CUSTOMER)</option>
+        <option value="ADMIN">Administrador (ADMIN)</option>
+      </select>
+
+      <div class="section-title">Dados de acesso</div>
+
+      <label for="email">E-mail *</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        maxlength="254"
+        placeholder="usuario@email.com"
+        required
+      >
+
+      <label for="password">Senha *</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="new-password"
+        minlength="8"
+        placeholder="Mínimo de 8 caracteres"
+        required
+      >
+
+      <label for="confirmPassword">Confirmar senha *</label>
+      <input
+        id="confirmPassword"
+        name="confirmPassword"
+        type="password"
+        autocomplete="new-password"
+        minlength="8"
+        placeholder="Digite a senha novamente"
+        required
+      >
+
+      <div class="section-title">Perfil pessoal</div>
+
+      <label for="name">Nome completo *</label>
+      <input
+        id="name"
+        name="name"
+        type="text"
+        maxlength="120"
+        autocomplete="name"
+        placeholder="Nome completo"
+        required
+      >
+
+      <label for="phone">Telefone</label>
+      <input
+        id="phone"
+        name="phone"
+        type="tel"
+        autocomplete="tel"
+        maxlength="25"
+        placeholder="(85) 99999-9999"
+      >
+
+      <label for="document">CPF (opcional)</label>
+      <input
+        id="document"
+        name="document"
+        inputmode="numeric"
+        maxlength="14"
+        autocomplete="off"
+        placeholder="000.000.000-00"
+      >
+
+      <section id="empresaSection" hidden>
+        <div class="section-title">Dados da empresa</div>
+
+        <label for="companyName">Nome da empresa *</label>
+        <input
+          id="companyName"
+          name="companyName"
+          maxlength="120"
+          placeholder="Nome da empresa"
+        >
+
+        <label for="companyDocument">CNPJ *</label>
+        <input
+          id="companyDocument"
+          name="companyDocument"
+          inputmode="numeric"
+          maxlength="18"
+          placeholder="00.000.000/0000-00"
+        >
+
+        <label for="companyEmail">E-mail comercial</label>
+        <input
+          id="companyEmail"
+          name="companyEmail"
+          type="email"
+          maxlength="254"
+          placeholder="contato@empresa.com"
+        >
+
+        <label for="companyPhone">Telefone comercial</label>
+        <input
+          id="companyPhone"
+          name="companyPhone"
+          type="tel"
+          maxlength="25"
+          placeholder="Telefone da empresa"
+        >
+      </section>
+
+      <button id="btnCadastrar" type="submit">
+        Criar conta e perfil
+      </button>
+
+      <div id="mensagem" role="status" aria-live="polite"></div>
+    </form>
+
+    <div class="footer">
+      Essenza Íntimas · Gestão de usuários
+    </div>
+  </main>
+
+  <script src="./cadastroPerfil.js"></script>
+</body>
+</html>
