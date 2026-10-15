@@ -305,6 +305,120 @@
       </aside>
 
       <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+        
+        <!-- Cabeçalho da conta Essenza -->
+<header class="flex justify-end items-center mb-6">
+  <div class="relative" id="adminAccount">
+    <button
+      type="button"
+      id="adminAccountTrigger"
+      aria-expanded="false"
+      aria-controls="adminAccountMenu"
+      class="flex items-center gap-3 bg-white border border-[#E8DED5]
+             rounded-2xl px-3 py-2 shadow-sm hover:shadow-md
+             transition-all max-w-full"
+    >
+      <!-- Avatar com inicial do usuário -->
+      <div
+        id="adminAccountAvatar"
+        class="w-11 h-11 shrink-0 rounded-xl bg-[#26211E]
+               text-[#F8F5F2] flex items-center justify-center
+               font-serif text-xl font-bold"
+      >
+        E
+      </div>
+      <!-- Nome e e-mail -->
+      <div class="text-left min-w-0">
+        <p class="text-[10px] uppercase tracking-widest
+                  text-[#9E7960] font-bold">
+          Conta conectada
+        </p>
+        <p
+          id="adminAccountName"
+          class="text-sm font-bold text-[#26211E] truncate max-w-[180px]"
+        >
+          Carregando...
+        </p>
+        <p
+          id="adminAccountEmail"
+          class="text-xs text-gray-500 truncate max-w-[180px]"
+        >
+          Verificando sessão
+        </p>
+      </div>
+      <i
+        id="adminAccountChevron"
+        class="fas fa-chevron-down text-xs text-[#9E7960] ml-1"
+      ></i>
+    </button>
+    <!-- Menu do perfil -->
+    <div
+      id="adminAccountMenu"
+      hidden
+      class="absolute right-0 top-full mt-3 w-72 max-w-[calc(100vw-3rem)]
+             bg-white border border-[#E8DED5] rounded-2xl
+             shadow-xl p-2 z-[60]"
+    >
+      <div class="px-4 py-3 border-b border-[#F0E9E3] mb-2">
+        <p class="text-xs text-[#9E7960] font-semibold">
+          Minha conta Essenza
+        </p>
+        <p
+          id="adminAccountMenuName"
+          class="font-bold text-[#26211E] mt-1 break-words"
+        >
+          Usuário
+        </p>
+        <p
+          id="adminAccountMenuEmail"
+          class="text-xs text-gray-500 mt-1 break-all"
+        >
+          E-mail
+        </p>
+      </div>
+      <a
+        href="./perfil.html"
+        id="adminOpenProfile"
+        class="flex items-center gap-3 p-3 rounded-xl
+               hover:bg-[#F8F5F2] transition-colors"
+      >
+        <span class="w-9 h-9 rounded-lg bg-[#F8F5F2]
+                     flex items-center justify-center text-[#9E7960]">
+          <i class="fas fa-user-edit"></i>
+        </span>
+        <span class="flex-1">
+          <span class="block text-sm font-bold text-[#26211E]">
+            Meu perfil
+          </span>
+          <span class="block text-xs text-gray-500 mt-1">
+            Dados pessoais, e-mail e senha
+          </span>
+        </span>
+        <i class="fas fa-chevron-right text-xs text-[#9E7960]"></i>
+      </a>
+      <button
+        type="button"
+        id="adminAccountLogout"
+        class="w-full flex items-center gap-3 p-3 rounded-xl
+               hover:bg-red-50 text-left transition-colors"
+      >
+        <span class="w-9 h-9 rounded-lg bg-red-50
+                     flex items-center justify-center text-[#A64040]">
+          <i class="fas fa-sign-out-alt"></i>
+        </span>
+        <span>
+          <span class="block text-sm font-bold text-[#A64040]">
+            Sair da conta
+          </span>
+          <span class="block text-xs text-gray-500 mt-1">
+            Encerrar sessão
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>
+</header>
+
         <!-- Seção Catálogo -->
         <section id="section-menu">
           <header class="flex justify-between items-center mb-8">
