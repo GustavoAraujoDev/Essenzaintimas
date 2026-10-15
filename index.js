@@ -58,13 +58,7 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
       body: JSON.stringify({ email, password }),
     });
     
-const data = await response.json();
-
-alert(
-  "DEBUG — RESPOSTA DA API /users/me\n\n" +
-  JSON.stringify(data, null, 2)
-);
-
+     const data = await response.json();
 
     if (!response.ok) throw new Error(data.message || "Falha no login");
 
@@ -210,6 +204,11 @@ async function fetchUserData() {
     }
 
     const data = await response.json();
+    
+    alert(
+  "DEBUG — RESPOSTA DA API /users/me\n\n" +
+  JSON.stringify(data, null, 2)
+);
 
     const user =
       data?.user ??
