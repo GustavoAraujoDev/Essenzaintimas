@@ -1,0 +1,1237 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#26211E">
+
+  <title>Minha conta | Essenza Íntimas</title>
+  <meta
+    name="description"
+    content="Gerencie seus dados pessoais, e-mail e segurança da sua conta Essenza Íntimas."
+  >
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --brown: #26211E;
+      --brown-soft: #39312C;
+      --taupe: #9E7960;
+      --rose: #C8A99A;
+      --champagne: #E8DED5;
+      --offwhite: #F8F5F2;
+      --white: #FFFFFF;
+      --text: #302923;
+      --muted: #81766E;
+      --border: #E8E0DA;
+      --success: #2F7D4A;
+      --danger: #A64040;
+      --shadow: 0 18px 55px rgba(38, 33, 30, .07);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--offwhite);
+      color: var(--text);
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
+      background: var(--brown);
+      color: var(--white);
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: .09em;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, .96);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      min-height: 82px;
+      padding: 15px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      flex-direction: column;
+      line-height: 1;
+      gap: 5px;
+    }
+
+    .brand-name {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--brown);
+    }
+
+    .brand-subtitle {
+      font-size: 9px;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--taupe);
+    }
+
+    .header-link {
+      color: var(--brown);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      transition: background .2s ease;
+    }
+
+    .header-link:hover {
+      background: var(--offwhite);
+    }
+
+    .page {
+      width: min(1180px, 100%);
+      padding: 38px 24px 70px;
+      margin: 0 auto;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 25px;
+    }
+
+    .breadcrumbs a:hover {
+      color: var(--taupe);
+    }
+
+    .page-heading {
+      margin-bottom: 30px;
+    }
+
+    .eyebrow {
+      color: var(--taupe);
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-size: 10px;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: var(--brown);
+    }
+
+    h1 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(36px, 5vw, 48px);
+      line-height: 1.1;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .page-description {
+      max-width: 620px;
+      color: var(--muted);
+      margin-bottom: 0;
+      line-height: 1.8;
+    }
+
+    .account-layout {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .sidebar,
+    .content-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      padding: 22px 16px;
+    }
+
+    .account-summary {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 4px 5px 21px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 17px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      border-radius: 50%;
+      background: var(--champagne);
+      color: var(--brown);
+      display: grid;
+      place-items: center;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .summary-copy {
+      min-width: 0;
+    }
+
+    .summary-name {
+      color: var(--brown);
+      font-size: 13px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+      margin-bottom: 3px;
+    }
+
+    .summary-email {
+      color: var(--muted);
+      font-size: 11px;
+      overflow-wrap: anywhere;
+      margin: 0;
+    }
+
+    .sidebar-label {
+      margin: 0 10px 10px;
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .tab-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .nav-button {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 13px 12px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: #655A52;
+      background: transparent;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background .2s, border-color .2s, color .2s;
+    }
+
+    .nav-button:hover {
+      background: var(--offwhite);
+    }
+
+    .nav-button[aria-selected="true"] {
+      background: #F3ECE6;
+      border-color: #E8D8CC;
+      color: var(--brown);
+    }
+
+    .nav-icon {
+      display: grid;
+      place-items: center;
+      width: 27px;
+      height: 27px;
+      flex: 0 0 27px;
+      border-radius: 8px;
+      background: rgba(158, 121, 96, .11);
+      font-size: 15px;
+    }
+
+    .sidebar-note {
+      margin: 23px 5px 0;
+      padding: 14px;
+      background: #FAF7F4;
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.8;
+    }
+
+    .sidebar-note strong {
+      display: block;
+      color: var(--brown);
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .main-content {
+      min-width: 0;
+    }
+
+    .global-notice {
+      display: none;
+      padding: 13px 16px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .global-notice.show {
+      display: block;
+    }
+
+    .global-notice.success {
+      background: #EAF5ED;
+      color: #245D37;
+      border: 1px solid #CDE6D4;
+    }
+
+    .global-notice.error {
+      background: #FBEDED;
+      color: #8D3030;
+      border: 1px solid #F0D0D0;
+    }
+
+    .global-notice.info {
+      background: #F2EEE9;
+      color: var(--brown);
+      border: 1px solid var(--border);
+    }
+
+    .content-card {
+      padding: clamp(22px, 4vw, 36px);
+    }
+
+    .tab-panel[hidden],
+    .panel[hidden] {
+      display: none !important;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      padding-bottom: 23px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 25px;
+    }
+
+    .section-heading h2 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 31px;
+      font-weight: 600;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+      margin: 0;
+      max-width: 530px;
+    }
+
+    .section-mark {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      display: grid;
+      place-items: center;
+      background: var(--offwhite);
+      border-radius: 14px;
+      font-size: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .field {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-size: 11px;
+      color: var(--brown);
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 1px solid #DED5CE;
+      border-radius: 10px;
+      background: #FFFEFD;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .field input:focus {
+      border-color: var(--taupe);
+      box-shadow: 0 0 0 3px rgba(158, 121, 96, .13);
+    }
+
+    .field input:disabled {
+      background: #F4F1EE;
+      color: #7F746C;
+      cursor: not-allowed;
+    }
+
+    .field input::placeholder {
+      color: #B1A59D;
+    }
+
+    .field-hint {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-top: 25px;
+      margin-top: 25px;
+      border-top: 1px solid var(--border);
+    }
+
+    .button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 9px;
+      min-height: 46px;
+      padding: 12px 20px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      transition: transform .2s, background .2s, border-color .2s;
+    }
+
+    .button:active {
+      transform: scale(.985);
+    }
+
+    .button-primary {
+      background: var(--brown);
+      color: var(--white);
+    }
+
+    .button-primary:hover {
+      background: var(--brown-soft);
+    }
+
+    .button-secondary {
+      background: var(--white);
+      color: var(--brown);
+      border-color: var(--border);
+    }
+
+    .button-secondary:hover {
+      background: var(--offwhite);
+    }
+
+    .button:disabled {
+      opacity: .6;
+      cursor: wait;
+      transform: none;
+    }
+
+    .security-callout {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      margin-top: 25px;
+      background: #FAF7F4;
+      border: 1px solid #EFE5DD;
+      border-radius: 12px;
+    }
+
+    .security-callout .callout-icon {
+      font-size: 18px;
+      flex: 0 0 auto;
+    }
+
+    .security-callout strong {
+      display: block;
+      color: var(--brown);
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .security-callout p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .form-message {
+      display: none;
+      margin-top: 17px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .form-message.show {
+      display: block;
+    }
+
+    .form-message.success {
+      color: #245D37;
+      background: #EAF5ED;
+    }
+
+    .form-message.error {
+      color: #8D3030;
+      background: #FBEDED;
+    }
+
+    .form-message.info {
+      color: var(--brown);
+      background: #F2EEE9;
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .password-wrap input {
+      padding-right: 82px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: var(--taupe);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 7px;
+    }
+
+    .password-rules {
+      display: grid;
+      gap: 7px;
+      margin-top: 18px;
+      padding: 15px;
+      background: #FAF7F4;
+      border-radius: 12px;
+    }
+
+    .password-rules p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .password-rules p::before {
+      content: "•";
+      color: var(--taupe);
+      margin-right: 8px;
+    }
+
+    .password-rules p.valid {
+      color: var(--success);
+    }
+
+    .password-rules p.valid::before {
+      content: "✓";
+      font-weight: 700;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      background: #F4EFEA;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .footer strong {
+      color: var(--brown);
+      font-family: "Cormorant Garamond", serif;
+      font-size: 18px;
+      letter-spacing: .05em;
+    }
+
+    .loading-overlay {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .loading-overlay.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 17px;
+      height: 17px;
+      border: 2px solid #E7DCD3;
+      border-top-color: var(--taupe);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 800px) {
+      .page {
+        padding: 28px 16px 48px;
+      }
+
+      .header-inner {
+        padding: 14px 16px;
+      }
+
+      .account-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        padding: 17px;
+      }
+
+      .account-summary {
+        padding-bottom: 15px;
+      }
+
+      .sidebar-label {
+        margin-top: 0;
+      }
+
+      .tab-list {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+      }
+
+      .nav-button {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        gap: 7px;
+        padding: 12px 6px;
+        min-height: 92px;
+        font-size: 10px;
+      }
+
+      .sidebar-note {
+        display: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .topbar {
+        font-size: 9px;
+        padding: 9px 8px;
+      }
+
+      .brand-name {
+        font-size: 27px;
+      }
+
+      .brand-subtitle {
+        font-size: 8px;
+      }
+
+      .header-link {
+        padding: 9px 11px;
+        font-size: 10px;
+      }
+
+      .page {
+        padding: 23px 12px 38px;
+      }
+
+      .breadcrumbs {
+        margin-bottom: 20px;
+      }
+
+      .page-heading {
+        margin-bottom: 23px;
+      }
+
+      .page-description {
+        font-size: 12px;
+      }
+
+      .sidebar {
+        border-radius: 15px;
+        padding: 13px;
+      }
+
+      .tab-list {
+        gap: 5px;
+      }
+
+      .nav-button {
+        min-height: 86px;
+        border-radius: 10px;
+      }
+
+      .nav-icon {
+        width: 24px;
+        height: 24px;
+        flex-basis: 24px;
+      }
+
+      .content-card {
+        padding: 20px 16px;
+        border-radius: 15px;
+      }
+
+      .section-heading h2 {
+        font-size: 27px;
+      }
+
+      .section-mark {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 17px;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+
+      .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+      }
+
+      .form-actions .button {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+
+  <script src="./perfil.js" defer></script>
+</head>
+
+<body>
+  <div class="topbar">
+    EXPERIÊNCIA ESSENZA · ELEGÂNCIA EM CADA DETALHE
+  </div>
+
+  <header class="header">
+    <div class="header-inner">
+      <a class="brand" href="./index.html" aria-label="Essenza Íntimas - página inicial">
+        <span class="brand-name">Essenza</span>
+        <span class="brand-subtitle">Íntimas</span>
+      </a>
+
+      <a class="header-link" href="./index.html">← Voltar à loja</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <nav class="breadcrumbs" aria-label="Caminho de navegação">
+      <a href="./index.html">Início</a>
+      <span aria-hidden="true">/</span>
+      <span>Minha conta</span>
+    </nav>
+
+    <section class="page-heading">
+      <p class="eyebrow">Área exclusiva</p>
+      <h1>Minha conta</h1>
+      <p class="page-description">
+        Cuide dos seus dados e mantenha suas informações atualizadas
+        para ter uma experiência ainda melhor com a Essenza.
+      </p>
+    </section>
+
+    <div id="globalNotice" class="global-notice" role="status" aria-live="polite"></div>
+
+    <div class="account-layout">
+      <aside class="sidebar" aria-label="Navegação da conta">
+        <div class="account-summary">
+          <div class="avatar" id="profileAvatar" aria-hidden="true">E</div>
+          <div class="summary-copy">
+            <div class="summary-name" id="summaryName">Minha conta</div>
+            <p class="summary-email" id="summaryEmail">Carregando informações...</p>
+          </div>
+        </div>
+
+        <p class="sidebar-label">Configurações</p>
+
+        <div class="tab-list" role="tablist" aria-label="Configurações da conta">
+          <button
+            type="button"
+            class="nav-button"
+            id="tab-profile"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panel-profile"
+            data-tab="profile"
+            tabindex="0"
+          >
+            <span class="nav-icon" aria-hidden="true">♙</span>
+            <span>Dados pessoais</span>
+          </button>
+
+          <button
+            type="button"
+            class="nav-button"
+            id="tab-email"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-email"
+            data-tab="email"
+            tabindex="-1"
+          >
+            <span class="nav-icon" aria-hidden="true">✉</span>
+            <span>E-mail da conta</span>
+          </button>
+
+          <button
+            type="button"
+            class="nav-button"
+            id="tab-password"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-password"
+            data-tab="password"
+            tabindex="-1"
+          >
+            <span class="nav-icon" aria-hidden="true">♙</span>
+            <span>Senha e segurança</span>
+          </button>
+        </div>
+
+        <div class="sidebar-note">
+          <strong>🔒 Sua privacidade importa</strong>
+          Mantenha seus dados atualizados e nunca compartilhe sua senha
+          com outras pessoas.
+        </div>
+      </aside>
+
+      <div class="main-content">
+        <div id="profileLoading" class="loading-overlay" aria-live="polite">
+          <span class="spinner" aria-hidden="true"></span>
+          Carregando seus dados...
+        </div>
+
+        <!-- DADOS PESSOAIS -->
+        <section
+          class="content-card tab-panel"
+          id="panel-profile"
+          role="tabpanel"
+          aria-labelledby="tab-profile"
+          data-panel="profile"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Seu perfil</p>
+              <h2>Dados pessoais</h2>
+              <p>
+                Confira e atualize as informações básicas associadas
+                à sua conta.
+              </p>
+            </div>
+            <div class="section-mark" aria-hidden="true">♙</div>
+          </div>
+
+          <form id="profileForm" novalidate>
+            <div class="form-grid">
+              <div class="field full">
+                <label for="profileName">Nome completo</label>
+                <input
+                  id="profileName"
+                  name="name"
+                  type="text"
+                  autocomplete="name"
+                  placeholder="Digite seu nome completo"
+                  minlength="2"
+                  maxlength="120"
+                  required
+                >
+              </div>
+
+              <div class="field">
+                <label for="profilePhone">Telefone</label>
+                <input
+                  id="profilePhone"
+                  name="phone"
+                  type="tel"
+                  inputmode="tel"
+                  autocomplete="tel"
+                  placeholder="(85) 99999-9999"
+                  maxlength="20"
+                >
+                <p class="field-hint">
+                  Use um telefone válido para facilitar o contato sobre seus pedidos.
+                </p>
+              </div>
+
+              <div class="field">
+                <label for="profileEmail">E-mail atual</label>
+                <input
+                  id="profileEmail"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="seuemail@exemplo.com"
+                  disabled
+                  aria-describedby="emailReadOnlyHint"
+                >
+                <p class="field-hint" id="emailReadOnlyHint">
+                  Para alterar o e-mail, acesse a aba “E-mail da conta”.
+                </p>
+              </div>
+            </div>
+
+            <div id="profileMessage" class="form-message" role="status" aria-live="polite"></div>
+
+            <div class="form-actions">
+              <button class="button button-secondary" type="reset" id="resetProfile">
+                Descartar alterações
+              </button>
+              <button class="button button-primary" type="submit" id="saveProfile">
+                Salvar alterações
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </form>
+
+          <div class="security-callout">
+            <span class="callout-icon" aria-hidden="true">✦</span>
+            <div>
+              <strong>Uma experiência feita para você</strong>
+              <p>
+                Seus dados ajudam a manter sua conta organizada.
+                Revise suas informações sempre que necessário.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- E-MAIL -->
+        <section
+          class="content-card tab-panel"
+          id="panel-email"
+          role="tabpanel"
+          aria-labelledby="tab-email"
+          data-panel="email"
+          hidden
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Contato e acesso</p>
+              <h2>E-mail da conta</h2>
+              <p>
+                Solicite a alteração do seu e-mail. Dependendo da configuração
+                da loja, você poderá precisar confirmar a mudança por mensagem.
+              </p>
+            </div>
+            <div class="section-mark" aria-hidden="true">✉</div>
+          </div>
+
+          <form id="emailForm" novalidate>
+            <div class="form-grid">
+              <div class="field full">
+                <label for="currentEmail">E-mail atual</label>
+                <input
+                  id="currentEmail"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="E-mail atual"
+                  disabled
+                >
+              </div>
+
+              <div class="field full">
+                <label for="newEmail">Novo e-mail</label>
+                <input
+                  id="newEmail"
+                  name="newEmail"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="Digite o novo e-mail"
+                  maxlength="180"
+                  required
+                >
+                <p class="field-hint">
+                  Informe um endereço de e-mail ao qual você tenha acesso.
+                </p>
+              </div>
+
+              <div class="field full">
+                <label for="emailCurrentPassword">Confirme sua senha atual</label>
+                <div class="password-wrap">
+                  <input
+                    id="emailCurrentPassword"
+                    name="currentPassword"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="Digite sua senha atual"
+                    required
+                  >
+                  <button
+                    class="toggle-password"
+                    type="button"
+                    data-toggle-password="emailCurrentPassword"
+                    aria-label="Mostrar ou ocultar senha"
+                  >Mostrar</button>
+                </div>
+                <p class="field-hint">
+                  Essa confirmação ajuda a proteger sua conta contra alterações não autorizadas.
+                </p>
+              </div>
+            </div>
+
+            <div id="emailMessage" class="form-message" role="status" aria-live="polite"></div>
+
+            <div class="form-actions">
+              <button class="button button-primary" type="submit" id="saveEmail">
+                Solicitar alteração
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </form>
+
+          <div class="security-callout">
+            <span class="callout-icon" aria-hidden="true">🔐</span>
+            <div>
+              <strong>Proteja o acesso à sua conta</strong>
+              <p>
+                Não utilize um e-mail compartilhado. Se a API exigir confirmação,
+                siga as instruções enviadas pelo sistema para concluir a alteração.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SENHA -->
+        <section
+          class="content-card tab-panel"
+          id="panel-password"
+          role="tabpanel"
+          aria-labelledby="tab-password"
+          data-panel="password"
+          hidden
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Proteção da conta</p>
+              <h2>Senha e segurança</h2>
+              <p>
+                Escolha uma senha forte e evite reutilizar senhas de outros serviços.
+              </p>
+            </div>
+            <div class="section-mark" aria-hidden="true">♙</div>
+          </div>
+
+          <form id="passwordForm" novalidate>
+            <div class="form-grid">
+              <div class="field full">
+                <label for="currentPassword">Senha atual</label>
+                <div class="password-wrap">
+                  <input
+                    id="currentPassword"
+                    name="currentPassword"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="Digite sua senha atual"
+                    required
+                  >
+                  <button
+                    class="toggle-password"
+                    type="button"
+                    data-toggle-password="currentPassword"
+                    aria-label="Mostrar ou ocultar senha"
+                  >Mostrar</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="newPassword">Nova senha</label>
+                <div class="password-wrap">
+                  <input
+                    id="newPassword"
+                    name="newPassword"
+                    type="password"
+                    autocomplete="new-password"
+                    placeholder="Crie uma nova senha"
+                    minlength="8"
+                    maxlength="128"
+                    required
+                  >
+                  <button
+                    class="toggle-password"
+                    type="button"
+                    data-toggle-password="newPassword"
+                    aria-label="Mostrar ou ocultar senha"
+                  >Mostrar</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="confirmPassword">Confirmar nova senha</label>
+                <div class="password-wrap">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    autocomplete="new-password"
+                    placeholder="Digite a nova senha novamente"
+                    minlength="8"
+                    maxlength="128"
+                    required
+                  >
+                  <button
+                    class="toggle-password"
+                    type="button"
+                    data-toggle-password="confirmPassword"
+                    aria-label="Mostrar ou ocultar senha"
+                  >Mostrar</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="password-rules" aria-label="Requisitos recomendados para a senha">
+              <p id="ruleLength">Pelo menos 8 caracteres</p>
+              <p id="ruleMatch">As duas senhas devem ser iguais</p>
+              <p id="ruleDifferent">A nova senha deve ser diferente da atual</p>
+            </div>
+
+            <div id="passwordMessage" class="form-message" role="status" aria-live="polite"></div>
+
+            <div class="form-actions">
+              <button class="button button-primary" type="submit" id="savePassword">
+                Atualizar senha
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </form>
+
+          <div class="security-callout">
+            <span class="callout-icon" aria-hidden="true">✦</span>
+            <div>
+              <strong>Dicas de segurança</strong>
+              <p>
+                Use uma senha exclusiva, evite informações fáceis de adivinhar
+                e não compartilhe seus dados de acesso.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <strong>Essenza Íntimas</strong>
+    <div>Elegância, conforto e cuidado em cada detalhe.</div>
+    <div style="margin-top: 7px;">© <span id="currentYear"></span> Essenza Íntimas. Todos os direitos reservados.</div>
+  </footer>
+<script src="./Perfil.js"></script>
+</body>
+</html>
