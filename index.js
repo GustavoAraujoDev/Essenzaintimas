@@ -185,15 +185,90 @@ async function fetchUserData() {
       method: "GET",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
-      },
+        Accept: "application/json"
+      }
     });
-    if (!response.ok) throw new Error("Erro ao carregar perfil");
-
-    currentUser = await response.json();
-    renderStoreStatus(currentUser);
+    if (!response.ok) {
+      throw new Error(
+        `Erro ao carregar perfil: HTTP ${response.status}`
+      );
+    }
+    const data = await response.json();
+    // Mantém compatibilidade com respostas de API comuns.
+    currentUser =
+      data.user ||
+      data.usuario ||
+      data.data?.user ||
+      data.data?.usuario ||
+      data.data ||
+      data;
+    // Atualiza os dados da conta no cabeçalho.
+    renderAdminAccount(currentUser);
+    // Preserva a funcionalidade que você já possui.
+    if (typeof renderStoreStatus === "function") {
+      renderStoreStatus(currentUser);
+    }
+    console.log("Essenza: usuário autenticado carregado.", {
+      name: currentUser.name ?? currentUser.nome,
+      email: currentUser.email
+    });
+    return currentUser;
   } catch (err) {
     console.error("Erro ao buscar dados do usuário:", err);
+    throw err;
+  }
+}
+
+// ============================================================
+// 👤 CONTA DO USUÁRIO LOGADO — ESSENZA
+// Aproveita o currentUser já carregado pela API
+// ============================================================
+function renderAdminAccount(user = currentUser) {
+  if (!user) {
+    console.warn("Essenza: currentUser ainda não foi carregado.");
+    return;
+  }
+  // Aceita respostas com os dados dentro de user ou data.
+  const profile =
+    user.user ||
+    user.usuario ||
+    user.data?.user ||
+    user.data?.usuario ||
+    user.data ||
+    user;
+  const name = String(
+    profile.name ??
+    profile.nome ??
+    profile.fullName ??
+    profile.full_name ??
+    ""
+  ).trim();
+  const email = String(
+    profile.email ??
+    profile.e_mail ??
+    ""
+  ).trim();
+  const nameElement = document.getElementById("adminAccountName");
+  const emailElement = document.getElementById("adminAccountEmail");
+  const avatarElement = document.getElementById("adminAccountAvatar");
+  const menuNameElement = document.getElementById("adminAccountMenuName");
+  const menuEmailElement = document.getElementById("adminAccountMenuEmail");
+  if (nameElement) {
+    nameElement.textContent = name || "Usuário";
+  }
+  if (emailElement) {
+    emailElement.textContent = email || "E-mail não informado";
+  }
+  if (avatarElement) {
+    avatarElement.textContent = name
+      ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
+      : "E";
+  }
+  if (menuNameElement) {
+    menuNameElement.textContent = name || "Minha conta";
+  }
+  if (menuEmailElement) {
+    menuEmailElement.textContent = email || "E-mail não informado";
   }
 }
 
