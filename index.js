@@ -57,7 +57,14 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-    const data = await response.json();
+    
+const data = await response.json();
+
+alert(
+  "DEBUG — RESPOSTA DA API /users/me\n\n" +
+  JSON.stringify(data, null, 2)
+);
+
 
     if (!response.ok) throw new Error(data.message || "Falha no login");
 
