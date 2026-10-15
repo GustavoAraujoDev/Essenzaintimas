@@ -64,16 +64,21 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
     // 🔎 2. Busca os dados detalhados do usuário para validação de privilégios
     await fetchUserData();
 
-    // 🛡️ 3. Validação de segurança de escopo: Bloqueia perfis que não sejam administradores
-    if (!currentUser || currentUser.role !== "ADMIN") {
-      audioAlerta.play();
-      Toast.fire({
-        icon: "error",
-        title: "Acesso Negado",
-        text: "Sua conta não tem permissão de administrador.",
-      });
-      return;
-    }
+   
+ // 🛡️ Validação de segurança de escopo
+ const allowedRoles = ["ADMIN", "EMPLOYEE"];
+
+ if (!currentUser || !allowedRoles.includes(currentUser.role)) {
+   audioAlerta.play().catch(() => {});
+
+   Toast.fire({
+     icon: "error",
+     title: "Acesso Negado",
+     text: "Sua conta não tem permissão para acessar este painel.",
+   });
+
+   return;
+ }
 
     // 🎉 4. Autorização concedida com sucesso
     Toast.fire({
