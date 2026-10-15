@@ -238,13 +238,11 @@ async function fetchUserData() {
 // ESSENZA ÍNTIMAS — RENDERIZAR CONTA DO USUÁRIO
 // ============================================================
 function renderAdminAccount(user = currentUser) {
+  alert("[DEBUG 1] renderAdminAccount foi executada.");
   if (!user || typeof user !== "object") {
-    console.warn(
-      "Essenza: os dados do usuário ainda não foram carregados."
-    );
+    alert("[DEBUG ERRO] O usuário não foi carregado.");
     return;
   }
-  // Compatibilidade com respostas aninhadas da API.
   const profile =
     user.user ??
     user.usuario ??
@@ -252,11 +250,19 @@ function renderAdminAccount(user = currentUser) {
     user.data?.usuario ??
     user.data ??
     user;
+  // Mostra os dados que a API retornou.
+  alert(
+    "[DEBUG 2] Dados do perfil:\n\n" +
+    JSON.stringify(profile, null, 2)
+  );
   const name = String(
     profile.name ??
     profile.nome ??
     profile.fullName ??
     profile.full_name ??
+    profile.nomeCompleto ??
+    profile.nome_completo ??
+    profile.username ??
     ""
   ).trim();
   const email = String(
@@ -264,41 +270,45 @@ function renderAdminAccount(user = currentUser) {
     profile.e_mail ??
     ""
   ).trim();
-  // Elementos do cabeçalho.
+  alert(
+    "[DEBUG 3] Nome identificado: " + (name || "VAZIO") +
+    "\nE-mail: " + (email || "VAZIO")
+  );
   const nameElement =
     document.getElementById("adminAccountName");
   const emailElement =
     document.getElementById("adminAccountEmail");
   const avatarElement =
     document.getElementById("adminAccountAvatar");
-  // Elementos do menu suspenso.
   const menuNameElement =
     document.getElementById("adminAccountMenuName");
   const menuEmailElement =
     document.getElementById("adminAccountMenuEmail");
-  // Nome no cabeçalho.
   if (nameElement) {
     nameElement.textContent = name || "Usuário";
   }
-  // E-mail no cabeçalho.
   if (emailElement) {
-    emailElement.textContent =
-      email || "E-mail não informado";
+    emailElement.textContent = email || "E-mail não informado";
   }
-  // Inicial do usuário no avatar.
-  if (avatarElement) {
-    avatarElement.textContent = name
-      ? name.charAt(0).toLocaleUpperCase("pt-BR")
-      : "E";
-  }
-  // Nome dentro do menu.
   if (menuNameElement) {
     menuNameElement.textContent = name || "Minha conta";
   }
-  // E-mail dentro do menu.
   if (menuEmailElement) {
     menuEmailElement.textContent =
       email || "E-mail não informado";
+  }
+  if (avatarElement) {
+    const initial = name
+      ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
+      : "U";
+    avatarElement.textContent = initial;
+    alert(
+      "[DEBUG 4] Avatar atualizado.\n" +
+      "Nome: " + (name || "VAZIO") +
+      "\nInicial aplicada: " + initial
+    );
+  } else {
+    alert("[DEBUG ERRO] Elemento adminAccountAvatar não encontrado.");
   }
 }
 
