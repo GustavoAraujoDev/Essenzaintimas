@@ -179,138 +179,171 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 // ============================================================
 // ESSENZA ÍNTIMAS — CARREGAR USUÁRIO AUTENTICADO
 // ============================================================
+
 async function fetchUserData() {
   try {
     const response = await fetch(`${API_URL}/users/me`, {
       method: "GET",
       credentials: "include",
+      cache: "no-store",
       headers: {
-        Accept: "application/json",
-      },
+        Accept: "application/json"
+      }
     });
+
     if (!response.ok) {
       throw new Error(
         `Erro ao carregar perfil: HTTP ${response.status}`
       );
     }
+
     const data = await response.json();
-    // Normaliza formatos comuns de resposta da API.
-    const profile =
+
+    const user =
       data?.user ??
       data?.usuario ??
       data?.data?.user ??
       data?.data?.usuario ??
       data?.data ??
       data;
-    if (!profile || typeof profile !== "object") {
-      throw new Error("A API não retornou um perfil válido.");
+
+    if (!user || typeof user !== "object") {
+      throw new Error(
+        "A API não retornou um usuário válido."
+      );
     }
-    // Atualiza o usuário global.
-    currentUser = profile;
-    // Atualiza cabeçalho e menu da conta.
+
+    currentUser = user;
+
     renderAdminAccount(currentUser);
-    // Mantém a funcionalidade existente da loja.
+
     if (typeof renderStoreStatus === "function") {
       renderStoreStatus(currentUser);
     }
-    console.info("Essenza: usuário autenticado carregado.", {
-      name:
-        currentUser.name ??
-        currentUser.nome ??
-        currentUser.fullName ??
-        "",
-      email:
-        currentUser.email ??
-        currentUser.e_mail ??
-        "",
+
+    console.info("[Essenza] Usuário autenticado:", {
+      name: currentUser.profile?.name ?? currentUser.name ?? "",
+      email: currentUser.email ?? "",
+      role: currentUser.role ?? ""
     });
+
     return currentUser;
   } catch (error) {
     console.error(
-      "Essenza: erro ao buscar dados do usuário:",
+      "[Essenza] Erro ao buscar dados do usuário:",
       error
     );
+
     throw error;
   }
 }
 
-// ============================================================
-// ESSENZA ÍNTIMAS — RENDERIZAR CONTA DO USUÁRIO
-// ============================================================
+
+
 function renderAdminAccount(user = currentUser) {
-  alert("[DEBUG 1] renderAdminAccount foi executada.");
   if (!user || typeof user !== "object") {
-    alert("[DEBUG ERRO] O usuário não foi carregado.");
+    console.error("[Essenza] Usuário não carregado.");
     return;
   }
-  const profile =
+
+  // Normaliza possíveis formatos de resposta da API.
+  const account =
     user.user ??
     user.usuario ??
     user.data?.user ??
     user.data?.usuario ??
     user.data ??
     user;
-  // Mostra os dados que a API retornou.
-  alert(
-    "[DEBUG 2] Dados do perfil:\n\n" +
-    JSON.stringify(profile, null, 2)
-  );
+
+  // IMPORTANTE: os dados pessoais estão dentro de account.profile.
+  const personalProfile =
+    account.profile ??
+    account.customerProfile ??
+    account.customer ??
+    {};
+
   const name = String(
-    profile.name ??
-    profile.nome ??
-    profile.fullName ??
-    profile.full_name ??
-    profile.nomeCompleto ??
-    profile.nome_completo ??
-    profile.username ??
+    personalProfile.name ??
+    personalProfile.nome ??
+    personalProfile.fullName ??
+    personalProfile.full_name ??
+    personalProfile.nomeCompleto ??
+    personalProfile.nome_completo ??
+    personalProfile.username ??
+    account.name ??
+    account.nome ??
+    account.fullName ??
+    account.full_name ??
+    account.nomeCompleto ??
+    account.nome_completo ??
+    account.username ??
     ""
   ).trim();
+
   const email = String(
-    profile.email ??
-    profile.e_mail ??
+    account.email ??
+    account.e_mail ??
+    personalProfile.email ??
     ""
   ).trim();
-  alert(
-    "[DEBUG 3] Nome identificado: " + (name || "VAZIO") +
-    "\nE-mail: " + (email || "VAZIO")
-  );
+
+  console.info("[Essenza] Dados da conta renderizados:", {
+    name: name || "Não informado",
+    email: email || "Não informado",
+    role: account.role || "Não informado"
+  });
+
   const nameElement =
     document.getElementById("adminAccountName");
+
   const emailElement =
     document.getElementById("adminAccountEmail");
+
   const avatarElement =
     document.getElementById("adminAccountAvatar");
+
   const menuNameElement =
     document.getElementById("adminAccountMenuName");
+
   const menuEmailElement =
     document.getElementById("adminAccountMenuEmail");
+
   if (nameElement) {
     nameElement.textContent = name || "Usuário";
   }
+
   if (emailElement) {
-    emailElement.textContent = email || "E-mail não informado";
+    emailElement.textContent =
+      email || "E-mail não informado";
   }
+
   if (menuNameElement) {
-    menuNameElement.textContent = name || "Minha conta";
+    menuNameElement.textContent =
+      name || "Minha conta";
   }
+
   if (menuEmailElement) {
     menuEmailElement.textContent =
       email || "E-mail não informado";
   }
+
   if (avatarElement) {
     const initial = name
       ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
       : "U";
+
     avatarElement.textContent = initial;
-    alert(
-      "[DEBUG 4] Avatar atualizado.\n" +
-      "Nome: " + (name || "VAZIO") +
-      "\nInicial aplicada: " + initial
-    );
-  } else {
-    alert("[DEBUG ERRO] Elemento adminAccountAvatar não encontrado.");
   }
+
+  console.info("[Essenza] Cabeçalho atualizado:", {
+    name,
+    email,
+    initial: name
+      ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
+      : "U"
+  });
 }
+
 
 /**
  * ==========================================================
