@@ -275,6 +275,40 @@ if (avatar) {
   }
 }
 
+// TESTE E NAVEGAÇÃO PARA O PERFIL
+(function () {
+  function configurarLinkPerfil() {
+    const link = document.getElementById("adminOpenProfile");
+    if (!link) {
+      console.error(
+        "Link adminOpenProfile não encontrado no HTML."
+      );
+      return;
+    }
+    // Evita acumular eventos ao executar novamente
+    if (link.dataset.profileConfigured === "true") return;
+    link.dataset.profileConfigured = "true";
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
+      console.log("Clique em Meu perfil detectado!");
+      const destino = new URL(
+        "./perfil.html",
+        window.location.href
+      );
+      console.log("Destino do perfil:", destino.href);
+      window.location.href = destino.href;
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      configurarLinkPerfil
+    );
+  } else {
+    configurarLinkPerfil();
+  }
+})();
+
 /**
  * Encerra a sessão ativa do usuário tanto no servidor quanto no cliente.
  * Destrói cookies de autenticação e limpa o estado de memória.
