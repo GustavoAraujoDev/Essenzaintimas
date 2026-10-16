@@ -244,249 +244,6 @@ async function fetchUserData() {
   }
 }
 
-
-
-function renderAdminAccount(user = currentUser) {
-  if (!user || typeof user !== "object") {
-    console.error("[Essenza] Usuário não carregado.");
-    return;
-  }
-
-  // Normaliza possíveis formatos de resposta da API.
-  const account =
-    user.user ??
-    user.usuario ??
-    user.data?.user ??
-    user.data?.usuario ??
-    user.data ??
-    user;
-
-  // IMPORTANTE: os dados pessoais estão dentro de account.profile.
-  const personalProfile =
-    account.profile ??
-    account.customerProfile ??
-    account.customer ??
-    {};
-
-  const name = String(
-    personalProfile.name ??
-    personalProfile.nome ??
-    personalProfile.fullName ??
-    personalProfile.full_name ??
-    personalProfile.nomeCompleto ??
-    personalProfile.nome_completo ??
-    personalProfile.username ??
-    account.name ??
-    account.nome ??
-    account.fullName ??
-    account.full_name ??
-    account.nomeCompleto ??
-    account.nome_completo ??
-    account.username ??
-    ""
-  ).trim();
-
-  const email = String(
-    account.email ??
-    account.e_mail ??
-    personalProfile.email ??
-    ""
-  ).trim();
-
-  console.info("[Essenza] Dados da conta renderizados:", {
-    name: name || "Não informado",
-    email: email || "Não informado",
-    role: account.role || "Não informado"
-  });
-
-  const nameElement =
-    document.getElementById("adminAccountName");
-
-  const emailElement =
-    document.getElementById("adminAccountEmail");
-
-  const avatarElement =
-    document.getElementById("adminAccountAvatar");
-
-  const menuNameElement =
-    document.getElementById("adminAccountMenuName");
-
-  const menuEmailElement =
-    document.getElementById("adminAccountMenuEmail");
-
-  if (nameElement) {
-    nameElement.textContent = name || "Usuário";
-  }
-
-  if (emailElement) {
-    emailElement.textContent =
-      email || "E-mail não informado";
-  }
-
-  if (menuNameElement) {
-    menuNameElement.textContent =
-      name || "Minha conta";
-  }
-
-  if (menuEmailElement) {
-    menuEmailElement.textContent =
-      email || "E-mail não informado";
-  }
-
-  if (avatarElement) {
-    const initial = name
-      ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
-      : "U";
-
-    avatarElement.textContent = initial;
-  }
-
-  console.info("[Essenza] Cabeçalho atualizado:", {
-    name,
-    email,
-    initial: name
-      ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
-      : "U"
-  });
-}
-
-
-/**
- * ==========================================================
- * ESSENZA ÍNTIMAS — GERENCIAMENTO DA CONTA ADMINISTRATIVA
- * ==========================================================
- *
- * Funcionalidades:
- * - Abrir e fechar o menu da conta.
- * - Atualizar o ícone da seta.
- * - Fechar o menu ao clicar fora.
- * - Fechar o menu com a tecla Escape.
- * - Navegar para a página de perfil.
- * - Encerrar a sessão administrativa.
- */
-// ==========================================================
-// INICIALIZAÇÃO
-// ==========================================================
-function initAdminAccountMenu() {
-  const elements = {
-    account: document.getElementById("adminAccount"),
-    trigger: document.getElementById("adminAccountTrigger"),
-    menu: document.getElementById("adminAccountMenu"),
-    chevron: document.getElementById("adminAccountChevron"),
-    profileLink: document.getElementById("adminOpenProfile"),
-    logoutButton: document.getElementById("adminAccountLogout"),
-  };
-  // Verifica os elementos obrigatórios
-  if (!elements.account || !elements.trigger || !elements.menu) {
-    console.error(
-      "[Essenza] Não foi possível inicializar o menu da conta.",
-      {
-        account: Boolean(elements.account),
-        trigger: Boolean(elements.trigger),
-        menu: Boolean(elements.menu),
-      }
-    );
-    return;
-  }
-  // Evita registrar os mesmos eventos novamente
-  if (elements.account.dataset.initialized === "true") {
-    return;
-  }
-  elements.account.dataset.initialized = "true";
-  // Estado inicial do menu
-  closeAccountMenu(elements);
-  // Clique no botão da conta ou na seta
-  elements.trigger.addEventListener("click", (event) => {
-    event.stopPropagation();
-    if (elements.menu.hidden) {
-      openAccountMenu(elements);
-    } else {
-      closeAccountMenu(elements);
-    }
-  });
-  // Clique fora do menu
-  document.addEventListener("click", (event) => {
-    if (!elements.account.contains(event.target)) {
-      closeAccountMenu(elements);
-    }
-  });
-  // Fechar com Escape
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeAccountMenu(elements);
-    }
-  });
-  // Link para o perfil
-  if (elements.profileLink) {
-    elements.profileLink.addEventListener("click", (event) => {
-      closeAccountMenu(elements);
-      // Permite que o navegador siga o href definido no HTML.
-      // Não bloqueia a navegação com preventDefault().
-      const href = elements.profileLink.getAttribute("href");
-      if (!href || href === "#") {
-        event.preventDefault();
-        console.error(
-          "[Essenza] Configure o caminho da página de perfil."
-        );
-      }
-    });
-  }
-  // Botão para sair da conta
-  if (elements.logoutButton) {
-    elements.logoutButton.addEventListener("click", async () => {
-      if (typeof window.logout !== "function") {
-        console.error(
-          "[Essenza] A função logout() não foi encontrada."
-        );
-        return;
-      }
-      elements.logoutButton.disabled = true;
-      try {
-        await window.logout();
-      } catch (error) {
-        console.error("[Essenza] Erro ao encerrar a sessão:", error);
-      } finally {
-        elements.logoutButton.disabled = false;
-      }
-    });
-  }
-  console.info("[Essenza] Menu da conta inicializado.");
-}
-// ==========================================================
-// ABRIR MENU
-// ==========================================================
-function openAccountMenu(elements) {
-  elements.menu.hidden = false;
-  elements.trigger.setAttribute("aria-expanded", "true");
-  if (elements.chevron) {
-    elements.chevron.classList.remove("fa-chevron-down");
-    elements.chevron.classList.add("fa-chevron-up");
-  }
-}
-// ==========================================================
-// FECHAR MENU
-// ==========================================================
-function closeAccountMenu(elements) {
-  elements.menu.hidden = true;
-  elements.trigger.setAttribute("aria-expanded", "false");
-  if (elements.chevron) {
-    elements.chevron.classList.remove("fa-chevron-up");
-    elements.chevron.classList.add("fa-chevron-down");
-  }
-}
-// ==========================================================
-// EXECUTAR QUANDO O HTML ESTIVER PRONTO
-// ==========================================================
-if (document.readyState === "loading") {
-  document.addEventListener(
-    "DOMContentLoaded",
-    initAdminAccountMenu,
-    { once: true }
-  );
-} else {
-  initAdminAccountMenu();
-}
-
 /**
  * Encerra a sessão ativa do usuário tanto no servidor quanto no cliente.
  * Destrói cookies de autenticação e limpa o estado de memória.
@@ -5808,3 +5565,244 @@ else {
    ao abrir a aba.
    A função é segura para ser chamada novamente.
    ============================================================ */
+
+function renderAdminAccount(user = currentUser) {
+  if (!user || typeof user !== "object") {
+    console.error("[Essenza] Usuário não carregado.");
+    return;
+  }
+
+  // Normaliza possíveis formatos de resposta da API.
+  const account =
+    user.user ??
+    user.usuario ??
+    user.data?.user ??
+    user.data?.usuario ??
+    user.data ??
+    user;
+
+  // IMPORTANTE: os dados pessoais estão dentro de account.profile.
+  const personalProfile =
+    account.profile ??
+    account.customerProfile ??
+    account.customer ??
+    {};
+
+  const name = String(
+    personalProfile.name ??
+    personalProfile.nome ??
+    personalProfile.fullName ??
+    personalProfile.full_name ??
+    personalProfile.nomeCompleto ??
+    personalProfile.nome_completo ??
+    personalProfile.username ??
+    account.name ??
+    account.nome ??
+    account.fullName ??
+    account.full_name ??
+    account.nomeCompleto ??
+    account.nome_completo ??
+    account.username ??
+    ""
+  ).trim();
+
+  const email = String(
+    account.email ??
+    account.e_mail ??
+    personalProfile.email ??
+    ""
+  ).trim();
+
+  console.info("[Essenza] Dados da conta renderizados:", {
+    name: name || "Não informado",
+    email: email || "Não informado",
+    role: account.role || "Não informado"
+  });
+
+  const nameElement =
+    document.getElementById("adminAccountName");
+
+  const emailElement =
+    document.getElementById("adminAccountEmail");
+
+  const avatarElement =
+    document.getElementById("adminAccountAvatar");
+
+  const menuNameElement =
+    document.getElementById("adminAccountMenuName");
+
+  const menuEmailElement =
+    document.getElementById("adminAccountMenuEmail");
+
+  if (nameElement) {
+    nameElement.textContent = name || "Usuário";
+  }
+
+  if (emailElement) {
+    emailElement.textContent =
+      email || "E-mail não informado";
+  }
+
+  if (menuNameElement) {
+    menuNameElement.textContent =
+      name || "Minha conta";
+  }
+
+  if (menuEmailElement) {
+    menuEmailElement.textContent =
+      email || "E-mail não informado";
+  }
+
+  if (avatarElement) {
+    const initial = name
+      ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
+      : "U";
+
+    avatarElement.textContent = initial;
+  }
+
+  console.info("[Essenza] Cabeçalho atualizado:", {
+    name,
+    email,
+    initial: name
+      ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
+      : "U"
+  });
+}
+
+
+/**
+ * ==========================================================
+ * ESSENZA ÍNTIMAS — GERENCIAMENTO DA CONTA ADMINISTRATIVA
+ * ==========================================================
+ *
+ * Funcionalidades:
+ * - Abrir e fechar o menu da conta.
+ * - Atualizar o ícone da seta.
+ * - Fechar o menu ao clicar fora.
+ * - Fechar o menu com a tecla Escape.
+ * - Navegar para a página de perfil.
+ * - Encerrar a sessão administrativa.
+ */
+// ==========================================================
+// INICIALIZAÇÃO
+// ==========================================================
+function initAdminAccountMenu() {
+  const elements = {
+    account: document.getElementById("adminAccount"),
+    trigger: document.getElementById("adminAccountTrigger"),
+    menu: document.getElementById("adminAccountMenu"),
+    chevron: document.getElementById("adminAccountChevron"),
+    profileLink: document.getElementById("adminOpenProfile"),
+    logoutButton: document.getElementById("adminAccountLogout"),
+  };
+  // Verifica os elementos obrigatórios
+  if (!elements.account || !elements.trigger || !elements.menu) {
+    console.error(
+      "[Essenza] Não foi possível inicializar o menu da conta.",
+      {
+        account: Boolean(elements.account),
+        trigger: Boolean(elements.trigger),
+        menu: Boolean(elements.menu),
+      }
+    );
+    return;
+  }
+  // Evita registrar os mesmos eventos novamente
+  if (elements.account.dataset.initialized === "true") {
+    return;
+  }
+  elements.account.dataset.initialized = "true";
+  // Estado inicial do menu
+  closeAccountMenu(elements);
+  // Clique no botão da conta ou na seta
+  elements.trigger.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (elements.menu.hidden) {
+      openAccountMenu(elements);
+    } else {
+      closeAccountMenu(elements);
+    }
+  });
+  // Clique fora do menu
+  document.addEventListener("click", (event) => {
+    if (!elements.account.contains(event.target)) {
+      closeAccountMenu(elements);
+    }
+  });
+  // Fechar com Escape
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeAccountMenu(elements);
+    }
+  });
+  // Link para o perfil
+  if (elements.profileLink) {
+    elements.profileLink.addEventListener("click", (event) => {
+      closeAccountMenu(elements);
+      // Permite que o navegador siga o href definido no HTML.
+      // Não bloqueia a navegação com preventDefault().
+      const href = elements.profileLink.getAttribute("href");
+      if (!href || href === "#") {
+        event.preventDefault();
+        console.error(
+          "[Essenza] Configure o caminho da página de perfil."
+        );
+      }
+    });
+  }
+  // Botão para sair da conta
+  if (elements.logoutButton) {
+    elements.logoutButton.addEventListener("click", async () => {
+      if (typeof window.logout !== "function") {
+        console.error(
+          "[Essenza] A função logout() não foi encontrada."
+        );
+        return;
+      }
+      elements.logoutButton.disabled = true;
+      try {
+        await window.logout();
+      } catch (error) {
+        console.error("[Essenza] Erro ao encerrar a sessão:", error);
+      } finally {
+        elements.logoutButton.disabled = false;
+      }
+    });
+  }
+  console.info("[Essenza] Menu da conta inicializado.");
+}
+// ==========================================================
+// ABRIR MENU
+// ==========================================================
+function openAccountMenu(elements) {
+  elements.menu.hidden = false;
+  elements.trigger.setAttribute("aria-expanded", "true");
+  if (elements.chevron) {
+    elements.chevron.classList.remove("fa-chevron-down");
+    elements.chevron.classList.add("fa-chevron-up");
+  }
+}
+// ==========================================================
+// FECHAR MENU
+// ==========================================================
+function closeAccountMenu(elements) {
+  elements.menu.hidden = true;
+  elements.trigger.setAttribute("aria-expanded", "false");
+  if (elements.chevron) {
+    elements.chevron.classList.remove("fa-chevron-up");
+    elements.chevron.classList.add("fa-chevron-down");
+  }
+}
+// ==========================================================
+// EXECUTAR QUANDO O HTML ESTIVER PRONTO
+// ==========================================================
+if (document.readyState === "loading") {
+  document.addEventListener(
+    "DOMContentLoaded",
+    initAdminAccountMenu,
+    { once: true }
+  );
+} else {
+  initAdminAccountMenu();
+}
