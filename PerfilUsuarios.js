@@ -157,27 +157,18 @@ async function fetchUserData() {
       throw new Error("A API não retornou um usuário válido.");
     }
 
-    // Armazena o usuário autenticado.
-    currentUser = user;
+      state.profile = user;
+      state.profileLoaded = true;
 
-    // Atualiza o resumo da conta no HTML.
-    renderAdminAccount(currentUser);
+      renderAdminAccount(state.profile);
 
     // Atualiza o status da loja, caso essa função exista.
     if (typeof renderStoreStatus === "function") {
-      renderStoreStatus(currentUser);
+      renderStoreStatus(state.profile);
     }
 
-    console.info("[Essenza] Usuário autenticado:", {
-      name:
-        currentUser.profile?.name ??
-        currentUser.name ??
-        "",
-      email: currentUser.email ?? "",
-      role: currentUser.role ?? ""
-    });
 
-    return currentUser;
+    return state.profile;
 
   } catch (error) {
     console.error(
