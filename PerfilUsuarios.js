@@ -117,6 +117,199 @@
       block: "nearest"
     });
   }
+  
+  
+/**
+ * ============================================================
+ * ESSENZA ÍNTIMAS — CARREGAR USUÁRIO AUTENTICADO
+ * ============================================================
+ */
+
+async function fetchUserData() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Erro ao carregar perfil: HTTP ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+
+    // Normaliza os possíveis formatos da resposta da API.
+    const user =
+      data?.user ??
+      data?.usuario ??
+      data?.data?.user ??
+      data?.data?.usuario ??
+      data?.data ??
+      data;
+
+    if (!user || typeof user !== "object" || Array.isArray(user)) {
+      throw new Error("A API não retornou um usuário válido.");
+    }
+
+    // Armazena o usuário autenticado.
+    currentUser = user;
+
+    // Atualiza o resumo da conta no HTML.
+    renderAdminAccount(currentUser);
+
+    // Atualiza o status da loja, caso essa função exista.
+    if (typeof renderStoreStatus === "function") {
+      renderStoreStatus(currentUser);
+    }
+
+    console.info("[Essenza] Usuário autenticado:", {
+      name:
+        currentUser.profile?.name ??
+        currentUser.name ??
+        "",
+      email: currentUser.email ?? "",
+      role: currentUser.role ?? ""
+    });
+
+    return currentUser;
+
+  } catch (error) {
+    console.error(
+      "[Essenza] Erro ao buscar dados do usuário:",
+      error
+    );
+
+    // Atualiza a interface em caso de erro.
+    renderAdminAccount(null);
+
+    throw error;
+  }
+}
+
+
+/**
+ * ============================================================
+ * ESSENZA ÍNTIMAS — RENDERIZAR RESUMO DA CONTA
+ * HTML:
+ * profileAvatar
+ * summaryName
+ * summaryEmail
+ * ============================================================
+ */
+
+function renderAdminAccount(user = currentUser) {
+  const avatarElement =
+    document.getElementById("profileAvatar");
+
+  const nameElement =
+    document.getElementById("summaryName");
+
+  const emailElement =
+    document.getElementById("summaryEmail");
+
+  // Se os elementos não existirem na página, encerra.
+  if (!avatarElement && !nameElement && !emailElement) {
+    console.warn(
+      "[Essenza] Elementos do resumo da conta não encontrados."
+    );
+    return;
+  }
+
+  // Se o usuário não foi carregado, exibe valores padrão.
+  if (!user || typeof user !== "object") {
+    if (avatarElement) {
+      avatarElement.textContent = "E";
+    }
+
+    if (nameElement) {
+      nameElement.textContent = "Minha conta";
+    }
+
+    if (emailElement) {
+      emailElement.textContent =
+        "Não foi possível carregar os dados.";
+    }
+
+    return;
+  }
+
+  // Normaliza possíveis formatos de resposta.
+  const account =
+    user.user ??
+    user.usuario ??
+    user.data?.user ??
+    user.data?.usuario ??
+    user.data ??
+    user;
+
+  // Dados pessoais podem estar dentro de profile.
+  const profile =
+    account.profile ??
+    account.customerProfile ??
+    account.customer ??
+    {};
+
+  // Obtém o nome do usuário.
+  const name = String(
+    profile.name ??
+    profile.nome ??
+    profile.fullName ??
+    profile.full_name ??
+    profile.nomeCompleto ??
+    profile.nome_completo ??
+    profile.username ??
+    account.name ??
+    account.nome ??
+    account.fullName ??
+    account.full_name ??
+    account.nomeCompleto ??
+    account.nome_completo ??
+    account.username ??
+    ""
+  ).trim();
+
+  // Obtém o e-mail da conta autenticada.
+  const email = String(
+    account.email ??
+    account.e_mail ??
+    profile.email ??
+    ""
+  ).trim();
+
+  // Define a inicial do avatar.
+  const initial = name
+    ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
+    : "E";
+
+  // Atualiza o nome exibido no HTML.
+  if (nameElement) {
+    nameElement.textContent = name || "Minha conta";
+  }
+
+  // Atualiza o e-mail exibido no HTML.
+  if (emailElement) {
+    emailElement.textContent =
+      email || "E-mail não informado";
+  }
+
+  // Atualiza a letra do avatar.
+  if (avatarElement) {
+    avatarElement.textContent = initial;
+  }
+
+  console.info("[Essenza] Resumo da conta atualizado:", {
+    name: name || "Não informado",
+    email: email || "Não informado",
+    initial
+  });
+}
+
 
   function clearGlobalNotice() {
     if (!globalNotice) return;
