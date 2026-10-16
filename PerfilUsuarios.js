@@ -194,17 +194,12 @@ async function fetchUserData() {
  * ============================================================
  */
 
-function renderAdminAccount(user = currentUser) {
-  const avatarElement =
-    document.getElementById("profileAvatar");
 
-  const nameElement =
-    document.getElementById("summaryName");
+function renderAdminAccount(user = state.profile) {
+  const avatarElement = $("#profileAvatar");
+  const nameElement = $("#summaryName");
+  const emailElement = $("#summaryEmail");
 
-  const emailElement =
-    document.getElementById("summaryEmail");
-
-  // Se os elementos não existirem na página, encerra.
   if (!avatarElement && !nameElement && !emailElement) {
     console.warn(
       "[Essenza] Elementos do resumo da conta não encontrados."
@@ -212,11 +207,8 @@ function renderAdminAccount(user = currentUser) {
     return;
   }
 
-  // Se o usuário não foi carregado, exibe valores padrão.
   if (!user || typeof user !== "object") {
-    if (avatarElement) {
-      avatarElement.textContent = "E";
-    }
+    if (avatarElement) avatarElement.textContent = "E";
 
     if (nameElement) {
       nameElement.textContent = "Minha conta";
@@ -230,7 +222,6 @@ function renderAdminAccount(user = currentUser) {
     return;
   }
 
-  // Normaliza possíveis formatos de resposta.
   const account =
     user.user ??
     user.usuario ??
@@ -239,14 +230,12 @@ function renderAdminAccount(user = currentUser) {
     user.data ??
     user;
 
-  // Dados pessoais podem estar dentro de profile.
   const profile =
     account.profile ??
     account.customerProfile ??
     account.customer ??
     {};
 
-  // Obtém o nome do usuário.
   const name = String(
     profile.name ??
     profile.nome ??
@@ -265,7 +254,6 @@ function renderAdminAccount(user = currentUser) {
     ""
   ).trim();
 
-  // Obtém o e-mail da conta autenticada.
   const email = String(
     account.email ??
     account.e_mail ??
@@ -273,31 +261,43 @@ function renderAdminAccount(user = currentUser) {
     ""
   ).trim();
 
-  // Define a inicial do avatar.
-  const initial = name
-    ? Array.from(name)[0].toLocaleUpperCase("pt-BR")
-    : "E";
+  const initial = getInitial(name);
 
-  // Atualiza o nome exibido no HTML.
   if (nameElement) {
     nameElement.textContent = name || "Minha conta";
   }
 
-  // Atualiza o e-mail exibido no HTML.
   if (emailElement) {
     emailElement.textContent =
       email || "E-mail não informado";
   }
 
-  // Atualiza a letra do avatar.
   if (avatarElement) {
     avatarElement.textContent = initial;
   }
 
+  // Preenche os campos do formulário, se estiverem vazios.
+  if (profileName && !profileName.value) {
+    profileName.value = name;
+  }
+
+  if (profilePhone && !profilePhone.value) {
+    profilePhone.value = String(
+      profile.phone ??
+      profile.telefone ??
+      account.phone ??
+      account.telefone ??
+      ""
+    );
+  }
+
+  if (profileEmail && !profileEmail.value) {
+    profileEmail.value = email;
+  }
+
   console.info("[Essenza] Resumo da conta atualizado:", {
     name: name || "Não informado",
-    email: email || "Não informado",
-    initial
+    email: email || "Não informado"
   });
 }
 
