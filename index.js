@@ -277,9 +277,25 @@ async function logout() {
  * Altera o estado visual das telas do ecossistema.
  * Oculta a interface de autenticação e inicializa o carregamento dos módulos do Dashboard.
  */
+
 function showDashboard() {
-  document.getElementById("login-screen").classList.add("hidden");
-  document.getElementById("main-app").classList.remove("hidden");
+  const loginScreen = document.getElementById("login-screen");
+  const mainApp = document.getElementById("main-app");
+
+  if (!loginScreen || !mainApp) {
+    console.error("Não foi possível encontrar as telas.");
+    return;
+  }
+
+  // Esconde completamente o formulário
+  loginScreen.style.display = "none";
+  loginScreen.classList.add("hidden");
+
+  // Exibe o painel administrativo
+  mainApp.classList.remove("hidden");
+  mainApp.style.display = "flex";
+
+  // Carrega os produtos
   loadProducts();
 }
 
