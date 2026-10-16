@@ -1056,6 +1056,8 @@ function renderAdminAccount(user = state.profile) {
     initializeForms();
     initializePasswordVisibility();
     updatePasswordRules();
+    
+    fetchUserData();
 
     // Carrega os dados da conta.
     loadProfile();
