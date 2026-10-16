@@ -531,19 +531,19 @@ function renderAdminAccount(user = state.profile) {
     state.profileLoaded = true;
 
     const name = normalizeText(
-      user.name ?? user.nome ?? user.fullName ?? user.full_name
+      user.profile.name ?? user.profile.nome ?? user.profile.fullName ?? user.profile.full_name
     );
 
     const email = normalizeText(
-      user.email ?? user.e_mail
+      user.profile.email ?? user.profile.e_mail
     );
 
     const phone = normalizeText(
-      user.phone ??
-      user.telefone ??
-      user.cellphone ??
-      user.celular ??
-      user.whatsapp
+      user.profile.phone ??
+      user.profile.telefone ??
+      user.profile.cellphone ??
+      user.profile.celular ??
+      user.profile.whatsapp
     );
 
     if (profileName) profileName.value = name;
