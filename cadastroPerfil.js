@@ -58,25 +58,6 @@ async function verificarAdministrador() {
 
     const usuario = await response.json();
 
-    if (String(usuario.role || "").toUpperCase() !== "ADMIN") {
-      document.body.innerHTML = `
-        <main style="
-          max-width:450px;
-          margin:70px auto;
-          padding:24px;
-          font-family:Arial,sans-serif;
-          text-align:center
-        ">
-          <h1>Acesso negado</h1>
-          <p>Somente administradores podem acessar esta tela.</p>
-          <button onclick="location.href='/'">
-            Voltar
-          </button>
-        </main>
-      `;
-      return;
-    }
-
     adminVerificado = true;
     container.hidden = false;
     atualizarTipoUsuario();
