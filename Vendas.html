@@ -940,7 +940,7 @@ async function carregarOperadores() {
 
   try {
     // Usa a rota existente de usuários.
-    const data = await api("https://essenzaintimasapi.onrender.com/products/users/list");
+    const data = await api("/products/users/list");
     const usuarios = normalizarLista(data);
 
     // Considera apenas contas ativas de funcionários e administradores.
