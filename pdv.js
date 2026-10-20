@@ -223,40 +223,63 @@ function categoriaProduto(produto) {
 async function carregarProdutos() {
   $("productGrid").innerHTML =
     '<div class="empty-products">Carregando produtos...</div>';
-
   try {
+    alert("1. Iniciando carregamento dos produtos...");
     const resposta = await requisicao(ENDPOINTS.produtos);
-
+    alert(
+      "2. Resposta recebida da API.\nTipo: " +
+      (Array.isArray(resposta) ? "Array" : typeof resposta)
+    );
     const lista = Array.isArray(resposta)
       ? resposta
       : resposta?.products ||
         resposta?.produtos ||
         resposta?.data ||
         [];
-
     if (!Array.isArray(lista)) {
-      throw new Error("A API não retornou uma lista válida de produtos.");
+      throw new Error("A API não retornou uma lista válida.");
     }
-
-    state.produtos = lista.filter(
-      (produto) => produtoAtivo(produto) && produtoDisponivel(produto)
+    alert("3. Produtos recebidos da API: " + lista.length);
+    // Diagnóstico temporário: mostra os campos do primeiro produto.
+    if (lista.length > 0) {
+      const p = lista[0];
+      alert(
+        "4. Primeiro produto:\n" +
+        "ID: " + (p.id ?? "não informado") + "\n" +
+        "_id: " + (p._id ?? "não informado") + "\n" +
+        "Nome: " + (p.name ?? p.nome ?? "não informado") + "\n" +
+        "Status: " + (p.status ?? "não informado") + "\n" +
+        "SKUs: " + (Array.isArray(p.skus) ? p.skus.length : 0)
+      );
+    }
+    state.produtos = lista.filter((produto) => {
+      const ativo = produtoAtivo(produto);
+      const disponivel = produtoDisponivel(produto);
+      return ativo && disponivel;
+    });
+    alert(
+      "5. Produtos após os filtros: " +
+      state.produtos.length +
+      "\nRecebidos: " + lista.length
     );
-
     renderizarCategorias();
     renderizarProdutos();
+    alert("6. Renderização concluída.");
     mostrarAviso(
       `${state.produtos.length} produto(s) disponível(is).`,
       "success"
     );
   } catch (error) {
-    $("productGrid").innerHTML = `
-      <div class="empty-products">
-        Não foi possível carregar os produtos.<br><br>
-        ${escaparHTML(error.message)}
-      </div>
-    `;
-
-    mostrarAviso(error.message, "error");
+    alert(
+      "ERRO AO CARREGAR PRODUTOS:\n" +
+      (error?.message || String(error))
+    );
+    $("productGrid").innerHTML =
+      '<div class="empty-products">Não foi possível carregar os produtos.</div>';
+    mostrarAviso(
+      error?.message || "Erro desconhecido.",
+      "error"
+    );
   }
 }
 
