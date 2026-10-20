@@ -684,7 +684,33 @@ async function baixarEstoqueDoItem(item) {
   });
 }
 
+
 async function registrarVenda(dados, itens) {
+  alert(
+    "[DEBUG 1 — REGISTRAR VENDA]\n\n" +
+    "Total: " + dados.total + "\n" +
+    "Desconto: " + dados.desconto + "\n" +
+    "Acréscimo: " + dados.acrescimo + "\n" +
+    "Itens: " + itens.length
+  );
+
+  alert(
+    "[DEBUG 2 — DADOS DO CARRINHO]\n\n" +
+    JSON.stringify(
+      itens.map((item) => ({
+        productId: item.productId,
+        skuId: item.skuId,
+        sku: item.sku,
+        nome: item.nome,
+        preco: item.preco,
+        precoUnitario: item.precoUnitario,
+        quantidade: item.quantidade,
+      })),
+      null,
+      2
+    )
+  );
+
   const body = {
     caixaId: null,
     cliente: {
@@ -707,10 +733,33 @@ async function registrarVenda(dados, itens) {
     origem: "PDV",
   };
 
-  return requisicao(ENDPOINTS.vendas, {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  alert(
+    "[DEBUG 3 — BODY ENVIADO PARA /vendas]\n\n" +
+    JSON.stringify(body, null, 2)
+  );
+
+  try {
+    const resposta = await requisicao(ENDPOINTS.vendas, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+
+    alert(
+      "[DEBUG 4 — RESPOSTA DA VENDA]\n\n" +
+      JSON.stringify(resposta, null, 2)
+    );
+
+    return resposta;
+  } catch (error) {
+    alert(
+      "[DEBUG 4 — ERRO DA API]\n\n" +
+      "Mensagem: " + error.message + "\n" +
+      "Status HTTP: " + (error.status ?? "desconhecido") + "\n" +
+      "Resposta: " + JSON.stringify(error.response ?? null, null, 2)
+    );
+
+    throw error;
+  }
 }
 
 async function finalizarVenda() {
@@ -722,6 +771,7 @@ async function finalizarVenda() {
     dados = validarVenda();
     obterHeaders(true);
   } catch (error) {
+    alert("[DEBUG — VALIDAÇÃO]\n\n" + error.message);
     mostrarAviso(error.message, "error");
     return;
   }
@@ -740,29 +790,64 @@ async function finalizarVenda() {
   const itens = state.carrinho.map((item) => ({ ...item }));
 
   try {
-    // Revalida os dados do catálogo antes de começar.
     await carregarProdutosSilencioso();
+
+    alert(
+      "[DEBUG 5 — PRODUTOS DO CATÁLOGO]\n\n" +
+      JSON.stringify(
+        state.produtos.map((produto) => ({
+          id: produto.id,
+          _id: produto._id,
+          productId: produto.productId,
+          nome: produto.nome ?? produto.name,
+          price: produto.price,
+          preco: produto.preco,
+          stock: produto.stock,
+          skus: produto.skus ?? produto.variantes,
+        })),
+        null,
+        2
+      )
+    );
 
     for (const item of itens) {
       const produtoAtual = state.produtos.find(
-        (produto) => idProduto(produto) === item.productId
+        (produto) => idProduto(produto) === String(item.productId)
       );
 
       if (!produtoAtual) {
         throw new Error(
-          `O produto "${item.nome}" não está mais disponível.`
+          `Produto não encontrado no catálogo: ${item.nome} (${item.productId})`
         );
       }
 
       const varianteAtual = item.skuId
         ? variantesProduto(produtoAtual).find(
-            (variante) => idSku(variante) === item.skuId
+            (variante) => idSku(variante) === String(item.skuId)
           )
         : null;
 
       if (item.skuId && !varianteAtual) {
-        throw new Error(`A variação de "${item.nome}" não foi encontrada.`);
+        throw new Error(
+          `Variação não encontrada: ${item.nome}, SKU ${item.skuId}`
+        );
       }
+
+      alert(
+        "[DEBUG 6 — PREÇO E ESTOQUE]\n\n" +
+        "Produto: " + (item.nome ?? "Sem nome") + "\n" +
+        "ID enviado: " + item.productId + "\n" +
+        "SKU ID: " + (item.skuId ?? "Nenhum") + "\n" +
+        "Preço no carrinho: " + item.preco + "\n" +
+        "Preço unitário: " + item.precoUnitario + "\n" +
+        "Preço no produto: " +
+          (produtoAtual.price ?? produtoAtual.preco ?? "indefinido") + "\n" +
+        "Preço no SKU: " +
+          (varianteAtual?.price ?? varianteAtual?.preco ?? "indefinido") + "\n" +
+        "Estoque do produto: " + estoqueProduto(produtoAtual) + "\n" +
+        "Estoque do SKU: " +
+          (varianteAtual ? estoqueSku(varianteAtual) : "N/A")
+      );
 
       const estoqueAtual = varianteAtual
         ? estoqueSku(varianteAtual)
@@ -775,13 +860,26 @@ async function finalizarVenda() {
       }
     }
 
-    // Primeiro desconta cada produto usando o SellProduct existente.
-    // O backend valida novamente o usuário, a política e o estoque.
+    alert(
+      "[DEBUG 7]\nValidação concluída. Iniciando baixas de estoque."
+    );
+
     for (const item of itens) {
+      alert(
+        "[DEBUG 8 — BAIXA DE ESTOQUE]\n\n" +
+        "Produto: " + item.nome + "\n" +
+        "ID enviado: " + item.productId + "\n" +
+        "Quantidade: " + item.quantidade + "\n" +
+        "SKU ID: " + (item.skuId ?? "Nenhum")
+      );
+
       await baixarEstoqueDoItem(item);
     }
 
-    // Depois grava o histórico da venda.
+    alert(
+      "[DEBUG 9]\nBaixas concluídas. Agora registrando a venda."
+    );
+
     const venda = await registrarVenda(dados, itens);
 
     state.carrinho = [];
@@ -801,21 +899,34 @@ async function finalizarVenda() {
       venda?._id ||
       "Venda registrada";
 
+    alert("[DEBUG 10 — SUCESSO]\n\n" + codigo);
+
     mostrarAviso(
       `Venda concluída. Referência: ${codigo}`,
       "success"
     );
   } catch (error) {
+    alert(
+      "[DEBUG — FALHA NA FINALIZAÇÃO]\n\n" +
+      "Erro: " + error.message + "\n" +
+      "Status: " + (error.status ?? "N/A") + "\n" +
+      "Resposta: " + JSON.stringify(error.response ?? null)
+    );
+
     mostrarAviso(
-      `Não foi possível concluir a venda: ${error.message}. ` +
-      `Confira o estoque e o histórico antes de tentar novamente.`,
+      `Não foi possível concluir a venda: ${error.message}. Confira o estoque e o histórico antes de tentar novamente.`,
       "error"
     );
 
-    // Não repetimos automaticamente a operação: algumas baixas
-    // podem já ter sido realizadas.
-    await carregarProdutosSilencioso();
-    renderizarProdutos();
+    try {
+      await carregarProdutosSilencioso();
+      renderizarProdutos();
+    } catch (reloadError) {
+      alert(
+        "[DEBUG — ERRO AO RECARREGAR]\n\n" +
+        reloadError.message
+      );
+    }
   } finally {
     state.processando = false;
     $("finishSale").disabled = false;
