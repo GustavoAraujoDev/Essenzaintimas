@@ -381,6 +381,80 @@
       .mobile-menu { display: inline-block; }
       .detail-grid { grid-template-columns: 1fr; }
     }
+
+    
+/* KPIs de pedidos */
+.orders-stats-grid,
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+  width: 100%;
+  margin: 20px 0 24px;
+}
+
+.orders-stats-grid .stat-card,
+.stats-grid .stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+  min-height: 115px;
+  padding: 20px;
+  background: var(--card, #ffffff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.orders-stats-grid .stat-card:hover,
+.stats-grid .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
+}
+
+.orders-stats-grid .stat-card span,
+.stats-grid .stat-card span {
+  color: var(--muted, #6b7280);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.orders-stats-grid .stat-card strong,
+.stats-grid .stat-card strong {
+  color: var(--text, #171717);
+  font-size: clamp(22px, 2vw, 29px);
+  font-weight: 750;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 600px) {
+  .orders-stats-grid,
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 14px 0 20px;
+  }
+
+  .orders-stats-grid .stat-card,
+  .stats-grid .stat-card {
+    padding: 14px;
+    min-height: 100px;
+    border-radius: 12px;
+  }
+
+  .orders-stats-grid .stat-card strong,
+  .stats-grid .stat-card strong {
+    font-size: 21px;
+  }
+}
+
   </style>
 </head>
 
@@ -562,7 +636,7 @@
           </div>
 
           
-<div class="stats-grid">
+<div class="orders-stats-grid">
   <div class="stat-card">
     <span>Total de pedidos</span>
     <strong id="ordersStatCount">0</strong>
