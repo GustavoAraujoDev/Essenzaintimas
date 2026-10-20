@@ -561,6 +561,55 @@
             <button class="btn secondary" id="clearOrdersFilters">Limpar</button>
           </div>
 
+          
+<div class="stats-grid">
+  <div class="stat-card">
+    <span>Total de pedidos</span>
+    <strong id="ordersStatCount">0</strong>
+  </div>
+
+  <div class="stat-card">
+    <span>Faturamento válido</span>
+    <strong id="ordersStatRevenue">R$ 0,00</strong>
+  </div>
+
+  <div class="stat-card">
+    <span>Ticket médio</span>
+    <strong id="ordersStatAverage">R$ 0,00</strong>
+  </div>
+
+  <div class="stat-card">
+    <span>Pendentes</span>
+    <strong id="ordersStatPending">0</strong>
+  </div>
+
+  <div class="stat-card">
+    <span>Em andamento</span>
+    <strong id="ordersStatProgress">0</strong>
+  </div>
+
+  <div class="stat-card">
+    <span>Concluídos</span>
+    <strong id="ordersStatCompleted">0</strong>
+  </div>
+
+  <div class="stat-card">
+    <span>Cancelados</span>
+    <strong id="ordersStatCanceled">0</strong>
+  </div>
+
+  <div class="stat-card">
+    <span>Pedidos de hoje</span>
+    <strong id="ordersStatToday">0</strong>
+  </div>
+
+  <div class="stat-card">
+    <span>Valor cancelado</span>
+    <strong id="ordersStatCanceledValue">R$ 0,00</strong>
+  </div>
+</div>
+
+
           <div class="table-wrap">
             <table>
               <thead>
@@ -1244,9 +1293,99 @@ function renderizarVendas() {
     `${items.length} venda(s) exibida(s) de ${state.vendas.length}.`;
 }
 
+
 function renderizarPedidos() {
   const items = pedidosFiltrados();
 
+  const normalizarStatus = (item) =>
+    String(statusRegistro(item) || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase()
+      .trim()
+      .replace(/[\s-]+/g, "_");
+
+  const canceladas = items.filter((item) =>
+    /CANCEL|ANULAD|ESTORNAD/.test(normalizarStatus(item))
+  );
+
+  const validas = items.filter(
+    (item) => !canceladas.includes(item)
+  );
+
+  const pendentes = validas.filter((item) =>
+    /PENDENT|AGUARDANDO|CREATED|NOVO|RECEBIDO/.test(
+      normalizarStatus(item)
+    )
+  );
+
+  const concluidas = validas.filter((item) =>
+    /CONCLUID|FINALIZAD|ENTREGUE|DELIVERED|COMPLETED|FINALIZADO/.test(
+      normalizarStatus(item)
+    )
+  );
+
+  const emAndamento = validas.filter((item) => {
+    const status = normalizarStatus(item);
+
+    return (
+      /PREPAR|PROCESS|ANDAMENTO|CONFIRMAD|READY|PRONTO|SAIU_PARA_ENTREGA|OUT_FOR_DELIVERY/.test(status) &&
+      !/CANCEL|ANULAD|ESTORNAD|CONCLUID|FINALIZAD|ENTREGUE|DELIVERED|COMPLETED/.test(status)
+    );
+  });
+
+  const faturamento = validas.reduce(
+    (total, item) => total + (Number(valorRegistro(item)) || 0),
+    0
+  );
+
+  const valorCancelado = canceladas.reduce(
+    (total, item) => total + (Number(valorRegistro(item)) || 0),
+    0
+  );
+
+  const ticketMedio = validas.length
+    ? faturamento / validas.length
+    : 0;
+
+  // Compara usando a data local do dispositivo.
+  const agora = new Date();
+
+  const pedidosHoje = items.filter((item) => {
+    const data = new Date(
+      item.createdAt ||
+      item.created_at ||
+      item.data ||
+      item.dataCriacao ||
+      item.createdAtISO ||
+      ""
+    );
+
+    return (
+      !Number.isNaN(data.getTime()) &&
+      data.getDate() === agora.getDate() &&
+      data.getMonth() === agora.getMonth() &&
+      data.getFullYear() === agora.getFullYear()
+    );
+  });
+
+  // Atualiza os KPIs, se os respectivos elementos existirem.
+  const atualizarKpi = (id, valor) => {
+    const elemento = $(id);
+    if (elemento) elemento.textContent = valor;
+  };
+
+  atualizarKpi("ordersStatCount", items.length);
+  atualizarKpi("ordersStatRevenue", moeda(faturamento));
+  atualizarKpi("ordersStatAverage", moeda(ticketMedio));
+  atualizarKpi("ordersStatPending", pendentes.length);
+  atualizarKpi("ordersStatProgress", emAndamento.length);
+  atualizarKpi("ordersStatCompleted", concluidas.length);
+  atualizarKpi("ordersStatCanceled", canceladas.length);
+  atualizarKpi("ordersStatToday", pedidosHoje.length);
+  atualizarKpi("ordersStatCanceledValue", moeda(valorCancelado));
+
+  // Mantém a tabela de pedidos.
   $("ordersBody").innerHTML = items.length
     ? items.map((item) => `
       <tr>
@@ -1257,7 +1396,12 @@ function renderizarPedidos() {
         <td>${escapar(moeda(valorRegistro(item)))}</td>
         <td>${badgeStatus(statusRegistro(item))}</td>
         <td>
-          <button class="btn small secondary" data-action="order-detail" data-id="${escapar(idRegistro(item))}">Detalhes</button>
+          <button
+            class="btn small secondary"
+            data-action="order-detail"
+            data-id="${escapar(idRegistro(item))}">
+            Detalhes
+          </button>
         </td>
       </tr>
     `).join("")
@@ -1267,103 +1411,6 @@ function renderizarPedidos() {
     `${items.length} pedido(s) exibido(s) de ${state.pedidos.length}.`;
 }
 
-/* =========================================================
-   DETALHES
-   ========================================================= */
-function abrirDetalhes(tipo, item) {
-  if (!item) {
-    mostrarAviso("Registro não encontrado.", "error");
-    return;
-  }
-
-  const isSale = tipo === "sale";
-  $("modalTitle").textContent = isSale ? "Detalhes da venda" : "Detalhes do pedido";
-
-  const details = [
-    ["ID", idRegistro(item)],
-    ["Data", formatarData(item)],
-    ["Cliente", nomeCliente(item)],
-    ["Telefone", telefoneCliente(item)],
-    ["Operador", operador(item)],
-    ["Pagamento", pagamento(item)],
-    ["Valor", moeda(valorRegistro(item))],
-    ["Status", statusRegistro(item)],
-    ["Empresa", primeiro(item?.companyId, item?.empresaId, item?.company?.name, "—")],
-    ["Observação", primeiro(item?.observacao, item?.observations, item?.notes, "—")]
-  ];
-
-  const products = primeiro(
-    item?.itens,
-    item?.items,
-    item?.produtos,
-    item?.products,
-    item?.cart,
-    []
-  );
-
-  let productsHtml = "";
-
-  if (Array.isArray(products) && products.length) {
-    productsHtml = `
-      <h3>Itens</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Produto</th><th>Quantidade</th><th>Preço</th><th>Total</th></tr>
-          </thead>
-          <tbody>
-            ${products.map((product) => {
-              const name = primeiro(
-                product?.nome,
-                product?.name,
-                product?.produtoNome,
-                product?.product?.name,
-                product?.produto?.nome,
-                "Produto"
-              );
-              const qty = Number(primeiro(product?.quantidade, product?.quantity, product?.qty, 1));
-              const price = Number(primeiro(product?.preco, product?.price, product?.valorUnitario, product?.unitPrice, 0));
-              const total = Number(primeiro(product?.subtotal, product?.total, product?.totalPrice, price * qty));
-
-              return `
-                <tr>
-                  <td>${escapar(name)}</td>
-                  <td>${escapar(qty)}</td>
-                  <td>${escapar(moeda(price))}</td>
-                  <td>${escapar(moeda(total))}</td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  $("modalContent").innerHTML = `
-    <div class="detail-grid">
-      ${details.map(([label, value]) => `
-        <div class="detail-item">
-          <small>${escapar(label)}</small>
-          <strong>${escapar(value)}</strong>
-        </div>
-      `).join("")}
-    </div>
-    ${productsHtml}
-  `;
-
-  $("modalActions").innerHTML = "";
-
-  if (isSale && !/CANCEL/.test(statusRegistro(item))) {
-    const cancelButton = document.createElement("button");
-    cancelButton.className = "btn danger";
-    cancelButton.textContent = "Cancelar venda";
-    cancelButton.addEventListener("click", () => cancelarVenda(idRegistro(item)));
-    $("modalActions").appendChild(cancelButton);
-  }
-
-  $("detailModal").classList.add("show");
-}
 
 async function buscarVendaDetalhe(id) {
   try {
