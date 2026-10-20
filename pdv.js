@@ -1007,35 +1007,57 @@ function configurarEventos() {
 
   $("paymentMethod").addEventListener("change", atualizarTroco);
 
-  $("productGrid").addEventListener("click", (event) => {
-    const botao = event.target.closest(".add-product");
-    if (!botao) return;
-
-    const indice = Number(botao.dataset.productIndex);
-    const produto = state.produtos[indice];
-
-    if (!produto) {
-      mostrarAviso("Produto não encontrado. Atualize o catálogo.", "error");
+ $("productGrid").addEventListener("click", (event) => {
+  const botao = event.target.closest(".add-product");
+  if (!botao) return;
+  // O catálogo usa data-product-id, não data-product-index.
+  const productId = String(
+    botao.dataset.productId || ""
+  ).trim();
+  const produto = state.produtos.find(
+    (item) => idProduto(item) === productId
+  );
+  if (!produto) {
+    console.error("[PDV] Produto não encontrado", {
+      productId,
+      idsDisponiveis: state.produtos.map(idProduto),
+    });
+    mostrarAviso(
+      "Produto não encontrado. Atualize o catálogo.",
+      "error"
+    );
+    return;
+  }
+  const card = botao.closest(".product");
+  const seletor = card?.querySelector(".sku-selector");
+  let variante = null;
+  if (seletor) {
+    const skuIdSelecionado = String(seletor.value || "");
+    variante = variantesProduto(produto).find(
+      (v) => idSku(v) === skuIdSelecionado
+    );
+    if (!variante) {
+      console.error("[PDV] Variação não encontrada", {
+        productId,
+        skuIdSelecionado,
+        skus: variantesProduto(produto).map(idSku),
+      });
+      mostrarAviso(
+        "Variação não encontrada. Atualize o catálogo.",
+        "error"
+      );
       return;
     }
-
-    const card = botao.closest(".product");
-    const seletor = card.querySelector(".sku-selector");
-
-    let variante = null;
-
-    if (seletor) {
-      const skuIdSelecionado = seletor.value;
-
-      variante = variantesProduto(produto).find(
-        (v) => idSku(v) === skuIdSelecionado
+    if (estoqueSku(variante) <= 0) {
+      mostrarAviso(
+        "Selecione uma variação com estoque.",
+        "error"
       );
-
-      if (!variante || estoqueSku(variante) <= 0) {
-        mostrarAviso("Selecione uma variação com estoque.", "error");
-        return;
-      }
+      return;
     }
+  }
+  adicionarProduto(produto, variante);
+});
 
     adicionarProduto(produto, variante);
     mostrarAviso("Produto adicionado ao carrinho.", "success");
