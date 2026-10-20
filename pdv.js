@@ -103,98 +103,90 @@ async function requisicao(url, options = {}) {
 
 
 function idProduto(produto) {
-  alert(
-    "[DEBUG ID PRODUTO]\n\n" +
-    "id: " + String(produto?.id ?? "undefined") + "\n" +
-    "_id: " + String(produto?._id ?? "undefined") + "\n" +
-    "productId: " + String(produto?.productId ?? "undefined")
-  );
-
-  const id = String(
-    produto?.id ||
-    produto?._id ||
-    produto?.productId ||
-    ""
-  );
-
-  alert("[DEBUG] ID escolhido para o produto:\n" + (id || "VAZIO"));
-
-  return id;
+  return String(produto?.id || produto?._id || "");
 }
-
-
 function nomeProduto(produto) {
-  return String(produto?.nome || produto?.name || produto?.title || "Produto");
+  return String(
+    produto?.nome ||
+    produto?.name ||
+    "Produto sem nome"
+  ).trim();
 }
-
-function precoProduto(produto) {
-  return Number(
-    produto?.preco ??
-    produto?.price ??
-    produto?.valor ??
-    0
-  );
+function categoriaProduto(produto) {
+  return String(
+    produto?.categoria ||
+    produto?.category ||
+    produto?.categoryId ||
+    "SEM CATEGORIA"
+  ).trim() || "SEM CATEGORIA";
 }
-
 function variantesProduto(produto) {
-  const variantes = produto?.variantes || produto?.skus || [];
-  return Array.isArray(variantes) ? variantes : [];
+  return Array.isArray(produto?.skus)
+    ? produto.skus
+    : Array.isArray(produto?.variantes)
+      ? produto.variantes
+      : [];
 }
-
 function idSku(variante) {
-  return String(
-    variante?.size ||
-    variante?._id ||
-    variante?.id ||
-    variante?.skuId ||
-    variante?.sku ||
-    ""
-  );
+  return String(variante?._id || variante?.id || "");
 }
-
-function codigoSku(variante) {
-  return String(
-    variante?.sku ||
-    variante?.codigo ||
-    variante?.code ||
-    idSku(variante)
-  );
-}
-
 function nomeSku(variante) {
-  const tamanho = variante?.tamanho || variante?.size;
-  const cor = variante?.cor || variante?.color;
-  const partes = [tamanho, cor].filter(Boolean);
-
-  return partes.length
-    ? partes.join(" / ")
-    : codigoSku(variante);
+  return String(
+    variante?.name ||
+    variante?.nome ||
+    "Variante"
+  ).trim();
 }
-
-function precoSku(variante, produto) {
-  return Number(
-    variante?.preco ??
+function precoSku(variante, produto = null) {
+  const valor =
     variante?.price ??
-    precoProduto(produto)
-  );
+    variante?.preco ??
+    produto?.basePrice ??
+    produto?.base_price ??
+    produto?.preco ??
+    produto?.price;
+  const preco = Number(valor);
+  return Number.isFinite(preco) && preco >= 0
+    ? preco
+    : 0;
 }
-
+function precoProduto(produto) {
+  const variantes = variantesProduto(produto);
+  // Prioriza o preço da primeira variante disponível.
+  const varianteDisponivel = variantes.find(
+    (variante) => estoqueSku(variante) > 0
+  );
+  if (varianteDisponivel) {
+    return precoSku(varianteDisponivel, produto);
+  }
+  const valor =
+    produto?.basePrice ??
+    produto?.base_price ??
+    produto?.preco ??
+    produto?.price;
+  const preco = Number(valor);
+  return Number.isFinite(preco) && preco >= 0
+    ? preco
+    : 0;
+}
 function estoqueSku(variante) {
-  return Number(
-    variante?.stock ??
-    variante?.estoque ??
-    variante?.quantidadeEstoque ??
-    0
+  const valor = Number(
+    variante?.stock ?? variante?.estoque ?? 0
   );
+  return Number.isFinite(valor) && valor > 0
+    ? valor
+    : 0;
 }
-
 function estoqueProduto(produto) {
-  return Number(
+  const valor = Number(
     produto?.stock ??
     produto?.estoque ??
-    produto?.quantidadeEstoque ??
+    produto?.quantity ??
     0
   );
+  return Number.isFinite(valor) && valor > 0
+    ? valor
+    : 0;
 }
 
 function produtoAtivo(produto) {
@@ -289,20 +281,19 @@ function escaparHTML(valor) {
 function renderizarCategorias() {
   const select = $("categoryFilter");
   const categoriaAnterior = select.value;
-
   const categorias = [
-    ...new Set(state.produtos.map(categoriaProduto)),
+    ...new Set(
+      state.produtos.map(categoriaProduto)
+    ),
   ].sort((a, b) => a.localeCompare(b, "pt-BR"));
-
-  select.innerHTML = '<option value="">Todas as categorias</option>';
-
+  select.innerHTML =
+    '<option value="">Todas as categorias</option>';
   for (const categoria of categorias) {
     const option = document.createElement("option");
     option.value = categoria;
     option.textContent = categoria;
     select.appendChild(option);
   }
-
   if (categorias.includes(categoriaAnterior)) {
     select.value = categoriaAnterior;
   }
@@ -310,75 +301,90 @@ function renderizarCategorias() {
 
 function renderizarProdutos() {
   const grid = $("productGrid");
-  const busca = $("search").value.trim().toLocaleLowerCase("pt-BR");
+  const busca = $("search").value
+    .trim()
+    .toLocaleLowerCase("pt-BR");
   const categoriaSelecionada = $("categoryFilter").value;
-
   const produtos = state.produtos.filter((produto) => {
     const correspondeNome = nomeProduto(produto)
       .toLocaleLowerCase("pt-BR")
       .includes(busca);
-
     const correspondeCategoria =
       !categoriaSelecionada ||
       categoriaProduto(produto) === categoriaSelecionada;
-
     return correspondeNome && correspondeCategoria;
   });
-
   if (!produtos.length) {
     grid.innerHTML =
       '<div class="empty-products">Nenhum produto encontrado.</div>';
     return;
   }
-
-  grid.innerHTML = produtos.map((produto, index) => {
+  grid.innerHTML = produtos.map((produto) => {
     const id = idProduto(produto);
     const nome = nomeProduto(produto);
     const categoria = categoriaProduto(produto);
     const variantes = variantesProduto(produto);
-
-    const preco = precoProduto(produto);
     const estoque = variantes.length
-      ? variantes.reduce((total, v) => total + estoqueSku(v), 0)
+      ? variantes.reduce(
+          (total, variante) => total + estoqueSku(variante),
+          0
+        )
       : estoqueProduto(produto);
-
     const temVariantes = variantes.length > 0;
-
+    const primeiraVarianteDisponivel = temVariantes
+      ? variantes.find((variante) => estoqueSku(variante) > 0)
+      : null;
+    const precoExibido = primeiraVarianteDisponivel
+      ? precoSku(primeiraVarianteDisponivel, produto)
+      : precoProduto(produto);
     const opcoesSku = temVariantes
       ? `
-        <select class="field sku-selector" data-product-index="${index}">
+        <select
+          class="field sku-selector"
+          data-product-id="${escaparHTML(id)}"
+          aria-label="Selecione o tamanho de ${escaparHTML(nome)}"
+        >
           ${variantes.map((variante) => {
             const sku = idSku(variante);
             const disponivel = estoqueSku(variante) > 0;
-
+            const preco = precoSku(variante, produto);
             return `
               <option
                 value="${escaparHTML(sku)}"
                 ${disponivel ? "" : "disabled"}
+                ${
+                  disponivel &&
+                  primeiraVarianteDisponivel &&
+                  sku === idSku(primeiraVarianteDisponivel)
+                    ? "selected"
+                    : ""
+                }
               >
                 ${escaparHTML(nomeSku(variante))}
-                — ${moeda(precoSku(variante, produto))}
-                ${disponivel ? `(${estoqueSku(variante)} un.)` : "(esgotado)"}
+                — ${moeda(preco)}
+                ${
+                  disponivel
+                    ? `(${estoqueSku(variante)} un.)`
+                    : "(esgotado)"
+                }
               </option>
             `;
           }).join("")}
         </select>
       `
       : "";
-
-    const primeiraVarianteDisponivel = temVariantes
-      ? variantes.find((v) => estoqueSku(v) > 0)
-      : null;
-
-    const precoExibido = primeiraVarianteDisponivel
-      ? precoSku(primeiraVarianteDisponivel, produto)
-      : preco;
-
     return `
-      <article class="product" data-product-id="${escaparHTML(id)}">
-        <div class="product-category">${escaparHTML(categoria)}</div>
+      <article
+        class="product"
+        data-product-id="${escaparHTML(id)}"
+      >
+        <div class="product-category">
+          ${escaparHTML(categoria)}
+        </div>
         <h3>${escaparHTML(nome)}</h3>
-        <div class="price">${moeda(precoExibido)}</div>
+        <div class="price">
+          ${moeda(precoExibido)}
+        </div>
         <div class="stock ${estoque <= 3 ? "low" : ""}">
           ${estoque} unidade(s) em estoque
         </div>
@@ -386,7 +392,7 @@ function renderizarProdutos() {
         <button
           type="button"
           class="btn btn-primary btn-full add-product"
-          data-product-index="${index}"
+          data-product-id="${escaparHTML(id)}"
           ${estoque <= 0 ? "disabled" : ""}
         >
           Adicionar
