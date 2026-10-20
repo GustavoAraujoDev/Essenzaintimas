@@ -930,84 +930,73 @@ async function carregarPedidos() {
   adicionarOpcoesStatus($("ordersStatus"), state.pedidos);
 }
 
+
 async function carregarOperadores() {
   const select = $("salesOperator");
-  select.innerHTML = '<option value="">Todos os operadores</option>';
+  const selecionado = select.value;
+
+  select.innerHTML =
+    '<option value="">Todos os operadores</option>';
 
   try {
-    const data = await api(CONFIG.VENDAS_BASE + "/operadores");
-    const items = normalizarLista(data);
-    const unique = new Map();
+    // Usa a rota existente de usuários.
+    const data = await api("https://essenzaintimasapi.onrender.com/products/users/list");
+    const usuarios = normalizarLista(data);
 
-    for (const item of items) {
-      const id = String(primeiro(
-        item?.operadorId,
-        item?.userId,
-        item?.usuarioId,
-        item?.operatorId,
-        item?.id,
-        item?._id,
-        item?._id?.toString?.(),
-        ""
-      )).trim();
+    // Considera apenas contas ativas de funcionários e administradores.
+    state.operadores = usuarios
+      .filter((usuario) => {
+        const role = String(usuario.role || "").toUpperCase();
+        const status = String(usuario.status || "").toUpperCase();
 
-      const nome = String(primeiro(
-        item?.operadorNome,
-        item?.nomeOperador,
-        item?.nome,
-        item?.name,
-        item?.email,
-        item?.operatorName,
-        id
-      )).trim();
+        return (
+          ["ADMIN", "EMPLOYEE", "OWNER", "STAFF"].includes(role) &&
+          status === "ACTIVE"
+        );
+      })
+      .map((usuario) => {
+        const id = String(
+          usuario.id || usuario._id || usuario.userId || ""
+        ).trim();
 
-      if (!id) continue;
+        const nome = String(
+          usuario.profile?.name ||
+          usuario.name ||
+          usuario.nome ||
+          usuario.email ||
+          "Operador sem nome"
+        ).trim();
 
-      if (!unique.has(id)) {
-        unique.set(id, { id, nome: nome || id });
-      }
+        return { id, nome };
+      })
+      .filter((usuario) => usuario.id);
+
+    for (const usuario of state.operadores) {
+      const option = document.createElement("option");
+      option.value = usuario.id;
+      option.textContent = usuario.nome;
+      select.appendChild(option);
     }
 
-    state.operadores = [...unique.values()];
-
-    for (const item of state.operadores) {
-      const option = document.createElement("option");
-      option.value = item.id;
-      option.textContent = item.nome;
-      select.appendChild(option);
+    if (state.operadores.some((item) => item.id === selecionado)) {
+      select.value = selecionado;
     }
 
     $("statOperators").textContent = state.operadores.length;
 
-    console.log("[OPERADORES] Lista carregada:", state.operadores);
+    console.log("[OPERADORES] Usuários recebidos:", usuarios);
+    console.log("[OPERADORES] Operadores filtrados:", state.operadores);
+
   } catch (error) {
-    console.error("[OPERADORES] Falha ao carregar lista:", error);
-
-    // Ainda tenta identificar os operadores a partir das próprias vendas.
-    const unique = new Map();
-
-    for (const venda of state.vendas) {
-      const id = operadorId(venda);
-      if (!id) continue;
-
-      unique.set(id, {
-        id,
-        nome: operador(venda)
-      });
-    }
-
-    state.operadores = [...unique.values()];
-
-    for (const item of state.operadores) {
-      const option = document.createElement("option");
-      option.value = item.id;
-      option.textContent = item.nome;
-      select.appendChild(option);
-    }
-
-    $("statOperators").textContent = state.operadores.length;
+    console.error("[OPERADORES] Erro ao listar usuários:", error);
+    $("statOperators").textContent = "Erro";
+    mostrarAviso(
+      "Não foi possível carregar os operadores: " + error.message,
+      "error"
+    );
   }
 }
+
 
 async function carregarTudo() {
   if (state.carregando) return;
