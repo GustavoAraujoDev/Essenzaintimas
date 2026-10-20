@@ -935,26 +935,6 @@ function pagamento(item) {
   ));
 }
 
-
-function statusPedido(item) {
-  return String(item?.status || "").trim().toUpperCase();
-}
-
-function valorPedido(item) {
-  return Number(item?.total ?? 0) || 0;
-}
-
-function dataValidaPedido(item) {
-  const valor = item?.createdAt ?? item?.updatedAt ?? null;
-
-  if (!valor) return null;
-
-  const data = new Date(valor);
-
-  return Number.isNaN(data.getTime()) ? null : data;
-}
-
-
 function valorRegistro(item) {
   const value = primeiro(
     item?.valorTotal,
@@ -1306,13 +1286,13 @@ function pedidosFiltrados() {
       idRegistro(item),
       nomeCliente(item),
       telefoneCliente(item),
-      statusRegistro(item)
+      statusPedido(item)
     ].join(" ").toLowerCase();
 
     if (query && !haystack.includes(query)) return false;
     if (status && statusRegistro(item) !== status) return false;
 
-    const date = dataValor(item);
+    const date = dataValidaPedido(item);
 
     if (from) {
       const start = new Date(from + "T00:00:00");
@@ -1462,14 +1442,6 @@ function renderizarPedidos() {
     "Campo total: " + (state.pedidos[0]?.total ?? "NÃO ENCONTRADO") + "\n" +
 
     "Valor calculado: " + valorPedido(state.pedidos[0] || {})
-
-  );
-
-  const faturamento = items.reduce(
-
-    (soma, item) => soma + Number(item.total || 0),
-
-    0
 
   );
 
