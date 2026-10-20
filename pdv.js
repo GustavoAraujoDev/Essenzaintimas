@@ -433,91 +433,119 @@ function chaveCarrinho(productId, skuId) {
   return `${productId}::${skuId || "SEM_SKU"}`;
 }
 function adicionarProduto(produto, variante = null) {
-  if (!produto) {
-    mostrarAviso("Produto inválido.", "error");
-    return;
-  }
-  const productId = idProduto(produto);
-  if (!productId) {
-    console.error("[PDV] Produto sem identificador", produto);
-    mostrarAviso(
-      "O produto não possui um identificador válido.",
-      "error"
+  alert("PDV 1: Função adicionarProduto iniciada.");
+  try {
+    if (!produto) {
+      alert("ERRO: O objeto produto está vazio.");
+      mostrarAviso("Produto inválido.", "error");
+      return;
+    }
+    const productId = idProduto(produto);
+    alert(
+      "PDV 2: Produto recebido.\n" +
+      "ID: " + productId + "\n" +
+      "Nome: " + nomeProduto(produto)
     );
-    return;
-  }
-  const sku = variante ? idSku(variante) : null;
-  if (variante && !sku) {
-    mostrarAviso(
-      "A variação não possui um identificador válido.",
-      "error"
-    );
-    return;
-  }
-  const estoque = variante
-    ? estoqueSku(variante)
-    : estoqueProduto(produto);
-  const preco = variante
-    ? precoSku(variante, produto)
-    : precoProduto(produto);
-  if (!Number.isFinite(estoque) || estoque <= 0) {
-    mostrarAviso(
-      "Esta variação está sem estoque.",
-      "error"
-    );
-    return;
-  }
-  if (!Number.isFinite(preco) || preco < 0) {
-    console.error("[PDV] Preço inválido", {
-      productId,
-      sku,
-      preco,
-      basePrice: produto.basePrice ?? null,
-    });
-    mostrarAviso(
-      "O produto possui um preço inválido.",
-      "error"
-    );
-    return;
-  }
-  const chave = chaveCarrinho(productId, sku);
-  const existente = state.carrinho.find(
-    (item) => item.chave === chave
-  );
-  if (existente) {
-    if (existente.quantidade + 1 > estoque) {
+    if (!productId) {
+      alert("ERRO: Produto sem identificador.");
       mostrarAviso(
-        "Quantidade maior que o estoque disponível.",
+        "O produto não possui um identificador válido.",
         "error"
       );
       return;
     }
-    existente.quantidade += 1;
-    existente.estoqueDisponivel = estoque;
-  } else {
-    state.carrinho.push({
-      chave,
-      productId,
-      skuId: sku,
-      sku: variante ? codigoSku(variante) : null,
-      nome: nomeProduto(produto),
-      categoria: categoriaProduto(produto),
-      nomeVariante: variante ? nomeSku(variante) : null,
-      precoUnitario: preco,
-      quantidade: 1,
-      estoqueDisponivel: estoque,
-    });
+    const sku = variante ? idSku(variante) : null;
+    alert(
+      "PDV 3: Identificador verificado.\n" +
+      "SKU: " + (sku || "Sem SKU")
+    );
+    if (variante && !sku) {
+      alert("ERRO: A variação não possui ID.");
+      mostrarAviso(
+        "A variação não possui um identificador válido.",
+        "error"
+      );
+      return;
+    }
+    const estoque = variante
+      ? estoqueSku(variante)
+      : estoqueProduto(produto);
+    const preco = variante
+      ? precoSku(variante, produto)
+      : precoProduto(produto);
+    alert(
+      "PDV 4: Estoque e preço calculados.\n" +
+      "Estoque: " + estoque + "\n" +
+      "Preço: " + preco
+    );
+    if (!Number.isFinite(estoque) || estoque <= 0) {
+      alert("ERRO: Estoque inválido ou zerado.");
+      mostrarAviso(
+        "Esta variação está sem estoque.",
+        "error"
+      );
+      return;
+    }
+    if (!Number.isFinite(preco) || preco < 0) {
+      alert("ERRO: Preço inválido.");
+      mostrarAviso(
+        "O produto possui um preço inválido.",
+        "error"
+      );
+      return;
+    }
+    const chave = chaveCarrinho(productId, sku);
+    alert("PDV 5: Chave do carrinho criada.\n" + chave);
+    const existente = state.carrinho.find(
+      (item) => item.chave === chave
+    );
+    if (existente) {
+      if (existente.quantidade + 1 > estoque) {
+        alert("ERRO: Quantidade maior que o estoque.");
+        mostrarAviso(
+          "Quantidade maior que o estoque disponível.",
+          "error"
+        );
+        return;
+      }
+      existente.quantidade += 1;
+      existente.estoqueDisponivel = estoque;
+    } else {
+      const novoItem = {
+        chave,
+        productId,
+        skuId: sku,
+        sku: variante ? codigoSku(variante) : null,
+        nome: nomeProduto(produto),
+        categoria: categoriaProduto(produto),
+        nomeVariante: variante ? nomeSku(variante) : null,
+        precoUnitario: preco,
+        quantidade: 1,
+        estoqueDisponivel: estoque,
+      };
+      state.carrinho.push(novoItem);
+      alert(
+        "PDV 6: Item inserido no array.\n" +
+        "Nome: " + novoItem.nome + "\n" +
+        "Quantidade: " + novoItem.quantidade
+      );
+    }
+    alert(
+      "PDV 7: Total de itens no carrinho: " +
+      state.carrinho.reduce(
+        (total, item) => total + item.quantidade,
+        0
+      )
+    );
+    renderizarCarrinho();
+    alert("PDV 8: renderizarCarrinho executada.");
+  } catch (error) {
+    alert(
+      "ERRO AO ADICIONAR AO CARRINHO:\n" +
+      (error?.message || String(error))
+    );
+    console.error("[PDV] Erro ao adicionar produto:", error);
   }
-  console.log("[PDV] Carrinho atualizado", {
-    productId,
-    skuId: sku,
-    quantidadeItens: state.carrinho.length,
-    quantidadeTotal: state.carrinho.reduce(
-      (total, item) => total + item.quantidade,
-      0
-    ),
-  });
-  renderizarCarrinho();
 }
 
 function alterarQuantidade(chave, variacao) {
