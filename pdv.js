@@ -5,7 +5,14 @@
    CONFIGURAÇÃO
    ========================================================= */
 
+  const API_BASE = "https://essenzaintimasapi.onrender.com";
 
+const ENDPOINTS = {
+  produtos: `${API_BASE}/products`,
+  vendas: `${API_BASE}/vendas`,
+  venderProduto: (id) =>
+    `${API_BASE}/products/${encodeURIComponent(id)}/sell`,
+};
 
 /* =========================================================
    ESTADO
