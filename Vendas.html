@@ -994,23 +994,33 @@ function escapar(value) {
 
 
 function valorPedido(item) {
+  alert(
+    "DEBUG DO PEDIDO\n\n" +
+    "ID: " + (item?.id ?? item?._id ?? "SEM ID") + "\n\n" +
+    "TOTAL: " + JSON.stringify(item?.total) + "\n\n" +
+    "PAGAMENTO:\n" +
+    JSON.stringify(item?.pagamento, null, 2)
+  );
+
   const pagamento = item?.pagamento;
 
-  const valor =
-    item?.total ??
-    item?.valorTotal ??
-    item?.totalPedido ??
-    item?.valor ??
-    item?.resumo?.total ??
-    item?.totais?.total ??
-    pagamento?.total ??
-    pagamento?.valorTotal ??
-    pagamento?.valor ??
-    pagamento?.valorPago ??
-    0;
+  const possiveisValores = [
+    item?.total,
+    item?.valorTotal,
+    item?.totalPedido,
+    item?.valor,
+    pagamento?.total,
+    pagamento?.valorTotal,
+    pagamento?.valor,
+    pagamento?.valorPago,
+    pagamento?.totalPago
+  ];
+
+  const valor = possiveisValores.find(
+    v => v !== undefined && v !== null && v !== ""
+  );
 
   const numero = Number(valor);
-
   return Number.isFinite(numero) ? numero : 0;
 }
 
