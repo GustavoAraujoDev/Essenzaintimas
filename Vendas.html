@@ -488,6 +488,34 @@
             <button class="btn" id="filterSales">Filtrar</button>
             <button class="btn secondary" id="clearSalesFilters">Limpar</button>
           </div>
+          
+          
+<div class="cards">
+  <div class="stat">
+    <div class="stat-label">Total de vendas</div>
+    <div class="stat-value" id="salesStatCount">0</div>
+    <div class="stat-foot">Vendas no filtro atual</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-label">Faturamento</div>
+    <div class="stat-value" id="salesStatRevenue">R$ 0,00</div>
+    <div class="stat-foot">Exclui vendas canceladas</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-label">Ticket médio</div>
+    <div class="stat-value" id="salesStatAverage">R$ 0,00</div>
+    <div class="stat-foot">Por venda não cancelada</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-label">Vendas canceladas</div>
+    <div class="stat-value" id="salesStatCanceled">0</div>
+    <div class="stat-foot">Quantidade de cancelamentos</div>
+  </div>
+</div>
+
 
           <div class="table-wrap">
             <table>
@@ -1155,8 +1183,31 @@ function renderizarDashboard() {
     : '<tr><td colspan="6" class="empty">Nenhuma venda encontrada.</td></tr>';
 }
 
+
 function renderizarVendas() {
   const items = vendasFiltradas();
+
+  const canceladas = items.filter((item) =>
+    /CANCEL/.test(statusRegistro(item))
+  );
+
+  const validas = items.filter((item) =>
+    !/CANCEL/.test(statusRegistro(item))
+  );
+
+  const faturamento = validas.reduce(
+    (total, item) => total + valorRegistro(item),
+    0
+  );
+
+  const ticketMedio = validas.length > 0
+    ? faturamento / validas.length
+    : 0;
+
+  $("salesStatCount").textContent = items.length;
+  $("salesStatRevenue").textContent = moeda(faturamento);
+  $("salesStatAverage").textContent = moeda(ticketMedio);
+  $("salesStatCanceled").textContent = canceladas.length;
 
   $("salesBody").innerHTML = items.length
     ? items.map((item) => `
@@ -1169,11 +1220,22 @@ function renderizarVendas() {
         <td>${escapar(moeda(valorRegistro(item)))}</td>
         <td>${badgeStatus(statusRegistro(item))}</td>
         <td>
-          <button class="btn small secondary" data-action="sale-detail" data-id="${escapar(idRegistro(item))}">Detalhes</button>
+          <button
+            class="btn small secondary"
+            data-action="sale-detail"
+            data-id="${escapar(idRegistro(item))}">
+            Detalhes
+          </button>
+
           ${
             /CANCEL/.test(statusRegistro(item))
               ? ""
-              : `<button class="btn small danger" data-action="sale-cancel" data-id="${escapar(idRegistro(item))}">Cancelar</button>`
+              : `<button
+                  class="btn small danger"
+                  data-action="sale-cancel"
+                  data-id="${escapar(idRegistro(item))}">
+                  Cancelar
+                </button>`
           }
         </td>
       </tr>
