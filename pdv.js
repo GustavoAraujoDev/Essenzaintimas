@@ -45,17 +45,9 @@ function obterToken() {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+
 function obterHeaders(json = false) {
-  const token = obterToken();
-
-  if (!token) {
-    throw new Error(
-      `Token não encontrado no localStorage["${TOKEN_KEY}"]. Entre novamente no sistema.`
-    );
-  }
-
   const headers = {
-    Authorization: `Bearer ${token}`,
     Accept: "application/json",
   };
 
@@ -69,6 +61,10 @@ function obterHeaders(json = false) {
 async function requisicao(url, options = {}) {
   const response = await fetch(url, {
     ...options,
+
+    // Envia cookies de autenticação automaticamente
+    credentials: "include",
+
     headers: {
       ...obterHeaders(Boolean(options.body)),
       ...(options.headers || {}),
@@ -94,8 +90,10 @@ async function requisicao(url, options = {}) {
       `Erro HTTP ${response.status}`;
 
     const error = new Error(mensagem);
+
     error.status = response.status;
     error.response = data;
+
     throw error;
   }
 
