@@ -1,0 +1,1467 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vendas e Pedidos | Essenza Íntimas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #F8F5F2;
+      --surface: #FFFFFF;
+      --text: #26211E;
+      --muted: #81766E;
+      --primary: #9E7960;
+      --border: #E8DED5;
+      --success: #2F7D4A;
+      --danger: #A64040;
+      --warning: #A4773C;
+      --shadow: 0 8px 30px rgba(38, 33, 30, .06);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 14px;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 245px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      background: #26211E;
+      color: white;
+      padding: 28px 18px;
+    }
+
+    .brand {
+      font: 600 32px "Cormorant Garamond", serif;
+      margin: 0 0 4px;
+    }
+
+    .brand-sub {
+      color: #C8A99A;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 38px;
+    }
+
+    .nav-label {
+      color: #B6A69A;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      margin: 22px 10px 10px;
+      text-transform: uppercase;
+    }
+
+    .nav-button {
+      width: 100%;
+      text-align: left;
+      padding: 12px;
+      margin-bottom: 5px;
+      color: #E8DED5;
+      background: transparent;
+      border: 0;
+      border-radius: 10px;
+    }
+
+    .nav-button:hover, .nav-button.active {
+      background: #40352F;
+      color: white;
+    }
+
+    .main { min-width: 0; }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topbar h1 {
+      font: 600 28px "Cormorant Garamond", serif;
+      margin: 0;
+    }
+
+    .topbar p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .content { padding: 26px; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .page-heading h2 {
+      margin: 0;
+      font: 600 26px "Cormorant Garamond", serif;
+    }
+
+    .page-heading p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat, .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .stat { padding: 20px; }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .stat-value {
+      font-size: 25px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .stat-foot {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .panel { padding: 20px; margin-bottom: 22px; }
+
+    .panel h3 {
+      font-size: 15px;
+      margin: 0 0 16px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(180px, 2fr) repeat(3, minmax(120px, 1fr)) auto;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .field {
+      width: 100%;
+      min-width: 0;
+      padding: 11px 12px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(158, 121, 96, .12);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 15px;
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+    }
+
+    .btn:hover { filter: brightness(.94); }
+    .btn.secondary { background: #E8DED5; color: var(--text); }
+    .btn.danger { background: var(--danger); }
+    .btn.small { padding: 7px 10px; font-size: 12px; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      white-space: nowrap;
+    }
+
+    th, td {
+      padding: 13px 12px;
+      border-bottom: 1px solid #F0E9E3;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    tbody tr:hover { background: #FCFAF8; }
+
+    .status {
+      display: inline-block;
+      padding: 6px 9px;
+      border-radius: 99px;
+      font-size: 10px;
+      font-weight: 800;
+      background: #EEE8E3;
+      color: #62564D;
+    }
+
+    .status.success { background: #E4F2E8; color: var(--success); }
+    .status.danger { background: #F9E7E5; color: var(--danger); }
+    .status.warning { background: #F8EFD9; color: #88612B; }
+
+    .empty, .loading {
+      text-align: center;
+      padding: 32px 15px;
+      color: var(--muted);
+    }
+
+    .error-banner {
+      display: none;
+      padding: 13px 15px;
+      border-radius: 10px;
+      background: #F9E7E5;
+      color: var(--danger);
+      margin-bottom: 18px;
+      overflow-wrap: anywhere;
+    }
+
+    .error-banner.show { display: block; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      padding: 20px;
+      background: rgba(23, 19, 17, .55);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show { display: flex; }
+
+    .modal-card {
+      width: min(700px, 100%);
+      max-height: 85vh;
+      overflow: auto;
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      font: 600 26px "Cormorant Garamond", serif;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .detail-item {
+      background: var(--bg);
+      padding: 13px;
+      border-radius: 10px;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-item small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .detail-item strong { overflow-wrap: anywhere; }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .mobile-menu { display: none; }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 200;
+      display: none;
+      max-width: min(420px, calc(100vw - 36px));
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: #26211E;
+      color: white;
+      box-shadow: var(--shadow);
+      overflow-wrap: anywhere;
+    }
+
+    .toast.show { display: block; }
+    .toast.error { background: var(--danger); }
+    .toast.success { background: var(--success); }
+
+    @media (max-width: 1100px) {
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar .search { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 760px) {
+      .layout { display: block; }
+      .sidebar { display: none; padding: 16px; }
+      .sidebar.open { display: block; }
+      .brand-sub { margin-bottom: 15px; }
+      .topbar { padding: 15px; }
+      .topbar h1 { font-size: 24px; }
+      .content { padding: 15px; }
+      .cards { gap: 10px; }
+      .stat { padding: 15px; }
+      .stat-value { font-size: 20px; }
+      .panel { padding: 14px; }
+      .toolbar { grid-template-columns: 1fr; }
+      .toolbar .search { grid-column: auto; }
+      .mobile-menu { display: inline-block; }
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">Essenza</div>
+    <div class="brand-sub">Íntimas · Gestão</div>
+
+    <div class="nav-label">Principal</div>
+    <button class="nav-button active" data-page="dashboard">▦ Dashboard</button>
+    <button class="nav-button" data-page="vendas">↗ Vendas PDV</button>
+    <button class="nav-button" data-page="pedidos">▤ Pedidos</button>
+
+    <div class="nav-label">Sistema</div>
+    <button class="nav-button" id="refreshButton">↻ Atualizar dados</button>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>Gestão de vendas</h1>
+        <p>Controle de vendas, operadores e pedidos</p>
+      </div>
+      <button class="btn secondary mobile-menu" id="mobileMenu">☰ Menu</button>
+    </header>
+
+    <div class="content">
+      <div class="error-banner" id="errorBanner"></div>
+
+      <section class="page active" id="page-dashboard">
+        <div class="page-heading">
+          <div>
+            <h2>Dashboard</h2>
+            <p>Resumo dos registros carregados pela API</p>
+          </div>
+          <button class="btn" id="refreshDashboard">Atualizar</button>
+        </div>
+
+        <div class="cards">
+          <div class="stat">
+            <div class="stat-label">Total de vendas</div>
+            <div class="stat-value" id="statSales">—</div>
+            <div class="stat-foot">Registros de vendas carregados</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Valor das vendas</div>
+            <div class="stat-value" id="statRevenue">—</div>
+            <div class="stat-foot">Soma dos valores identificados</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Pedidos</div>
+            <div class="stat-value" id="statOrders">—</div>
+            <div class="stat-foot">Pedidos carregados pela API</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Operadores</div>
+            <div class="stat-value" id="statOperators">—</div>
+            <div class="stat-foot">Operadores identificados</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Vendas recentes</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Data</th>
+                  <th>Operador</th>
+                  <th>Valor</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="recentSalesBody">
+                <tr><td colspan="6" class="loading">Carregando vendas...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-vendas">
+        <div class="page-heading">
+          <div>
+            <h2>Vendas PDV</h2>
+            <p>Pesquise, filtre e consulte as vendas registradas</p>
+          </div>
+          <button class="btn" id="refreshSales">Atualizar vendas</button>
+        </div>
+
+        <div class="panel">
+          <div class="toolbar">
+            <input class="field search" id="salesSearch" placeholder="Buscar ID, operador ou cliente">
+            <input class="field" type="date" id="salesFrom" aria-label="Data inicial">
+            <input class="field" type="date" id="salesTo" aria-label="Data final">
+            <select class="field" id="salesStatus" aria-label="Status">
+              <option value="">Todos os status</option>
+            </select>
+            <select class="field" id="salesOperator" aria-label="Operador">
+              <option value="">Todos os operadores</option>
+            </select>
+            <button class="btn" id="filterSales">Filtrar</button>
+            <button class="btn secondary" id="clearSalesFilters">Limpar</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Data</th>
+                  <th>Cliente</th>
+                  <th>Operador</th>
+                  <th>Pagamento</th>
+                  <th>Valor</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="salesBody">
+                <tr><td colspan="8" class="loading">Carregando vendas...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p id="salesCount" class="stat-foot"></p>
+        </div>
+      </section>
+
+      <section class="page" id="page-pedidos">
+        <div class="page-heading">
+          <div>
+            <h2>Pedidos</h2>
+            <p>Consulte os pedidos registrados na API</p>
+          </div>
+          <button class="btn" id="refreshOrders">Atualizar pedidos</button>
+        </div>
+
+        <div class="panel">
+          <div class="toolbar">
+            <input class="field search" id="ordersSearch" placeholder="Buscar ID, cliente ou telefone">
+            <input class="field" type="date" id="ordersFrom" aria-label="Data inicial">
+            <input class="field" type="date" id="ordersTo" aria-label="Data final">
+            <select class="field" id="ordersStatus" aria-label="Status dos pedidos">
+              <option value="">Todos os status</option>
+            </select>
+            <button class="btn" id="filterOrders">Filtrar</button>
+            <button class="btn secondary" id="clearOrdersFilters">Limpar</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Data</th>
+                  <th>Cliente</th>
+                  <th>Telefone</th>
+                  <th>Valor</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody">
+                <tr><td colspan="7" class="loading">Carregando pedidos...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p id="ordersCount" class="stat-foot"></p>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="modal" id="detailModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="modalTitle">Detalhes</h2>
+      <button class="btn secondary" id="closeModal">Fechar</button>
+    </div>
+    <div id="modalContent"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   CONFIGURAÇÃO
+   Ajuste VENDAS_BASE caso seu backend use outro prefixo.
+   ========================================================= */
+const CONFIG = {
+  API_BASE: "https://essenzaintimasapi.onrender.com",
+  VENDAS_BASE: "/vendas-pdv",
+  PEDIDOS_BASE: "/pedidos"
+};
+
+const $ = (id) => document.getElementById(id);
+
+const state = {
+  vendas: [],
+  pedidos: [],
+  operadores: [],
+  carregando: false
+};
+
+/* =========================================================
+   FUNÇÕES AUXILIARES
+   ========================================================= */
+function normalizarLista(data) {
+  if (Array.isArray(data)) return data;
+  if (!data || typeof data !== "object") return [];
+
+  const candidates = [
+    data.data,
+    data.items,
+    data.results,
+    data.vendas,
+    data.pedidos,
+    data.sales,
+    data.orders,
+    data.operadores,
+    data.operators
+  ];
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate)) return candidate;
+    if (candidate && typeof candidate === "object") {
+      const nested = normalizarLista(candidate);
+      if (nested.length) return nested;
+    }
+  }
+
+  return [];
+}
+
+function obterToken() {
+  const keys = ["token", "accessToken", "jwt", "access_token"];
+
+  for (const key of keys) {
+    try {
+      const value = localStorage.getItem(key);
+      if (value) return value;
+    } catch (_) {}
+  }
+
+  return null;
+}
+
+async function api(path, options = {}) {
+  const token = obterToken();
+  const headers = new Headers(options.headers || {});
+
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", "Bearer " + token);
+  }
+
+  if (options.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  const response = await fetch(CONFIG.API_BASE + path, {
+    ...options,
+    headers,
+    credentials: "include"
+  });
+
+  const text = await response.text();
+  let data = null;
+
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch (_) {
+      data = { message: text };
+    }
+  }
+
+  if (!response.ok) {
+    const message =
+      data?.message ||
+      data?.error ||
+      data?.erro ||
+      `Erro HTTP ${response.status}`;
+
+    throw new Error(message);
+  }
+
+  return data;
+}
+
+function primeiro(...values) {
+  for (const value of values) {
+    if (value !== undefined && value !== null && value !== "") {
+      return value;
+    }
+  }
+  return null;
+}
+
+function idRegistro(item) {
+  return String(primeiro(item?._id, item?.id, item?.vendaId, item?.pedidoId, item?.numero, "—"));
+}
+
+function nomeCliente(item) {
+  return String(primeiro(
+    item?.clienteNome,
+    item?.nomeCliente,
+    item?.customerName,
+    item?.cliente?.nome,
+    item?.cliente?.name,
+    item?.customer?.name,
+    item?.nome,
+    item?.name,
+    "Não informado"
+  ));
+}
+
+function telefoneCliente(item) {
+  return String(primeiro(
+    item?.telefone,
+    item?.telefoneCliente,
+    item?.customerPhone,
+    item?.cliente?.telefone,
+    item?.cliente?.phone,
+    item?.phone,
+    "—"
+  ));
+}
+
+function operadorId(item) {
+  const op = item?.operador;
+  const user = item?.usuario;
+  const operator = item?.operator;
+
+  return String(primeiro(
+    item?.operadorId,
+    item?.userId,
+    item?.usuarioId,
+    item?.operatorId,
+    item?.operador_id,
+    item?.operadorUserId,
+    item?.createdBy,
+    item?.createdByUserId,
+    typeof op === "string" ? op : null,
+    op?.userId,
+    op?.usuarioId,
+    op?.id,
+    op?._id,
+    typeof user === "string" ? user : null,
+    user?.userId,
+    user?.id,
+    user?._id,
+    typeof operator === "string" ? operator : null,
+    operator?.userId,
+    operator?.id,
+    operator?._id,
+    " "
+  )).trim();
+}
+
+function operador(item) {
+  const op = item?.operador;
+  const user = item?.usuario;
+  const operator = item?.operator;
+
+  const value = primeiro(
+    item?.operadorNome,
+    item?.nomeOperador,
+    item?.nomeUsuario,
+    item?.operatorName,
+    item?.createdByName,
+    typeof op === "object" ? op?.nome : null,
+    typeof op === "object" ? op?.name : null,
+    typeof user === "object" ? user?.nome : null,
+    typeof user === "object" ? user?.name : null,
+    typeof operator === "object" ? operator?.nome : null,
+    typeof operator === "object" ? operator?.name : null,
+    item?.operadorEmail,
+    item?.emailOperador
+  );
+
+  const id = operadorId(item);
+  const encontrado = state.operadores.find((entry) => entry.id === id);
+
+  return String(value || encontrado?.nome || (id ? "Operador " + id.slice(0, 8) : "Não informado"));
+}
+
+function statusRegistro(item) {
+  return String(primeiro(
+    item?.status,
+    item?.situacao,
+    item?.statusVenda,
+    item?.statusPedido,
+    "NÃO INFORMADO"
+  )).trim().toUpperCase();
+}
+
+function pagamento(item) {
+  return String(primeiro(
+    item?.formaPagamento,
+    item?.metodoPagamento,
+    item?.paymentMethod,
+    item?.pagamento?.metodo,
+    item?.pagamento?.forma,
+    item?.payment?.method,
+    item?.tipoPagamento,
+    "—"
+  ));
+}
+
+function valorRegistro(item) {
+  const value = primeiro(
+    item?.valorTotal,
+    item?.total,
+    item?.totalVenda,
+    item?.valor,
+    item?.amount,
+    item?.totalAmount,
+    item?.precoTotal,
+    item?.resumo?.total,
+    item?.totais?.total,
+    0
+  );
+
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function dataValor(item) {
+  const value = primeiro(
+    item?.createdAt,
+    item?.data,
+    item?.dataVenda,
+    item?.dataPedido,
+    item?.updatedAt,
+    item?.created_at,
+    item?.date
+  );
+
+  if (!value) return null;
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatarData(item) {
+  const date = dataValor(item);
+  return date ? date.toLocaleString("pt-BR") : "—";
+}
+
+function moeda(value) {
+  return Number(value || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function escapar(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function classeStatus(status) {
+  const s = String(status || "").toUpperCase();
+
+  if (/CANCEL|REJEIT|ERRO|FALH/.test(s)) return "danger";
+  if (/CONCLUID|COMPLETED|ENTREG|FINALIZ|PAGO|APROVAD/.test(s)) return "success";
+  if (/PENDENT|AGUARD|PREPAR|PROCESS|ABERTO|CREATED/.test(s)) return "warning";
+
+  return "";
+}
+
+function badgeStatus(status) {
+  const text = status || "NÃO INFORMADO";
+  return `<span class="status ${classeStatus(text)}">${escapar(text)}</span>`;
+}
+
+function mostrarAviso(message, type = "") {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.className = "toast show" + (type ? " " + type : "");
+
+  window.clearTimeout(mostrarAviso.timer);
+  mostrarAviso.timer = window.setTimeout(() => {
+    toast.className = "toast";
+  }, 4500);
+}
+
+function mostrarErro(message) {
+  const banner = $("errorBanner");
+  banner.textContent = message;
+  banner.classList.add("show");
+}
+
+function limparErro() {
+  $("errorBanner").classList.remove("show");
+}
+
+function adicionarOpcoesStatus(select, items) {
+  const selected = select.value;
+  const values = [...new Set(items.map(statusRegistro).filter(
+    (value) => value && value !== "NÃO INFORMADO"
+  ))].sort();
+
+  select.innerHTML = '<option value="">Todos os status</option>';
+
+  for (const status of values) {
+    const option = document.createElement("option");
+    option.value = status;
+    option.textContent = status;
+    select.appendChild(option);
+  }
+
+  if (values.includes(selected)) select.value = selected;
+}
+
+/* =========================================================
+   CARREGAMENTO DE DADOS
+   ========================================================= */
+async function carregarVendas() {
+  const data = await api(CONFIG.VENDAS_BASE);
+  state.vendas = normalizarLista(data);
+
+  console.log("[VENDAS] Registros carregados:", state.vendas.length);
+  console.log("[VENDAS] Exemplo de registro:", state.vendas[0] || null);
+
+  adicionarOpcoesStatus($("salesStatus"), state.vendas);
+}
+
+async function carregarPedidos() {
+  const data = await api(CONFIG.PEDIDOS_BASE);
+  state.pedidos = normalizarLista(data);
+
+  console.log("[PEDIDOS] Registros carregados:", state.pedidos.length);
+  adicionarOpcoesStatus($("ordersStatus"), state.pedidos);
+}
+
+async function carregarOperadores() {
+  const select = $("salesOperator");
+  select.innerHTML = '<option value="">Todos os operadores</option>';
+
+  try {
+    const data = await api(CONFIG.VENDAS_BASE + "/operadores");
+    const items = normalizarLista(data);
+    const unique = new Map();
+
+    for (const item of items) {
+      const id = String(primeiro(
+        item?.operadorId,
+        item?.userId,
+        item?.usuarioId,
+        item?.operatorId,
+        item?.id,
+        item?._id,
+        item?._id?.toString?.(),
+        ""
+      )).trim();
+
+      const nome = String(primeiro(
+        item?.operadorNome,
+        item?.nomeOperador,
+        item?.nome,
+        item?.name,
+        item?.email,
+        item?.operatorName,
+        id
+      )).trim();
+
+      if (!id) continue;
+
+      if (!unique.has(id)) {
+        unique.set(id, { id, nome: nome || id });
+      }
+    }
+
+    state.operadores = [...unique.values()];
+
+    for (const item of state.operadores) {
+      const option = document.createElement("option");
+      option.value = item.id;
+      option.textContent = item.nome;
+      select.appendChild(option);
+    }
+
+    $("statOperators").textContent = state.operadores.length;
+
+    console.log("[OPERADORES] Lista carregada:", state.operadores);
+  } catch (error) {
+    console.error("[OPERADORES] Falha ao carregar lista:", error);
+
+    // Ainda tenta identificar os operadores a partir das próprias vendas.
+    const unique = new Map();
+
+    for (const venda of state.vendas) {
+      const id = operadorId(venda);
+      if (!id) continue;
+
+      unique.set(id, {
+        id,
+        nome: operador(venda)
+      });
+    }
+
+    state.operadores = [...unique.values()];
+
+    for (const item of state.operadores) {
+      const option = document.createElement("option");
+      option.value = item.id;
+      option.textContent = item.nome;
+      select.appendChild(option);
+    }
+
+    $("statOperators").textContent = state.operadores.length;
+  }
+}
+
+async function carregarTudo() {
+  if (state.carregando) return;
+
+  state.carregando = true;
+  limparErro();
+
+  $("salesBody").innerHTML =
+    '<tr><td colspan="8" class="loading">Carregando vendas...</td></tr>';
+  $("ordersBody").innerHTML =
+    '<tr><td colspan="7" class="loading">Carregando pedidos...</td></tr>';
+
+  const errors = [];
+
+  try {
+    try {
+      await carregarVendas();
+    } catch (error) {
+      console.error("[VENDAS] Erro:", error);
+      errors.push("Vendas: " + error.message);
+      state.vendas = [];
+    }
+
+    try {
+      await carregarPedidos();
+    } catch (error) {
+      console.error("[PEDIDOS] Erro:", error);
+      errors.push("Pedidos: " + error.message);
+      state.pedidos = [];
+    }
+
+    await carregarOperadores();
+
+    renderizarDashboard();
+    renderizarVendas();
+    renderizarPedidos();
+
+    if (errors.length) {
+      mostrarErro(
+        "Alguns dados não puderam ser carregados. " + errors.join(" | ")
+      );
+    }
+  } finally {
+    state.carregando = false;
+  }
+}
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+function vendasFiltradas() {
+  const query = $("salesSearch").value.trim().toLowerCase();
+  const from = $("salesFrom").value;
+  const to = $("salesTo").value;
+  const status = $("salesStatus").value.toUpperCase();
+  const selectedOperator = $("salesOperator").value;
+
+  return state.vendas.filter((item) => {
+    const haystack = [
+      idRegistro(item),
+      nomeCliente(item),
+      operador(item),
+      pagamento(item),
+      statusRegistro(item),
+      telefoneCliente(item)
+    ].join(" ").toLowerCase();
+
+    if (query && !haystack.includes(query)) return false;
+
+    if (status && statusRegistro(item) !== status) return false;
+
+    if (selectedOperator && operadorId(item) !== selectedOperator) {
+      return false;
+    }
+
+    const date = dataValor(item);
+
+    if (from) {
+      const start = new Date(from + "T00:00:00");
+      if (!date || date < start) return false;
+    }
+
+    if (to) {
+      const end = new Date(to + "T23:59:59.999");
+      if (!date || date > end) return false;
+    }
+
+    return true;
+  });
+}
+
+function pedidosFiltrados() {
+  const query = $("ordersSearch").value.trim().toLowerCase();
+  const from = $("ordersFrom").value;
+  const to = $("ordersTo").value;
+  const status = $("ordersStatus").value.toUpperCase();
+
+  return state.pedidos.filter((item) => {
+    const haystack = [
+      idRegistro(item),
+      nomeCliente(item),
+      telefoneCliente(item),
+      statusRegistro(item)
+    ].join(" ").toLowerCase();
+
+    if (query && !haystack.includes(query)) return false;
+    if (status && statusRegistro(item) !== status) return false;
+
+    const date = dataValor(item);
+
+    if (from) {
+      const start = new Date(from + "T00:00:00");
+      if (!date || date < start) return false;
+    }
+
+    if (to) {
+      const end = new Date(to + "T23:59:59.999");
+      if (!date || date > end) return false;
+    }
+
+    return true;
+  });
+}
+
+/* =========================================================
+   RENDERIZAÇÃO
+   ========================================================= */
+function renderizarDashboard() {
+  $("statSales").textContent = state.vendas.length;
+  $("statOrders").textContent = state.pedidos.length;
+
+  const revenue = state.vendas.reduce((sum, item) => {
+    const status = statusRegistro(item);
+    if (/CANCEL/.test(status)) return sum;
+    return sum + valorRegistro(item);
+  }, 0);
+
+  $("statRevenue").textContent = moeda(revenue);
+  $("statOperators").textContent = state.operadores.length;
+
+  const recent = [...state.vendas]
+    .sort((a, b) => (dataValor(b)?.getTime() || 0) - (dataValor(a)?.getTime() || 0))
+    .slice(0, 8);
+
+  $("recentSalesBody").innerHTML = recent.length
+    ? recent.map((item) => `
+      <tr>
+        <td>${escapar(idRegistro(item))}</td>
+        <td>${escapar(formatarData(item))}</td>
+        <td>${escapar(operador(item))}</td>
+        <td>${escapar(moeda(valorRegistro(item)))}</td>
+        <td>${badgeStatus(statusRegistro(item))}</td>
+        <td><button class="btn small secondary" data-action="sale-detail" data-id="${escapar(idRegistro(item))}">Detalhes</button></td>
+      </tr>
+    `).join("")
+    : '<tr><td colspan="6" class="empty">Nenhuma venda encontrada.</td></tr>';
+}
+
+function renderizarVendas() {
+  const items = vendasFiltradas();
+
+  $("salesBody").innerHTML = items.length
+    ? items.map((item) => `
+      <tr>
+        <td>${escapar(idRegistro(item))}</td>
+        <td>${escapar(formatarData(item))}</td>
+        <td>${escapar(nomeCliente(item))}</td>
+        <td>${escapar(operador(item))}</td>
+        <td>${escapar(pagamento(item))}</td>
+        <td>${escapar(moeda(valorRegistro(item)))}</td>
+        <td>${badgeStatus(statusRegistro(item))}</td>
+        <td>
+          <button class="btn small secondary" data-action="sale-detail" data-id="${escapar(idRegistro(item))}">Detalhes</button>
+          ${
+            /CANCEL/.test(statusRegistro(item))
+              ? ""
+              : `<button class="btn small danger" data-action="sale-cancel" data-id="${escapar(idRegistro(item))}">Cancelar</button>`
+          }
+        </td>
+      </tr>
+    `).join("")
+    : '<tr><td colspan="8" class="empty">Nenhuma venda corresponde aos filtros.</td></tr>';
+
+  $("salesCount").textContent =
+    `${items.length} venda(s) exibida(s) de ${state.vendas.length}.`;
+}
+
+function renderizarPedidos() {
+  const items = pedidosFiltrados();
+
+  $("ordersBody").innerHTML = items.length
+    ? items.map((item) => `
+      <tr>
+        <td>${escapar(idRegistro(item))}</td>
+        <td>${escapar(formatarData(item))}</td>
+        <td>${escapar(nomeCliente(item))}</td>
+        <td>${escapar(telefoneCliente(item))}</td>
+        <td>${escapar(moeda(valorRegistro(item)))}</td>
+        <td>${badgeStatus(statusRegistro(item))}</td>
+        <td>
+          <button class="btn small secondary" data-action="order-detail" data-id="${escapar(idRegistro(item))}">Detalhes</button>
+        </td>
+      </tr>
+    `).join("")
+    : '<tr><td colspan="7" class="empty">Nenhum pedido corresponde aos filtros.</td></tr>';
+
+  $("ordersCount").textContent =
+    `${items.length} pedido(s) exibido(s) de ${state.pedidos.length}.`;
+}
+
+/* =========================================================
+   DETALHES
+   ========================================================= */
+function abrirDetalhes(tipo, item) {
+  if (!item) {
+    mostrarAviso("Registro não encontrado.", "error");
+    return;
+  }
+
+  const isSale = tipo === "sale";
+  $("modalTitle").textContent = isSale ? "Detalhes da venda" : "Detalhes do pedido";
+
+  const details = [
+    ["ID", idRegistro(item)],
+    ["Data", formatarData(item)],
+    ["Cliente", nomeCliente(item)],
+    ["Telefone", telefoneCliente(item)],
+    ["Operador", operador(item)],
+    ["Pagamento", pagamento(item)],
+    ["Valor", moeda(valorRegistro(item))],
+    ["Status", statusRegistro(item)],
+    ["Empresa", primeiro(item?.companyId, item?.empresaId, item?.company?.name, "—")],
+    ["Observação", primeiro(item?.observacao, item?.observations, item?.notes, "—")]
+  ];
+
+  const products = primeiro(
+    item?.itens,
+    item?.items,
+    item?.produtos,
+    item?.products,
+    item?.cart,
+    []
+  );
+
+  let productsHtml = "";
+
+  if (Array.isArray(products) && products.length) {
+    productsHtml = `
+      <h3>Itens</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Produto</th><th>Quantidade</th><th>Preço</th><th>Total</th></tr>
+          </thead>
+          <tbody>
+            ${products.map((product) => {
+              const name = primeiro(
+                product?.nome,
+                product?.name,
+                product?.produtoNome,
+                product?.product?.name,
+                product?.produto?.nome,
+                "Produto"
+              );
+              const qty = Number(primeiro(product?.quantidade, product?.quantity, product?.qty, 1));
+              const price = Number(primeiro(product?.preco, product?.price, product?.valorUnitario, product?.unitPrice, 0));
+              const total = Number(primeiro(product?.subtotal, product?.total, product?.totalPrice, price * qty));
+
+              return `
+                <tr>
+                  <td>${escapar(name)}</td>
+                  <td>${escapar(qty)}</td>
+                  <td>${escapar(moeda(price))}</td>
+                  <td>${escapar(moeda(total))}</td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  $("modalContent").innerHTML = `
+    <div class="detail-grid">
+      ${details.map(([label, value]) => `
+        <div class="detail-item">
+          <small>${escapar(label)}</small>
+          <strong>${escapar(value)}</strong>
+        </div>
+      `).join("")}
+    </div>
+    ${productsHtml}
+  `;
+
+  $("modalActions").innerHTML = "";
+
+  if (isSale && !/CANCEL/.test(statusRegistro(item))) {
+    const cancelButton = document.createElement("button");
+    cancelButton.className = "btn danger";
+    cancelButton.textContent = "Cancelar venda";
+    cancelButton.addEventListener("click", () => cancelarVenda(idRegistro(item)));
+    $("modalActions").appendChild(cancelButton);
+  }
+
+  $("detailModal").classList.add("show");
+}
+
+async function buscarVendaDetalhe(id) {
+  try {
+    const result = await api(`${CONFIG.VENDAS_BASE}/${encodeURIComponent(id)}`);
+    const item = result?.data ?? result?.venda ?? result?.result ?? result;
+    abrirDetalhes("sale", item);
+  } catch (error) {
+    console.error("[VENDAS] Erro ao buscar detalhes:", error);
+
+    const item = state.vendas.find((venda) => idRegistro(venda) === id);
+    if (item) abrirDetalhes("sale", item);
+    else mostrarAviso("Não foi possível abrir a venda: " + error.message, "error");
+  }
+}
+
+async function buscarPedidoDetalhe(id) {
+  const local = state.pedidos.find((pedido) => idRegistro(pedido) === id);
+
+  if (local) {
+    abrirDetalhes("order", local);
+    return;
+  }
+
+  try {
+    const result = await api(`${CONFIG.PEDIDOS_BASE}/${encodeURIComponent(id)}`);
+    abrirDetalhes("order", result?.data ?? result?.pedido ?? result?.result ?? result);
+  } catch (error) {
+    mostrarAviso("Não foi possível abrir o pedido: " + error.message, "error");
+  }
+}
+
+/* =========================================================
+   CANCELAMENTO DE VENDA
+   ========================================================= */
+async function cancelarVenda(id) {
+  const confirmed = window.confirm(
+    "Deseja realmente cancelar a venda " + id + "?\n\nEssa ação será enviada à API."
+  );
+
+  if (!confirmed) return;
+
+  try {
+    await api(`${CONFIG.VENDAS_BASE}/${encodeURIComponent(id)}/cancelar`, {
+      method: "PATCH"
+    });
+
+    $("detailModal").classList.remove("show");
+    mostrarAviso("Solicitação de cancelamento concluída.", "success");
+    await carregarTudo();
+  } catch (error) {
+    console.error("[VENDAS] Erro ao cancelar:", error);
+    mostrarAviso("Não foi possível cancelar a venda: " + error.message, "error");
+  }
+}
+
+/* =========================================================
+   NAVEGAÇÃO E EVENTOS
+   ========================================================= */
+function navegar(page) {
+  document.querySelectorAll(".page").forEach((el) => el.classList.remove("active"));
+  document.querySelectorAll(".nav-button[data-page]").forEach((el) => el.classList.remove("active"));
+
+  const target = $("page-" + page);
+  if (target) target.classList.add("active");
+
+  const button = document.querySelector(`.nav-button[data-page="${page}"]`);
+  if (button) button.classList.add("active");
+
+  $("sidebar").classList.remove("open");
+}
+
+document.querySelectorAll(".nav-button[data-page]").forEach((button) => {
+  button.addEventListener("click", () => navegar(button.dataset.page));
+});
+
+$("mobileMenu").addEventListener("click", () => {
+  $("sidebar").classList.toggle("open");
+});
+
+$("refreshButton").addEventListener("click", carregarTudo);
+$("refreshDashboard").addEventListener("click", carregarTudo);
+$("refreshSales").addEventListener("click", carregarTudo);
+$("refreshOrders").addEventListener("click", carregarTudo);
+
+$("filterSales").addEventListener("click", renderizarVendas);
+$("salesOperator").addEventListener("change", renderizarVendas);
+$("salesStatus").addEventListener("change", renderizarVendas);
+$("salesSearch").addEventListener("input", renderizarVendas);
+
+$("clearSalesFilters").addEventListener("click", () => {
+  $("salesSearch").value = "";
+  $("salesFrom").value = "";
+  $("salesTo").value = "";
+  $("salesStatus").value = "";
+  $("salesOperator").value = "";
+  renderizarVendas();
+});
+
+$("filterOrders").addEventListener("click", renderizarPedidos);
+$("ordersStatus").addEventListener("change", renderizarPedidos);
+$("ordersSearch").addEventListener("input", renderizarPedidos);
+
+$("clearOrdersFilters").addEventListener("click", () => {
+  $("ordersSearch").value = "";
+  $("ordersFrom").value = "";
+  $("ordersTo").value = "";
+  $("ordersStatus").value = "";
+  renderizarPedidos();
+});
+
+$("salesFrom").addEventListener("change", renderizarVendas);
+$("salesTo").addEventListener("change", renderizarVendas);
+$("ordersFrom").addEventListener("change", renderizarPedidos);
+$("ordersTo").addEventListener("change", renderizarPedidos);
+
+$("closeModal").addEventListener("click", () => {
+  $("detailModal").classList.remove("show");
+});
+
+$("detailModal").addEventListener("click", (event) => {
+  if (event.target === $("detailModal")) {
+    $("detailModal").classList.remove("show");
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") $("detailModal").classList.remove("show");
+});
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
+
+  const action = button.dataset.action;
+  const id = button.dataset.id;
+
+  if (action === "sale-detail") {
+    buscarVendaDetalhe(id);
+  } else if (action === "sale-cancel") {
+    cancelarVenda(id);
+  } else if (action === "order-detail") {
+    buscarPedidoDetalhe(id);
+  }
+});
+
+/* Inicialização */
+carregarTudo();
+</script>
+</body>
+</html>
