@@ -1475,8 +1475,8 @@ function renderizarPedidos() {
   // Busca valores em formatos alternativos da API.
   function valorRealPedido(item) {
     const valor = primeiro(
-      item?.total,
-      item?.valorTotal,
+      item?.pagamento.total,
+      item?.pagamento.valorTotal,
       item?.totalPedido,
       item?.valor,
       item?.resumo?.total,
