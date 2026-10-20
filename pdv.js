@@ -5,17 +5,7 @@
    CONFIGURAÇÃO
    ========================================================= */
 
-const API_BASE = "https://essenzaintimasapi.onrender.com";
 
-// Ajuste para a chave em que seu login salva o JWT.
-const TOKEN_KEY = "token";
-
-const ENDPOINTS = {
-  produtos: `${API_BASE}/products`,
-  vendas: `${API_BASE}/vendas`,
-  venderProduto: (id) =>
-    `${API_BASE}/products/${encodeURIComponent(id)}/sell`,
-};
 
 /* =========================================================
    ESTADO
@@ -105,7 +95,7 @@ async function requisicao(url, options = {}) {
    ========================================================= */
 
 function idProduto(produto) {
-  return String(produto?._id || produto?.id || produto?.productId || "");
+  return String(produto?.id || produto?._id || produto?.productId || "");
 }
 
 function nomeProduto(produto) {
@@ -128,6 +118,7 @@ function variantesProduto(produto) {
 
 function idSku(variante) {
   return String(
+    variante?.size ||
     variante?._id ||
     variante?.id ||
     variante?.skuId ||
