@@ -112,6 +112,18 @@ function nomeProduto(produto) {
     "Produto sem nome"
   ).trim();
 }
+function codigoSku(variante) {
+  return String(
+    variante?.sku ??
+    variante?.code ??
+    variante?.codigo ??
+    variante?.name ??
+    variante?.nome ??
+    variante?._id ??
+    variante?.id ??
+    ""
+  ).trim();
+}
 function categoriaProduto(produto) {
   return String(
     produto?.categoria ||
