@@ -1430,6 +1430,60 @@ function renderizarVendas() {
 
 function renderizarPedidos() {
   const items = pedidosFiltrados();
+  
+  alert(
+
+    "1. TOTAL DE PEDIDOS NA API\n\n" +
+
+    "Pedidos carregados: " + state.pedidos.length
+
+  );
+
+  alert(
+
+    "2. PEDIDOS APÓS OS FILTROS\n\n" +
+
+    "Pedidos encontrados: " + items.length
+
+  );
+
+  alert(
+
+    "3. PRIMEIRO PEDIDO\n\n" +
+
+    JSON.stringify(state.pedidos[0] || null, null, 2)
+
+  );
+
+  alert(
+
+    "4. VALOR DO PEDIDO\n\n" +
+
+    "Campo total: " + (state.pedidos[0]?.total ?? "NÃO ENCONTRADO") + "\n" +
+
+    "Valor calculado: " + valorPedido(state.pedidos[0] || {})
+
+  );
+
+  const faturamento = items.reduce(
+
+    (soma, item) => soma + Number(item.total || 0),
+
+    0
+
+  );
+
+  alert(
+
+    "5. FATURAMENTO TOTAL\n\n" +
+
+    "Faturamento: R$ " + faturamento.toFixed(2) + "\n" +
+
+    "Quantidade de pedidos: " + items.length
+
+  );
+
+  con
 
   const status = (item) => statusPedido(item);
 
