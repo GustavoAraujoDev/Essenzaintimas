@@ -1729,175 +1729,702 @@ async function buscarPedidoDetalhe(id) {
 }
 
   
+
 function abrirDetalhes(tipo, item) {
   if (!item || typeof item !== "object") {
-    alert("Não foi possível abrir os detalhes: registro inválido.");
+    mostrarAviso("Não foi possível carregar os detalhes.", "error");
     return;
   }
 
-  // Remove modal anterior, caso exista.
   document.getElementById("modalDetalhesRegistro")?.remove();
 
-  const ehPedido = tipo === "order";
-  const titulo = ehPedido ? "Detalhes do pedido" : "Detalhes da venda";
-
+  const pedido = tipo === "order";
   const pagamento = item.pagamento ?? item.pagamentos ?? {};
-  const total = ehPedido
-    ? pagamento.total ?? pagamento.valorTotal ?? item.total ?? item.valorTotal ?? 0
-    : item.total ?? item.valorTotal ?? item.valor ?? 0;
-
-  const numero = Number(total);
-  const totalFormatado = Number.isFinite(numero)
-    ? numero.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      })
-    : "R$ 0,00";
-
   const cliente = item.cliente ?? {};
-  const itens = Array.isArray(item.itens)
-    ? item.itens
-    : Array.isArray(item.produtos)
-      ? item.produtos
-      : [];
 
-  function escaparHTML(valor) {
-    return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+  const id = item.id ?? item._id ?? "Não informado";
+  const status = String(
+    item.status ?? item.situacao ?? item.statusVenda ??
+    pagamento.status ?? "Não informado"
+  ).toUpperCase();
+
+  const totalBruto = pedido
+    ? pagamento.total ?? pagamento.valorTotal ??
+      pagamento.valor ?? item.total ?? item.valorTotal ?? 0
+    : item.total ?? item.valorTotal ?? item.valor ??
+      item.totalVenda ?? 0;
+
+  const total = Number(totalBruto) || 0;
+
+  const dinheiro = valor =>
+    (Number(valor) || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+
+  const escapar = valor =>
+    String(valor ?? "").replace(/[&<>"']/g, c => ({
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
       '"': "&quot;",
       "'": "&#39;"
-    })[caractere]);
-  }
+    })[c]);
 
-  const listaItens = itens.length
-    ? itens.map(produto => {
-        const nome = produto.name ?? produto.nome ?? produto.productName ?? "Produto";
-        const quantidade = Number(produto.quantity ?? produto.quantidade ?? 1);
-        const valor = Number(
-          produto.totalPrice ??
-          produto.subtotal ??
-          produto.total ??
-          (
-            Number(produto.unitPrice ?? produto.preco ?? 0) *
-            quantidade
-          )
+  const dataBruta =
+    item.createdAt ?? item.dataVenda ?? item.dataPedido ??
+    item.dataCriacao ?? item.data ?? null;
+
+  const data = dataBruta
+    ? new Date(dataBruta)
+    : null;
+
+  const dataFormatada =
+    data && !Number.isNaN(data.getTime())
+      ? data.toLocaleString("pt-BR", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        })
+      : "Data não informada";
+
+  const statusClasse = /CANCEL|ANULAD|ESTORNAD/.test(status)
+    ? "dr-cancelado"
+    : /PENDENT|AGUARDANDO|CREATED/.test(status)
+      ? "dr-pendente"
+      : /PAGO|CONCLUID|ENTREGUE|DELIVERED|COMPLETED|FINALIZAD/.test(status)
+        ? "dr-sucesso"
+        : "dr-andamento";
+
+  const itensOriginais = Array.isArray(item.itens)
+    ? item.itens
+    : Array.isArray(item.produtos)
+      ? item.produtos
+      : Array.isArray(item.items)
+        ? item.items
+        : [];
+
+  const itensHtml = itensOriginais.length
+    ? itensOriginais.map(produto => {
+        const nome = produto.name ?? produto.nome ??
+          produto.productName ?? produto.descricao ?? "Produto";
+
+        const quantidade = Number(
+          produto.quantity ?? produto.quantidade ?? 1
+        ) || 1;
+
+        const unitario = Number(
+          produto.unitPrice ?? produto.precoUnitario ??
+          produto.preco ?? produto.valorUnitario ?? 0
         ) || 0;
 
+        const subtotal = Number(
+          produto.totalPrice ?? produto.subtotal ??
+          produto.total ?? (unitario * quantidade)
+        ) || 0;
+
+        const variacao = [
+          produto.size ?? produto.tamanho,
+          produto.cor
+        ].filter(Boolean).join(" · ");
+
         return `
-          <div class="flex justify-between gap-4 border-b py-3">
-            <div>
-              <p class="font-medium">${escaparHTML(nome)}</p>
-              <p class="text-sm text-gray-500">
-                Quantidade: ${escaparHTML(quantidade)}
-              </p>
+          <div class="dr-product">
+            <div class="dr-product-icon">▧</div>
+            <div class="dr-product-info">
+              <div class="dr-product-name">${escapar(nome)}</div>
+              ${variacao
+                ? `<div class="dr-muted">${escapar(variacao)}</div>`
+                : ""}
+              <div class="dr-muted">
+                ${quantidade} × ${dinheiro(unitario)}
+              </div>
             </div>
-            <p class="font-semibold whitespace-nowrap">
-              ${valor.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL"
-              })}
-            </p>
+            <div class="dr-product-price">${dinheiro(subtotal)}</div>
           </div>
         `;
       }).join("")
-    : '<p class="text-gray-500 py-4">Nenhum item registrado.</p>';
+    : `
+      <div class="dr-empty">
+        Nenhum item detalhado foi encontrado neste registro.
+      </div>
+    `;
+
+  const endereco = cliente.endereco ?? item.endereco ??
+    item.enderecoEntrega ?? "Não informado";
+
+  const telefone = cliente.telefone ?? item.telefone ??
+    item.telefoneCliente ?? "Não informado";
+
+  const nomeCliente = cliente.nome ?? item.nomeCliente ??
+    item.clienteNome ?? "Cliente não identificado";
+
+  const metodo = pagamento.metodo ?? item.metodoPagamento ??
+    item.formaPagamento ?? item.metodo ?? "Não informado";
+
+  const subtotalItens = itensOriginais.reduce((soma, produto) => {
+    const qtd = Number(produto.quantity ?? produto.quantidade ?? 1) || 1;
+    const unit = Number(
+      produto.unitPrice ?? produto.precoUnitario ??
+      produto.preco ?? produto.valorUnitario ?? 0
+    ) || 0;
+
+    return soma + (
+      Number(produto.totalPrice ?? produto.subtotal ?? produto.total) ||
+      unit * qtd
+    );
+  }, 0);
+
+  const desconto = Number(
+    item.descontoCupom ?? item.desconto ?? pagamento.desconto ?? 0
+  ) || 0;
+
+  const taxaEntrega = Number(
+    item.entrega?.taxaEntrega ?? item.taxaEntrega ?? 0
+  ) || 0;
 
   const modal = document.createElement("div");
   modal.id = "modalDetalhesRegistro";
-  modal.style.cssText = `
-  position: fixed;
-  inset: 0;
-  z-index: 2147483647;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: rgba(0,0,0,.65);
-`;
 
   modal.innerHTML = `
-   <div class="modal-conteudo">
-      <div class="sticky top-0 bg-white border-b p-5 flex justify-between items-center gap-4">
-        <div>
-          <h2 id="tituloDetalhesRegistro" class="text-xl font-bold text-gray-900">
-            ${titulo}
-          </h2>
-          <p class="text-sm text-gray-500">
-            ${escaparHTML(item.id ?? item._id ?? "Sem identificador")}
-          </p>
+    <style>
+      #modalDetalhesRegistro {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(24, 20, 18, .68);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
+        font-family: Inter, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        animation: dr-fade .2s ease;
+      }
+
+      #modalDetalhesRegistro * { box-sizing: border-box; }
+
+      #modalDetalhesRegistro .dr-panel {
+        width: 100%;
+        max-width: 860px;
+        max-height: min(92vh, 920px);
+        overflow: auto;
+        background: #fff;
+        border-radius: 22px;
+        box-shadow: 0 28px 100px rgba(0,0,0,.3);
+        animation: dr-enter .25s ease;
+        color: #292522;
+      }
+
+      #modalDetalhesRegistro .dr-header {
+        padding: 26px 30px;
+        background: linear-gradient(135deg, #29231f, #49382e);
+        color: #fff;
+        position: relative;
+      }
+
+      #modalDetalhesRegistro .dr-header-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      #modalDetalhesRegistro .dr-eyebrow {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #d7bca7;
+        margin-bottom: 9px;
+      }
+
+      #modalDetalhesRegistro .dr-title {
+        margin: 0;
+        font-size: clamp(22px, 4vw, 29px);
+        font-weight: 750;
+        letter-spacing: -.8px;
+        color: white;
+      }
+
+      #modalDetalhesRegistro .dr-reference {
+        margin-top: 9px;
+        font-size: 12px;
+        color: #e1d4cb;
+        overflow-wrap: anywhere;
+      }
+
+      #modalDetalhesRegistro .dr-close {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255,255,255,.23);
+        border-radius: 12px;
+        background: rgba(255,255,255,.1);
+        color: white;
+        font-size: 21px;
+        cursor: pointer;
+        transition: background .2s, transform .2s;
+      }
+
+      #modalDetalhesRegistro .dr-close:hover {
+        background: rgba(255,255,255,.2);
+        transform: rotate(5deg);
+      }
+
+      #modalDetalhesRegistro .dr-header-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 23px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(255,255,255,.15);
+      }
+
+      #modalDetalhesRegistro .dr-date {
+        color: #e4d8d0;
+        font-size: 12px;
+      }
+
+      #modalDetalhesRegistro .dr-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .6px;
+      }
+
+      #modalDetalhesRegistro .dr-sucesso {
+        background: #e4f4e9;
+        color: #24653a;
+      }
+
+      #modalDetalhesRegistro .dr-pendente {
+        background: #fff0d7;
+        color: #8b5b0c;
+      }
+
+      #modalDetalhesRegistro .dr-cancelado {
+        background: #fde7e7;
+        color: #a33131;
+      }
+
+      #modalDetalhesRegistro .dr-andamento {
+        background: #e6efff;
+        color: #2855a1;
+      }
+
+      #modalDetalhesRegistro .dr-body { padding: 26px 30px 30px; }
+
+      #modalDetalhesRegistro .dr-total-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 21px 23px;
+        border: 1px solid #e9ddd4;
+        border-radius: 17px;
+        background: linear-gradient(120deg, #fbf7f3, #f4ebe4);
+        margin-bottom: 25px;
+      }
+
+      #modalDetalhesRegistro .dr-total-label {
+        font-size: 12px;
+        color: #78685e;
+        margin-bottom: 6px;
+      }
+
+      #modalDetalhesRegistro .dr-total-value {
+        font-size: clamp(25px, 5vw, 34px);
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: -1px;
+        color: #35281f;
+        overflow-wrap: anywhere;
+      }
+
+      #modalDetalhesRegistro .dr-total-icon {
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        background: #e8d7c9;
+        color: #634936;
+        font-size: 24px;
+        flex-shrink: 0;
+      }
+
+      #modalDetalhesRegistro .dr-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 17px;
+      }
+
+      #modalDetalhesRegistro .dr-section {
+        border: 1px solid #eee9e5;
+        border-radius: 16px;
+        padding: 19px;
+        margin-bottom: 18px;
+        min-width: 0;
+      }
+
+      #modalDetalhesRegistro .dr-section-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 13px;
+        font-weight: 800;
+        margin: 0 0 17px;
+        color: #332b26;
+      }
+
+      #modalDetalhesRegistro .dr-section-icon {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        background: #f4ebe4;
+        color: #75553e;
+        border-radius: 9px;
+        font-size: 15px;
+      }
+
+      #modalDetalhesRegistro .dr-field { margin-bottom: 15px; }
+      #modalDetalhesRegistro .dr-field:last-child { margin-bottom: 0; }
+
+      #modalDetalhesRegistro .dr-label {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        color: #968980;
+        margin-bottom: 5px;
+      }
+
+      #modalDetalhesRegistro .dr-value {
+        font-size: 13px;
+        line-height: 1.55;
+        color: #332d29;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+      }
+
+      #modalDetalhesRegistro .dr-muted {
+        font-size: 11px;
+        color: #898079;
+        margin-top: 4px;
+        overflow-wrap: anywhere;
+      }
+
+      #modalDetalhesRegistro .dr-product {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 15px 0;
+        border-bottom: 1px solid #f0ece8;
+      }
+
+      #modalDetalhesRegistro .dr-product:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      #modalDetalhesRegistro .dr-product-icon {
+        width: 43px;
+        height: 43px;
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: #f5eee8;
+        color: #7a5a43;
+        font-size: 22px;
+      }
+
+      #modalDetalhesRegistro .dr-product-info { flex: 1; min-width: 0; }
+
+      #modalDetalhesRegistro .dr-product-name {
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 750;
+        color: #352d28;
+        overflow-wrap: anywhere;
+      }
+
+      #modalDetalhesRegistro .dr-product-price {
+        flex-shrink: 0;
+        font-size: 13px;
+        font-weight: 800;
+        color: #382d25;
+        text-align: right;
+      }
+
+      #modalDetalhesRegistro .dr-summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 9px 0;
+        font-size: 12px;
+        color: #746960;
+      }
+
+      #modalDetalhesRegistro .dr-summary-row strong {
+        color: #332b26;
+        text-align: right;
+      }
+
+      #modalDetalhesRegistro .dr-summary-total {
+        border-top: 1px solid #e9dfd8;
+        margin-top: 8px;
+        padding-top: 15px;
+        font-size: 14px;
+        font-weight: 800;
+        color: #30251e;
+      }
+
+      #modalDetalhesRegistro .dr-empty {
+        padding: 24px 10px;
+        text-align: center;
+        color: #8a817a;
+        font-size: 12px;
+      }
+
+      #modalDetalhesRegistro .dr-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 19px;
+        margin-top: 5px;
+        border-top: 1px solid #eee9e5;
+      }
+
+      #modalDetalhesRegistro .dr-footer-note {
+        color: #93877f;
+        font-size: 10px;
+      }
+
+      #modalDetalhesRegistro .dr-footer-button {
+        border: 0;
+        background: #332720;
+        color: #fff;
+        padding: 12px 21px;
+        border-radius: 11px;
+        font-weight: 750;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      #modalDetalhesRegistro .dr-footer-button:hover {
+        background: #604633;
+      }
+
+      #modalDetalhesRegistro .dr-raw {
+        margin-top: 18px;
+        border: 1px solid #eee9e5;
+        border-radius: 12px;
+        padding: 12px;
+      }
+
+      #modalDetalhesRegistro .dr-raw summary {
+        font-size: 11px;
+        font-weight: 700;
+        color: #76675d;
+        cursor: pointer;
+      }
+
+      #modalDetalhesRegistro .dr-raw pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-size: 10px;
+        line-height: 1.6;
+        color: #51463e;
+        max-height: 260px;
+        overflow: auto;
+      }
+
+      @keyframes dr-fade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes dr-enter {
+        from { opacity: 0; transform: translateY(12px) scale(.99); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      @media (max-width: 600px) {
+        #modalDetalhesRegistro { padding: 9px; }
+        #modalDetalhesRegistro .dr-panel {
+          max-height: 95dvh;
+          border-radius: 17px;
+        }
+        #modalDetalhesRegistro .dr-header { padding: 21px 18px; }
+        #modalDetalhesRegistro .dr-body { padding: 17px 15px 20px; }
+        #modalDetalhesRegistro .dr-grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 0;
+        }
+        #modalDetalhesRegistro .dr-total-card { padding: 17px; }
+        #modalDetalhesRegistro .dr-section { padding: 15px; }
+        #modalDetalhesRegistro .dr-product { gap: 9px; }
+        #modalDetalhesRegistro .dr-product-icon {
+          width: 36px; height: 36px;
+        }
+      }
+    </style>
+
+    <div class="dr-panel" role="dialog" aria-modal="true"
+         aria-label="${pedido ? "Detalhes do pedido" : "Detalhes da venda"}">
+      <header class="dr-header">
+        <div class="dr-header-top">
+          <div>
+            <div class="dr-eyebrow">${pedido ? "Gestão de pedidos" : "Gestão de vendas"}</div>
+            <h2 class="dr-title">${pedido ? "Detalhes do pedido" : "Detalhes da venda"}</h2>
+            <div class="dr-reference">Referência: ${escapar(id)}</div>
+          </div>
+          <button class="dr-close" type="button" data-fechar aria-label="Fechar">×</button>
         </div>
 
-        <button
-          type="button"
-          id="fecharModalDetalhes"
-          class="rounded-lg border px-4 py-2 hover:bg-gray-100"
-        >Fechar ✕</button>
-      </div>
+        <div class="dr-header-bottom">
+          <span class="dr-date">${escapar(dataFormatada)}</span>
+          <span class="dr-badge ${statusClasse}">${escapar(status)}</span>
+        </div>
+      </header>
 
-      <div class="p-5 space-y-5">
-        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="rounded-xl bg-gray-50 p-4">
-            <p class="text-sm text-gray-500">Cliente</p>
-            <p class="font-semibold">${escaparHTML(cliente.nome ?? item.nomeCliente ?? "Não informado")}</p>
-            <p class="text-sm">${escaparHTML(cliente.telefone ?? item.telefone ?? "Sem telefone")}</p>
+      <main class="dr-body">
+        <section class="dr-total-card">
+          <div>
+            <div class="dr-total-label">Valor total ${pedido ? "do pedido" : "da venda"}</div>
+            <div class="dr-total-value">${dinheiro(total)}</div>
           </div>
+          <div class="dr-total-icon">R$</div>
+        </section>
 
-          <div class="rounded-xl bg-gray-50 p-4">
-            <p class="text-sm text-gray-500">Status</p>
-            <p class="font-semibold">${escaparHTML(item.status ?? item.situacao ?? "Não informado")}</p>
-            <p class="text-sm text-gray-500">
-              Pagamento: ${escaparHTML(pagamento.status ?? item.statusPagamento ?? "Não informado")}
-            </p>
+        <div class="dr-grid">
+          <section class="dr-section">
+            <h3 class="dr-section-title">
+              <span class="dr-section-icon">♙</span> Dados do cliente
+            </h3>
+            <div class="dr-field">
+              <div class="dr-label">Nome</div>
+              <div class="dr-value">${escapar(nomeCliente)}</div>
+            </div>
+            <div class="dr-field">
+              <div class="dr-label">Telefone</div>
+              <div class="dr-value">${escapar(telefone)}</div>
+            </div>
+            <div class="dr-field">
+              <div class="dr-label">Endereço / retirada</div>
+              <div class="dr-value">${escapar(endereco)}</div>
+            </div>
+          </section>
+
+          <section class="dr-section">
+            <h3 class="dr-section-title">
+              <span class="dr-section-icon">▤</span> Pagamento
+            </h3>
+            <div class="dr-field">
+              <div class="dr-label">Método</div>
+              <div class="dr-value">${escapar(metodo)}</div>
+            </div>
+            <div class="dr-field">
+              <div class="dr-label">Status do pagamento</div>
+              <div class="dr-value">${escapar(pagamento.status ?? item.statusPagamento ?? status)}</div>
+            </div>
+            <div class="dr-field">
+              <div class="dr-label">Código da transação</div>
+              <div class="dr-value">${escapar(pagamento.transactionId ?? item.transactionId ?? "Não informado")}</div>
+            </div>
+            ${pagamento.trocoPara != null ? `
+              <div class="dr-field">
+                <div class="dr-label">Troco para</div>
+                <div class="dr-value">${dinheiro(pagamento.trocoPara)}</div>
+              </div>
+            ` : ""}
+          </section>
+        </div>
+
+        <section class="dr-section">
+          <h3 class="dr-section-title">
+            <span class="dr-section-icon">▧</span>
+            Produtos <span class="dr-muted">(${itensOriginais.length} item(ns))</span>
+          </h3>
+          ${itensHtml}
+        </section>
+
+        <section class="dr-section">
+          <h3 class="dr-section-title">
+            <span class="dr-section-icon">∑</span> Resumo financeiro
+          </h3>
+          <div class="dr-summary-row">
+            <span>Subtotal dos produtos</span>
+            <strong>${dinheiro(subtotalItens)}</strong>
+          </div>
+          ${taxaEntrega ? `
+            <div class="dr-summary-row">
+              <span>Taxa de entrega</span>
+              <strong>${dinheiro(taxaEntrega)}</strong>
+            </div>
+          ` : ""}
+          ${desconto ? `
+            <div class="dr-summary-row">
+              <span>Desconto</span>
+              <strong>− ${dinheiro(desconto)}</strong>
+            </div>
+          ` : ""}
+          <div class="dr-summary-row dr-summary-total">
+            <span>Total registrado</span>
+            <strong>${dinheiro(total)}</strong>
           </div>
         </section>
 
-        <section>
-          <h3 class="font-bold text-gray-900 mb-2">Itens</h3>
-          ${listaItens}
-        </section>
-
-        <section class="rounded-xl bg-gray-50 p-4 space-y-2">
-          <div class="flex justify-between gap-4">
-            <span class="text-gray-600">Método de pagamento</span>
-            <span class="font-medium">${escaparHTML(pagamento.metodo ?? item.metodoPagamento ?? "Não informado")}</span>
-          </div>
-
-          <div class="flex justify-between gap-4 text-lg">
-            <span class="font-bold">Total</span>
-            <span class="font-bold">${totalFormatado}</span>
-          </div>
-        </section>
-
-        <details>
-          <summary class="cursor-pointer text-sm text-gray-500">
-            Ver dados completos do registro
-          </summary>
-          <pre class="mt-3 p-3 bg-gray-50 rounded-lg text-xs whitespace-pre-wrap break-words">${escaparHTML(JSON.stringify(item, null, 2))}</pre>
+        <details class="dr-raw">
+          <summary>Consultar dados técnicos do registro</summary>
+          <pre>${escapar(JSON.stringify(item, null, 2))}</pre>
         </details>
-      </div>
+
+        <footer class="dr-footer">
+          <span class="dr-footer-note">Informações carregadas do registro atual.</span>
+          <button type="button" class="dr-footer-button" data-fechar>
+            Fechar detalhes
+          </button>
+        </footer>
+      </main>
     </div>
   `;
 
   document.body.appendChild(modal);
 
-  modal.querySelector("#fecharModalDetalhes").addEventListener("click", () => {
-    modal.remove();
+  const fechar = () => modal.remove();
+
+  modal.querySelectorAll("[data-fechar]").forEach(botao => {
+    botao.addEventListener("click", fechar);
   });
 
-  modal.addEventListener("click", event => {
-    if (event.target === modal) modal.remove();
+  modal.addEventListener("click", evento => {
+    if (evento.target === modal) fechar();
   });
 
-  document.addEventListener("keydown", function fecharComEscape(event) {
-    if (event.key === "Escape") {
-      modal.remove();
-      document.removeEventListener("keydown", fecharComEscape);
+  const fecharEscape = evento => {
+    if (evento.key === "Escape") {
+      fechar();
+      document.removeEventListener("keydown", fecharEscape);
     }
-  });
-}
+  };
 
+  document.addEventListener("keydown", fecharEscape);
+}
 
 /* =========================================================
    CANCELAMENTO DE VENDA
