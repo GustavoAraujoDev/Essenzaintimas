@@ -1079,9 +1079,6 @@ function configurarEventos() {
       return;
     }
   }
-  adicionarProduto(produto, variante);
-});
-
     adicionarProduto(produto, variante);
     mostrarAviso("Produto adicionado ao carrinho.", "success");
   });
