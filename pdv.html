@@ -1,0 +1,476 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#26211E">
+  <title>PDV | Essenza Íntimas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --dark: #26211E;
+      --brown: #9E7960;
+      --background: #F8F5F2;
+      --surface: #FFFFFF;
+      --border: #E8DED5;
+      --muted: #81766F;
+      --success: #2F7D4A;
+      --danger: #A64040;
+      --shadow: 0 8px 28px rgba(38,33,30,.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--dark);
+      font-family: "Plus Jakarta Sans", sans-serif;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 26px;
+      background: var(--dark);
+      color: white;
+    }
+
+    .brand {
+      font: 600 30px "Cormorant Garamond", serif;
+      letter-spacing: .5px;
+    }
+
+    .brand small {
+      display: block;
+      font: 10px "Plus Jakarta Sans", sans-serif;
+      letter-spacing: 3px;
+      color: #D8C2B3;
+      text-transform: uppercase;
+    }
+
+    .operator {
+      font-size: 12px;
+      color: #E8DED5;
+      text-align: right;
+    }
+
+    .page {
+      max-width: 1500px;
+      margin: auto;
+      padding: 26px;
+    }
+
+    .heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font: 600 34px "Cormorant Garamond", serif;
+      margin-bottom: 5px;
+    }
+
+    .subtitle { color: var(--muted); font-size: 13px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .catalog-panel { padding: 20px; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .field {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--dark);
+      border-radius: 10px;
+      padding: 12px;
+      outline: none;
+    }
+
+    .field:focus { border-color: var(--brown); }
+
+    .search { flex: 1 1 220px; }
+    .category { flex: 0 1 190px; }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .product {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 15px;
+      min-width: 0;
+    }
+
+    .product h3 {
+      font: 600 21px "Cormorant Garamond", serif;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .product-category {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .price {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .stock {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .stock.low { color: var(--danger); }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 15px;
+      font-weight: 700;
+      transition: opacity .15s;
+    }
+
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-primary { background: var(--dark); color: white; }
+    .btn-secondary { background: var(--border); color: var(--dark); }
+    .btn-danger { background: #F9E9E7; color: var(--danger); }
+    .btn-full { width: 100%; }
+
+    .cart-panel { overflow: hidden; position: sticky; top: 14px; }
+
+    .cart-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cart-header h2 {
+      font: 600 26px "Cormorant Garamond", serif;
+      margin-bottom: 4px;
+    }
+
+    .cart-body { padding: 16px; }
+
+    .cart-items {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      max-height: 370px;
+      overflow-y: auto;
+    }
+
+    .cart-item {
+      padding-bottom: 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cart-item-title {
+      font-weight: 700;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .cart-item-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 9px;
+    }
+
+    .cart-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quantity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quantity button {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 8px;
+    }
+
+    .remove {
+      border: 0;
+      background: transparent;
+      color: var(--danger);
+      font-size: 11px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .totals {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .total-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .total-final {
+      font-size: 19px;
+      font-weight: 700;
+      padding-top: 8px;
+    }
+
+    .payment {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .payment label {
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .notice {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .notice.show { display: block; }
+    .notice.error { color: var(--danger); background: #F9E9E7; }
+    .notice.success { color: var(--success); background: #EAF5ED; }
+    .notice.info { color: var(--dark); background: var(--background); }
+
+    .empty-products {
+      padding: 35px 10px;
+      color: var(--muted);
+      text-align: center;
+      grid-column: 1 / -1;
+    }
+
+    .footer-note {
+      font-size: 10px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-top: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: minmax(0, 1fr) 340px; }
+      .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 800px) {
+      .page { padding: 15px; }
+      .topbar { padding: 15px; }
+      .layout { grid-template-columns: 1fr; }
+      .cart-panel { position: static; }
+      .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .heading { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (max-width: 430px) {
+      .product-grid { grid-template-columns: 1fr; }
+      .brand { font-size: 25px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      Essenza Íntimas
+      <small>Point of Sale</small>
+    </div>
+    <div class="operator">
+      <div>Operador autenticado</div>
+      <strong id="operatorName">Sessão ativa</strong>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="heading">
+      <div>
+        <h1>Frente de caixa</h1>
+        <p class="subtitle">Selecione os produtos e finalize a venda.</p>
+      </div>
+      <button class="btn btn-secondary" id="reloadProducts" type="button">
+        Atualizar produtos
+      </button>
+    </div>
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+    <div class="layout">
+      <section class="panel catalog-panel">
+        <div class="toolbar">
+          <input id="search" class="field search"
+            placeholder="Buscar produto pelo nome..." autocomplete="off">
+
+          <select id="categoryFilter" class="field category">
+            <option value="">Todas as categorias</option>
+          </select>
+        </div>
+
+        <div id="productGrid" class="product-grid">
+          <div class="empty-products">Carregando produtos...</div>
+        </div>
+      </section>
+
+      <aside class="panel cart-panel">
+        <div class="cart-header">
+          <h2>Venda atual</h2>
+          <span class="subtitle"><span id="cartCount">0</span> unidade(s)</span>
+        </div>
+
+        <div class="cart-body">
+          <div id="cartItems" class="cart-items">
+            <div class="empty">Seu carrinho está vazio.</div>
+          </div>
+
+          <div class="totals">
+            <div class="total-line">
+              <span>Subtotal</span>
+              <strong id="subtotal">R$ 0,00</strong>
+            </div>
+            <div class="total-line">
+              <label for="discount">Desconto (R$)</label>
+              <input id="discount" class="field" type="number"
+                min="0" step="0.01" value="0" style="max-width:130px;padding:8px">
+            </div>
+            <div class="total-line">
+              <label for="addition">Acréscimo (R$)</label>
+              <input id="addition" class="field" type="number"
+                min="0" step="0.01" value="0" style="max-width:130px;padding:8px">
+            </div>
+            <div class="total-line total-final">
+              <span>Total</span>
+              <strong id="total">R$ 0,00</strong>
+            </div>
+          </div>
+
+          <div class="payment">
+            <label>
+              Forma de pagamento
+              <select id="paymentMethod" class="field">
+                <option value="PIX">PIX</option>
+                <option value="DINHEIRO">Dinheiro</option>
+                <option value="CARTAO_CREDITO">Cartão de crédito</option>
+                <option value="CARTAO_DEBITO">Cartão de débito</option>
+                <option value="VALE">Vale</option>
+                <option value="OUTRO">Outro</option>
+              </select>
+            </label>
+
+            <label id="cashReceivedLabel" hidden>
+              Valor recebido em dinheiro (R$)
+              <input id="cashReceived" class="field" type="number"
+                min="0" step="0.01" placeholder="0,00">
+            </label>
+
+            <div class="total-line" id="changeLine" hidden>
+              <span>Troco</span>
+              <strong id="change">R$ 0,00</strong>
+            </div>
+
+            <label>
+              Nome do cliente (opcional)
+              <input id="customerName" class="field"
+                maxlength="120" placeholder="Nome do cliente">
+            </label>
+
+            <label>
+              Telefone do cliente (opcional)
+              <input id="customerPhone" class="field"
+                maxlength="30" placeholder="Telefone">
+            </label>
+
+            <label>
+              Observações (opcional)
+              <input id="observations" class="field"
+                maxlength="500" placeholder="Observações da venda">
+            </label>
+          </div>
+
+          <button id="finishSale" class="btn btn-primary btn-full" type="button">
+            Finalizar venda
+          </button>
+
+          <button id="clearCart" class="btn btn-secondary btn-full"
+            type="button" style="margin-top:8px">
+            Limpar carrinho
+          </button>
+
+          <p class="footer-note">
+            A baixa de estoque depende da autenticação e da autorização
+            configuradas na API. Não feche esta tela enquanto a operação
+            estiver sendo processada.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="./pdv.js" defer></script>
+</body>
+</html>
