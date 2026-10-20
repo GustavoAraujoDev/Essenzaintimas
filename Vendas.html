@@ -1447,70 +1447,153 @@ function renderizarVendas() {
 
 
 
-function renderizarPedidos() {
-  alert("ETAPA 1: entrou em renderizarPedidos()");
 
+function renderizarPedidos() {
   const items = pedidosFiltrados();
 
-  alert(
-    "ETAPA 2: pedidos recebidos\n" +
-    "Quantidade: " + items.length
+  // Busca valores em formatos alternativos da API.
+  function valorRealPedido(item) {
+    const valor = primeiro(
+      item?.total,
+      item?.valorTotal,
+      item?.totalPedido,
+      item?.valor,
+      item?.resumo?.total,
+      item?.totais?.total,
+      item?.pedido?.total,
+      0
+    );
+
+    if (typeof valor === "object" && valor !== null) {
+      return Number(valor.$numberDecimal ?? valor.value ?? 0) || 0;
+    }
+
+    return Number(valor) || 0;
+  }
+
+  function statusRealPedido(item) {
+    return String(
+      primeiro(
+        item?.status,
+        item?.situacao,
+        item?.statusPedido,
+        item?.pedido?.status,
+        item?.entrega?.status,
+        "NÃO INFORMADO"
+      )
+    ).trim().toUpperCase();
+  }
+
+  const canceladas = items.filter((item) =>
+    /CANCEL|ANULAD|ESTORNAD/.test(statusRealPedido(item))
   );
 
-  if (items.length > 0) {
-    alert(
-      "ETAPA 3: primeiro pedido completo\n\n" +
-      JSON.stringify(items[0], null, 2).slice(0, 4000)
-    );
-  }
+  const validas = items.filter((item) =>
+    !/CANCEL|ANULAD|ESTORNAD/.test(statusRealPedido(item))
+  );
+
+  const pendentes = validas.filter((item) =>
+    /PENDENT|AGUARDANDO|CREATED|NOVO|RECEBIDO/.test(statusRealPedido(item))
+  );
+
+  const concluidas = validas.filter((item) =>
+    /CONCLUID|FINALIZAD|ENTREGUE|DELIVERED|COMPLETED/.test(statusRealPedido(item))
+  );
+
+  const emAndamento = validas.filter((item) =>
+    /PREPAR|PROCESS|ANDAMENTO|CONFIRMAD|READY|PRONTO|OUT_FOR_DELIVERY/.test(statusRealPedido(item))
+  );
+
+  const faturamento = validas.reduce(
+    (soma, item) => soma + valorRealPedido(item),
+    0
+  );
+
+  const valorCancelado = canceladas.reduce(
+    (soma, item) => soma + valorRealPedido(item),
+    0
+  );
+
+  const ticketMedio = validas.length
+    ? faturamento / validas.length
+    : 0;
+
+  const agora = new Date();
+
+  const pedidosHoje = items.filter((item) => {
+    const data = dataValidaPedido(item);
+
+    return data &&
+      data.getDate() === agora.getDate() &&
+      data.getMonth() === agora.getMonth() &&
+      data.getFullYear() === agora.getFullYear();
+  });
+
+  const atualizarKpi = (id, valor) => {
+    const elemento = $(id);
+
+    if (elemento) {
+      elemento.textContent = String(valor);
+    } else {
+      alert("Elemento KPI não encontrado: " + id);
+    }
+  };
+
+  atualizarKpi("ordersStatCount", items.length);
+  atualizarKpi("ordersStatRevenue", moeda(faturamento));
+  atualizarKpi("ordersStatAverage", moeda(ticketMedio));
+  atualizarKpi("ordersStatPending", pendentes.length);
+  atualizarKpi("ordersStatProgress", emAndamento.length);
+  atualizarKpi("ordersStatCompleted", concluidas.length);
+  atualizarKpi("ordersStatCanceled", canceladas.length);
+  atualizarKpi("ordersStatToday", pedidosHoje.length);
+  atualizarKpi("ordersStatCanceledValue", moeda(valorCancelado));
+
+  alert(
+    "KPIs CALCULADOS\n\n" +
+    "Pedidos: " + items.length + "\n" +
+    "Faturamento: " + moeda(faturamento) + "\n" +
+    "Ticket médio: " + moeda(ticketMedio) + "\n" +
+    "Pendentes: " + pendentes.length + "\n" +
+    "Em andamento: " + emAndamento.length + "\n" +
+    "Concluídos: " + concluidas.length + "\n" +
+    "Cancelados: " + canceladas.length + "\n" +
+    "Pedidos hoje: " + pedidosHoje.length + "\n" +
+    "Valor cancelado: " + moeda(valorCancelado)
+  );
 
   const tabela = $("ordersBody");
 
-  alert(
-    "ETAPA 4: elemento ordersBody\n" +
-    (tabela ? "ENCONTRADO" : "NÃO ENCONTRADO")
-  );
-
   if (!tabela) {
-    alert('ERRO: não existe elemento com id="ordersBody" no HTML.');
+    alert('Elemento "ordersBody" não encontrado.');
     return;
   }
 
-  try {
-    tabela.innerHTML = items.length
-      ? items.map((item) => `
-          <tr>
-            <td>${escapar(idRegistro(item))}</td>
-            <td>${escapar(formatarData(item))}</td>
-            <td>${escapar(nomeCliente(item))}</td>
-            <td>${escapar(telefoneCliente(item))}</td>
-            <td>${escapar(JSON.stringify(item.total ?? item.valorTotal ?? item.valor ?? "SEM VALOR"))}</td>
-            <td>${escapar(statusPedido(item) || "SEM STATUS")}</td>
-            <td>
-              <button
-                class="btn small secondary"
-                data-action="order-detail"
-                data-id="${escapar(idRegistro(item))}">
-                Detalhes
-              </button>
-            </td>
-          </tr>
-        `).join("")
-      : '<tr><td colspan="7">Nenhum pedido encontrado.</td></tr>';
+  tabela.innerHTML = items.length
+    ? items.map((item) => `
+        <tr>
+          <td>${escapar(idRegistro(item))}</td>
+          <td>${escapar(formatarData(item))}</td>
+          <td>${escapar(nomeCliente(item))}</td>
+          <td>${escapar(telefoneCliente(item))}</td>
+          <td>${escapar(moeda(valorRealPedido(item)))}</td>
+          <td>${badgeStatus(statusRealPedido(item))}</td>
+          <td>
+            <button
+              class="btn small secondary"
+              data-action="order-detail"
+              data-id="${escapar(idRegistro(item))}">
+              Detalhes
+            </button>
+          </td>
+        </tr>
+      `).join("")
+    : '<tr><td colspan="7" class="empty">Nenhum pedido encontrado.</td></tr>';
 
-    alert(
-      "ETAPA 5: HTML renderizado\n" +
-      "Linhas geradas: " +
-      tabela.querySelectorAll("tr").length
-    );
-
-  } catch (error) {
-    alert(
-      "ERRO AO RENDERIZAR:\n\n" +
-      error.name + ": " + error.message
-    );
-  }
+  $("ordersCount").textContent =
+    `${items.length} pedido(s) exibido(s) de ${state.pedidos.length}.`;
 }
+
 
 async function buscarVendaDetalhe(id) {
   try {
