@@ -844,7 +844,7 @@ async function finalizarVenda() {
         "Preço no carrinho: " + item.preco + "\n" +
         "Preço unitário: " + item.precoUnitario + "\n" +
         "Preço no produto: " +
-          (produtoAtual.price ?? produtoAtual.preco ?? "indefinido") + "\n" +
+          (produtoAtual.preco ?? produtoAtual.price ?? "indefinido") + "\n" +
         "Preço no SKU: " +
           (varianteAtual?.price ?? varianteAtual?.preco ?? "indefinido") + "\n" +
         "Estoque do produto: " + estoqueProduto(produtoAtual) + "\n" +
