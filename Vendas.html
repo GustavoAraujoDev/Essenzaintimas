@@ -1,4 +1,4 @@
-
+=
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -935,6 +935,26 @@ function pagamento(item) {
   ));
 }
 
+
+function statusPedido(item) {
+  return String(item?.status || "").trim().toUpperCase();
+}
+
+function valorPedido(item) {
+  return Number(item?.total ?? 0) || 0;
+}
+
+function dataValidaPedido(item) {
+  const valor = item?.createdAt ?? item?.updatedAt ?? null;
+
+  if (!valor) return null;
+
+  const data = new Date(valor);
+
+  return Number.isNaN(data.getTime()) ? null : data;
+}
+
+
 function valorRegistro(item) {
   const value = primeiro(
     item?.valorTotal,
@@ -1407,11 +1427,14 @@ function renderizarVendas() {
 
 
 
+
 function renderizarPedidos() {
   const items = pedidosFiltrados();
 
+  const status = (item) => statusPedido(item);
+
   const canceladas = items.filter((item) =>
-    /CANCEL|ANULAD|ESTORNAD/.test(statusPedido(item))
+    /CANCEL|ANULAD|ESTORNAD/.test(status(item))
   );
 
   const validas = items.filter(
@@ -1419,19 +1442,15 @@ function renderizarPedidos() {
   );
 
   const pendentes = validas.filter((item) =>
-    /PENDENT|AGUARDANDO|CREATED|NOVO|RECEBIDO/.test(statusPedido(item))
+    /PENDENT|AGUARDANDO|CREATED|NOVO|RECEBIDO/.test(status(item))
   );
 
   const concluidas = validas.filter((item) =>
-    /CONCLUID|FINALIZAD|ENTREGUE|DELIVERED|COMPLETED|PAGO/.test(
-      statusPedido(item)
-    )
+    /CONCLUID|FINALIZAD|ENTREGUE|DELIVERED|COMPLETED/.test(status(item))
   );
 
   const emAndamento = validas.filter((item) =>
-    /PREPAR|PROCESS|ANDAMENTO|CONFIRMAD|READY|PRONTO|OUT_FOR_DELIVERY/.test(
-      statusPedido(item)
-    )
+    /PREPAR|PROCESS|ANDAMENTO|CONFIRMAD|READY|PRONTO|OUT_FOR_DELIVERY/.test(status(item))
   );
 
   const faturamento = validas.reduce(
@@ -1452,6 +1471,7 @@ function renderizarPedidos() {
 
   const pedidosHoje = items.filter((item) => {
     const data = dataValidaPedido(item);
+
     return data &&
       data.getDate() === agora.getDate() &&
       data.getMonth() === agora.getMonth() &&
@@ -1477,11 +1497,11 @@ function renderizarPedidos() {
     ? items.map((item) => `
       <tr>
         <td>${escapar(idRegistro(item))}</td>
-        <td>${escapar(formatarData(dataPedido(item)))}</td>
+        <td>${escapar(formatarData(item))}</td>
         <td>${escapar(nomeCliente(item))}</td>
         <td>${escapar(telefoneCliente(item))}</td>
         <td>${escapar(moeda(valorPedido(item)))}</td>
-        <td>${badgeStatus(statusPedido(item))}</td>
+        <td>${badgeStatus(status(item))}</td>
         <td>
           <button
             class="btn small secondary"
@@ -1496,8 +1516,18 @@ function renderizarPedidos() {
 
   $("ordersCount").textContent =
     `${items.length} pedido(s) exibido(s) de ${state.pedidos.length}.`;
-}
 
+  console.log("[PEDIDOS] KPIs calculados:", {
+    total: items.length,
+    faturamento,
+    ticketMedio,
+    pendentes: pendentes.length,
+    emAndamento: emAndamento.length,
+    concluidas: concluidas.length,
+    canceladas: canceladas.length,
+    exemplo: items[0]
+  });
+}
 
 
 async function buscarVendaDetalhe(id) {
