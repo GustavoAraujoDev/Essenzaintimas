@@ -992,6 +992,44 @@ function escapar(value) {
   })[char]);
 }
 
+
+function valorPedido(item) {
+  return Number(
+    item?.total ??
+    item?.valorTotal ??
+    item?.valor ??
+    item?.totalPedido ??
+    0
+  ) || 0;
+}
+
+function statusPedido(item) {
+  return String(
+    item?.status ??
+    item?.entrega?.status ??
+    ""
+  ).trim().toUpperCase();
+}
+
+function dataPedido(item) {
+  return (
+    item?.createdAt ??
+    item?.dataPedido ??
+    item?.dataCriacao ??
+    item?.data ??
+    null
+  );
+}
+
+function dataValidaPedido(item) {
+  const valor = dataPedido(item);
+  if (!valor) return null;
+
+  const data = new Date(valor);
+  return Number.isNaN(data.getTime()) ? null : data;
+}
+
+
 function classeStatus(status) {
   const s = String(status || "").toUpperCase();
 
@@ -1368,19 +1406,12 @@ function renderizarVendas() {
 }
 
 
+
 function renderizarPedidos() {
   const items = pedidosFiltrados();
 
-  const normalizarStatus = (item) =>
-    String(statusRegistro(item) || "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toUpperCase()
-      .trim()
-      .replace(/[\s-]+/g, "_");
-
   const canceladas = items.filter((item) =>
-    /CANCEL|ANULAD|ESTORNAD/.test(normalizarStatus(item))
+    /CANCEL|ANULAD|ESTORNAD/.test(statusPedido(item))
   );
 
   const validas = items.filter(
@@ -1388,33 +1419,28 @@ function renderizarPedidos() {
   );
 
   const pendentes = validas.filter((item) =>
-    /PENDENT|AGUARDANDO|CREATED|NOVO|RECEBIDO/.test(
-      normalizarStatus(item)
-    )
+    /PENDENT|AGUARDANDO|CREATED|NOVO|RECEBIDO/.test(statusPedido(item))
   );
 
   const concluidas = validas.filter((item) =>
-    /CONCLUID|FINALIZAD|ENTREGUE|DELIVERED|COMPLETED|FINALIZADO/.test(
-      normalizarStatus(item)
+    /CONCLUID|FINALIZAD|ENTREGUE|DELIVERED|COMPLETED|PAGO/.test(
+      statusPedido(item)
     )
   );
 
-  const emAndamento = validas.filter((item) => {
-    const status = normalizarStatus(item);
-
-    return (
-      /PREPAR|PROCESS|ANDAMENTO|CONFIRMAD|READY|PRONTO|SAIU_PARA_ENTREGA|OUT_FOR_DELIVERY/.test(status) &&
-      !/CANCEL|ANULAD|ESTORNAD|CONCLUID|FINALIZAD|ENTREGUE|DELIVERED|COMPLETED/.test(status)
-    );
-  });
+  const emAndamento = validas.filter((item) =>
+    /PREPAR|PROCESS|ANDAMENTO|CONFIRMAD|READY|PRONTO|OUT_FOR_DELIVERY/.test(
+      statusPedido(item)
+    )
+  );
 
   const faturamento = validas.reduce(
-    (total, item) => total + (Number(valorRegistro(item)) || 0),
+    (total, item) => total + valorPedido(item),
     0
   );
 
   const valorCancelado = canceladas.reduce(
-    (total, item) => total + (Number(valorRegistro(item)) || 0),
+    (total, item) => total + valorPedido(item),
     0
   );
 
@@ -1422,31 +1448,19 @@ function renderizarPedidos() {
     ? faturamento / validas.length
     : 0;
 
-  // Compara usando a data local do dispositivo.
   const agora = new Date();
 
   const pedidosHoje = items.filter((item) => {
-    const data = new Date(
-      item.createdAt ||
-      item.created_at ||
-      item.data ||
-      item.dataCriacao ||
-      item.createdAtISO ||
-      ""
-    );
-
-    return (
-      !Number.isNaN(data.getTime()) &&
+    const data = dataValidaPedido(item);
+    return data &&
       data.getDate() === agora.getDate() &&
       data.getMonth() === agora.getMonth() &&
-      data.getFullYear() === agora.getFullYear()
-    );
+      data.getFullYear() === agora.getFullYear();
   });
 
-  // Atualiza os KPIs, se os respectivos elementos existirem.
   const atualizarKpi = (id, valor) => {
     const elemento = $(id);
-    if (elemento) elemento.textContent = valor;
+    if (elemento) elemento.textContent = String(valor);
   };
 
   atualizarKpi("ordersStatCount", items.length);
@@ -1459,16 +1473,15 @@ function renderizarPedidos() {
   atualizarKpi("ordersStatToday", pedidosHoje.length);
   atualizarKpi("ordersStatCanceledValue", moeda(valorCancelado));
 
-  // Mantém a tabela de pedidos.
   $("ordersBody").innerHTML = items.length
     ? items.map((item) => `
       <tr>
         <td>${escapar(idRegistro(item))}</td>
-        <td>${escapar(formatarData(item))}</td>
+        <td>${escapar(formatarData(dataPedido(item)))}</td>
         <td>${escapar(nomeCliente(item))}</td>
         <td>${escapar(telefoneCliente(item))}</td>
-        <td>${escapar(moeda(valorRegistro(item)))}</td>
-        <td>${badgeStatus(statusRegistro(item))}</td>
+        <td>${escapar(moeda(valorPedido(item)))}</td>
+        <td>${badgeStatus(statusPedido(item))}</td>
         <td>
           <button
             class="btn small secondary"
@@ -1484,6 +1497,7 @@ function renderizarPedidos() {
   $("ordersCount").textContent =
     `${items.length} pedido(s) exibido(s) de ${state.pedidos.length}.`;
 }
+
 
 
 async function buscarVendaDetalhe(id) {
