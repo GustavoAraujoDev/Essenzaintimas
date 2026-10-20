@@ -776,31 +776,17 @@ function operadorId(item) {
   )).trim();
 }
 
-function operador(item) {
-  const op = item?.operador;
-  const user = item?.usuario;
-  const operator = item?.operator;
 
-  const value = primeiro(
-    item?.operadorNome,
-    item?.nomeOperador,
-    item?.nomeUsuario,
-    item?.operatorName,
-    item?.createdByName,
-    typeof op === "object" ? op?.nome : null,
-    typeof op === "object" ? op?.name : null,
-    typeof user === "object" ? user?.nome : null,
-    typeof user === "object" ? user?.name : null,
-    typeof operator === "object" ? operator?.nome : null,
-    typeof operator === "object" ? operator?.name : null,
-    item?.operadorEmail,
-    item?.emailOperador
+function operador(item) {
+  const id = String(operadorId(item) || "").trim();
+
+  if (!id) return "Não informado";
+
+  const encontrado = state.operadores.find(
+    (usuario) => usuario.id === id
   );
 
-  const id = operadorId(item);
-  const encontrado = state.operadores.find((entry) => entry.id === id);
-
-  return String(value || encontrado?.nome || (id ? "Operador " + id.slice(0, 8) : "Não informado"));
+  return encontrado?.nome || "Operador não encontrado";
 }
 
 function statusRegistro(item) {
@@ -959,6 +945,7 @@ async function carregarPedidos() {
 }
 
 
+
 async function carregarOperadores() {
   const select = $("salesOperator");
   const selecionado = select.value;
@@ -967,15 +954,18 @@ async function carregarOperadores() {
     '<option value="">Todos os operadores</option>';
 
   try {
-    // Usa a rota existente de usuários.
     const data = await api("/products/users/list");
     const usuarios = normalizarLista(data);
 
-    // Considera apenas contas ativas de funcionários e administradores.
     state.operadores = usuarios
       .filter((usuario) => {
-        const role = String(usuario.role || "").toUpperCase();
-        const status = String(usuario.status || "").toUpperCase();
+        const role = String(
+          usuario.role || usuario.membership?.role || ""
+        ).toUpperCase();
+
+        const status = String(
+          usuario.status || usuario.membership?.status || ""
+        ).toUpperCase();
 
         return (
           ["ADMIN", "EMPLOYEE", "OWNER", "STAFF"].includes(role) &&
@@ -983,14 +973,23 @@ async function carregarOperadores() {
         );
       })
       .map((usuario) => {
+        // Identificador usado para comparar com a venda.
         const id = String(
-          usuario.id || usuario._id || usuario.userId || ""
+          usuario.userId ||
+          usuario.id ||
+          usuario._id ||
+          usuario.user?.id ||
+          usuario.user?._id ||
+          ""
         ).trim();
 
         const nome = String(
           usuario.profile?.name ||
+          usuario.profile?.nome ||
           usuario.name ||
           usuario.nome ||
+          usuario.user?.name ||
+          usuario.user?.email ||
           usuario.email ||
           "Operador sem nome"
         ).trim();
@@ -1012,19 +1011,18 @@ async function carregarOperadores() {
 
     $("statOperators").textContent = state.operadores.length;
 
-    console.log("[OPERADORES] Usuários recebidos:", usuarios);
-    console.log("[OPERADORES] Operadores filtrados:", state.operadores);
+    console.log("[OPERADORES] Lista para cruzamento:", state.operadores);
 
   } catch (error) {
-    console.error("[OPERADORES] Erro ao listar usuários:", error);
+    console.error("[OPERADORES] Erro:", error);
     $("statOperators").textContent = "Erro";
+
     mostrarAviso(
       "Não foi possível carregar os operadores: " + error.message,
       "error"
     );
   }
 }
-
 
 async function carregarTudo() {
   if (state.carregando) return;
