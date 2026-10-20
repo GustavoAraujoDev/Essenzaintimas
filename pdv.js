@@ -126,9 +126,9 @@ function codigoSku(variante) {
 }
 function categoriaProduto(produto) {
   return String(
-    produto?.categoria ||
-    produto?.category ||
     produto?.categoryId ||
+    produto?.category ||
+    produto?.categoria ||
     "SEM CATEGORIA"
   ).trim() || "SEM CATEGORIA";
 }
