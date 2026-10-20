@@ -409,53 +409,68 @@ function renderizarProdutos() {
 function chaveCarrinho(productId, skuId) {
   return `${productId}::${skuId || "SEM_SKU"}`;
 }
-
 function adicionarProduto(produto, variante = null) {
+  if (!produto) {
+    mostrarAviso("Produto inválido.", "error");
+    return;
+  }
   const productId = idProduto(produto);
-
   if (!productId) {
-    mostrarAviso("O produto não possui um identificador válido.", "error");
+    console.error("[PDV] Produto sem identificador", produto);
+    mostrarAviso(
+      "O produto não possui um identificador válido.",
+      "error"
+    );
     return;
   }
-
   const sku = variante ? idSku(variante) : null;
-
   if (variante && !sku) {
-    mostrarAviso("A variação não possui um identificador válido.", "error");
+    mostrarAviso(
+      "A variação não possui um identificador válido.",
+      "error"
+    );
     return;
   }
-
   const estoque = variante
     ? estoqueSku(variante)
     : estoqueProduto(produto);
-
   const preco = variante
     ? precoSku(variante, produto)
     : precoProduto(produto);
-
-  if (estoque <= 0) {
-    mostrarAviso("Este produto está sem estoque.", "error");
+  if (!Number.isFinite(estoque) || estoque <= 0) {
+    mostrarAviso(
+      "Esta variação está sem estoque.",
+      "error"
+    );
     return;
   }
-
   if (!Number.isFinite(preco) || preco < 0) {
-    mostrarAviso("O produto possui um preço inválido.", "error");
+    console.error("[PDV] Preço inválido", {
+      productId,
+      sku,
+      preco,
+      basePrice: produto.basePrice ?? null,
+    });
+    mostrarAviso(
+      "O produto possui um preço inválido.",
+      "error"
+    );
     return;
   }
-
   const chave = chaveCarrinho(productId, sku);
-
   const existente = state.carrinho.find(
     (item) => item.chave === chave
   );
-
   if (existente) {
-    if (existente.quantidade >= estoque) {
-      mostrarAviso("Quantidade maior que o estoque disponível.", "error");
+    if (existente.quantidade + 1 > estoque) {
+      mostrarAviso(
+        "Quantidade maior que o estoque disponível.",
+        "error"
+      );
       return;
     }
-
     existente.quantidade += 1;
+    existente.estoqueDisponivel = estoque;
   } else {
     state.carrinho.push({
       chave,
@@ -470,7 +485,15 @@ function adicionarProduto(produto, variante = null) {
       estoqueDisponivel: estoque,
     });
   }
-
+  console.log("[PDV] Carrinho atualizado", {
+    productId,
+    skuId: sku,
+    quantidadeItens: state.carrinho.length,
+    quantidadeTotal: state.carrinho.reduce(
+      (total, item) => total + item.quantidade,
+      0
+    ),
+  });
   renderizarCarrinho();
 }
 
