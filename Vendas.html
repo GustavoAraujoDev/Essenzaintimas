@@ -1098,14 +1098,36 @@ async function carregarVendas() {
 }
 
 async function carregarPedidos() {
-  const data = await api(CONFIG.PEDIDOS_BASE);
-  state.pedidos = normalizarLista(data);
+  alert("1. INICIANDO CARREGAMENTO DOS PEDIDOS");
 
-  console.log("[PEDIDOS] Registros carregados:", state.pedidos.length);
-  adicionarOpcoesStatus($("ordersStatus"), state.pedidos);
+  try {
+    const data = await api(CONFIG.PEDIDOS_BASE);
+
+    alert(
+      "2. RESPOSTA BRUTA DA API /pedidos:\n\n" +
+      JSON.stringify(data, null, 2).slice(0, 5000)
+    );
+
+    state.pedidos = normalizarLista(data);
+
+    alert(
+      "3. PEDIDOS NORMALIZADOS:\n\n" +
+      "Quantidade: " + state.pedidos.length + "\n\n" +
+      "Primeiro pedido:\n" +
+      JSON.stringify(state.pedidos[0] || null, null, 2)
+    );
+
+    adicionarOpcoesStatus($("ordersStatus"), state.pedidos);
+
+  } catch (error) {
+    alert(
+      "ERRO AO CARREGAR PEDIDOS:\n\n" +
+      error.message
+    );
+
+    throw error;
+  }
 }
-
-
 
 async function carregarOperadores() {
   const select = $("salesOperator");
@@ -1276,12 +1298,17 @@ function vendasFiltradas() {
 }
 
 function pedidosFiltrados() {
+  alert(
+    "4. ANTES DOS FILTROS\n\n" +
+    "Pedidos no state: " + state.pedidos.length
+  );
+
   const query = $("ordersSearch").value.trim().toLowerCase();
   const from = $("ordersFrom").value;
   const to = $("ordersTo").value;
   const status = $("ordersStatus").value.toUpperCase();
 
-  return state.pedidos.filter((item) => {
+  const resultado = state.pedidos.filter((item) => {
     const haystack = [
       idRegistro(item),
       nomeCliente(item),
@@ -1290,7 +1317,8 @@ function pedidosFiltrados() {
     ].join(" ").toLowerCase();
 
     if (query && !haystack.includes(query)) return false;
-    if (status && statusRegistro(item) !== status) return false;
+
+    if (status && statusPedido(item) !== status) return false;
 
     const date = dataValidaPedido(item);
 
@@ -1306,8 +1334,18 @@ function pedidosFiltrados() {
 
     return true;
   });
-}
 
+  alert(
+    "5. DEPOIS DOS FILTROS\n\n" +
+    "Pedidos encontrados: " + resultado.length + "\n" +
+    "Busca: " + (query || "Nenhuma") + "\n" +
+    "Status: " + (status || "Todos") + "\n" +
+    "Data inicial: " + (from || "Não definida") + "\n" +
+    "Data final: " + (to || "Não definida")
+  );
+
+  return resultado;
+}
 /* =========================================================
    RENDERIZAÇÃO
    ========================================================= */
