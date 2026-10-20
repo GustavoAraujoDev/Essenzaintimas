@@ -1463,33 +1463,57 @@ function renderizarVendas() {
     `${items.length} venda(s) exibida(s) de ${state.vendas.length}.`;
 }
 
-
-
-
-
-
 function renderizarPedidos() {
   const items = pedidosFiltrados();
 
+  alert(
+  "ESTRUTURA RECEBIDA PELO FRONTEND\n\n" +
+  JSON.stringify({
+    quantidade: items.length,
+    pagamento: items[0]?.pagamento,
+    totalDentroPagamento: items[0]?.pagamento?.total,
+    valorCalculado: valorRealPedido(items[0] ?? {})
+  }, null, 2)
+);
   // Busca valores em formatos alternativos da API.
-  function valorRealPedido(item) {
-    const valor = primeiro(
-      item?.pagamento.total,
-      item?.pagamento.valorTotal,
-      item?.totalPedido,
-      item?.valor,
-      item?.resumo?.total,
-      item?.totais?.total,
-      item?.pedido?.total,
+  
+function valorRealPedido(item) {
+  const valor =
+    item?.pagamento?.total ??
+    item?.pagamentos?.total ??
+    item?.pagamento?.valorTotal ??
+    item?.pagamentos?.valorTotal ??
+    item?.pagamento?.valor ??
+    item?.pagamentos?.valor ??
+    item?.total ??
+    item?.totalPedido ??
+    item?.valorTotal ??
+    item?.valor ??
+    0;
+
+  if (typeof valor === "object" && valor !== null) {
+    const numero = Number(
+      valor.$numberDecimal ??
+      valor.value ??
+      valor.amount ??
       0
     );
 
-    if (typeof valor === "object" && valor !== null) {
-      return Number(valor.$numberDecimal ?? valor.value ?? 0) || 0;
-    }
-
-    return Number(valor) || 0;
+    return Number.isFinite(numero) ? numero : 0;
   }
+
+  if (typeof valor === "string" && valor.includes(",")) {
+    const numero = Number(
+      valor.trim().replace(/\./g, "").replace(",", ".")
+    );
+
+    return Number.isFinite(numero) ? numero : 0;
+  }
+
+  const numero = Number(valor);
+  return Number.isFinite(numero) ? numero : 0;
+}
+
 
   function statusRealPedido(item) {
     return String(
