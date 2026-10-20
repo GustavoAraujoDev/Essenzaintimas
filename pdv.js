@@ -719,8 +719,11 @@ async function registrarVenda(dados, itens) {
     },
     itens: itens.map((item) => ({
       productId: item.productId,
+      skuId: item.skuId,
       sku: item.sku,
       quantidade: item.quantidade,
+      preco: item.preco,
+      precoUnitario: item.precoUnitario
     })),
     desconto: dados.desconto,
     acrescimo: dados.acrescimo,
