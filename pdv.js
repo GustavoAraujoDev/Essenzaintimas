@@ -94,9 +94,27 @@ async function requisicao(url, options = {}) {
    PRODUTOS E VARIAÇÕES
    ========================================================= */
 
+
 function idProduto(produto) {
-  return String(produto?.id || produto?._id || produto?.productId || "");
+  alert(
+    "[DEBUG ID PRODUTO]\n\n" +
+    "id: " + String(produto?.id ?? "undefined") + "\n" +
+    "_id: " + String(produto?._id ?? "undefined") + "\n" +
+    "productId: " + String(produto?.productId ?? "undefined")
+  );
+
+  const id = String(
+    produto?.id ||
+    produto?._id ||
+    produto?.productId ||
+    ""
+  );
+
+  alert("[DEBUG] ID escolhido para o produto:\n" + (id || "VAZIO"));
+
+  return id;
 }
+
 
 function nomeProduto(produto) {
   return String(produto?.nome || produto?.name || produto?.title || "Produto");
