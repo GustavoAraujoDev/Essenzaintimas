@@ -994,13 +994,24 @@ function escapar(value) {
 
 
 function valorPedido(item) {
-  return Number(
+  const pagamento = item?.pagamento;
+
+  const valor =
     item?.total ??
     item?.valorTotal ??
-    item?.valor ??
     item?.totalPedido ??
-    0
-  ) || 0;
+    item?.valor ??
+    item?.resumo?.total ??
+    item?.totais?.total ??
+    pagamento?.total ??
+    pagamento?.valorTotal ??
+    pagamento?.valor ??
+    pagamento?.valorPago ??
+    0;
+
+  const numero = Number(valor);
+
+  return Number.isFinite(numero) ? numero : 0;
 }
 
 function statusPedido(item) {
