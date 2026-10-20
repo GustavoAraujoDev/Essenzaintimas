@@ -1126,16 +1126,24 @@ function configurarEventos() {
    INICIALIZAÇÃO
    ========================================================= */
 
+alert("TESTE 1: JavaScript carregado.");
 document.addEventListener("DOMContentLoaded", async () => {
-  configurarEventos();
-  renderizarCarrinho();
-
+  alert("TESTE 2: Página carregada.");
   try {
+    alert("TESTE 3: Configurando eventos.");
+    configurarEventos();
+    renderizarCarrinho();
+    alert("TESTE 4: Preparando autenticação.");
     obterHeaders();
+    alert("TESTE 5: Chamando carregarProdutos.");
     await carregarProdutos();
+    alert("TESTE 6: Carregamento finalizado.");
   } catch (error) {
-    mostrarAviso(error.message, "error");
+    alert(
+      "ERRO NA INICIALIZAÇÃO:\n" +
+      (error?.message || String(error))
+    );
     $("productGrid").innerHTML =
-      '<div class="empty-products">Faça login para acessar o PDV.</div>';
+      '<div class="empty-products">Erro ao iniciar o PDV.</div>';
   }
 });
