@@ -2429,25 +2429,514 @@ function abrirDetalhes(tipo, item) {
 /* =========================================================
    CANCELAMENTO DE VENDA
    ========================================================= */
-async function cancelarVenda(id) {
-  const confirmed = window.confirm(
-    "Deseja realmente cancelar a venda " + id + "?\n\nEssa ação será enviada à API."
-  );
 
-  if (!confirmed) return;
+/* =========================================================
+   CANCELAMENTO DE VENDA — MODAL PREMIUM
+   ========================================================= */
 
-  try {
-    await api(`${CONFIG.VENDAS_BASE}/${encodeURIComponent(id)}/cancelar`, {
-      method: "PATCH"
+function abrirModalCancelarVenda(id) {
+  if (!id || id === "Não informado") {
+    mostrarAviso("Não foi possível identificar a venda.", "error");
+    return;
+  }
+
+  document.getElementById("modalCancelarVenda")?.remove();
+
+  const escapar = valor =>
+    String(valor ?? "").replace(/[&<>"']/g, c => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[c]);
+
+  const modal = document.createElement("div");
+  modal.id = "modalCancelarVenda";
+
+  modal.innerHTML = `
+    <style>
+      #modalCancelarVenda {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(24, 20, 18, .68);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
+        font-family: Inter, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        animation: cv-fade .2s ease;
+      }
+
+      #modalCancelarVenda * {
+        box-sizing: border-box;
+      }
+
+      #modalCancelarVenda .cv-panel {
+        width: 100%;
+        max-width: 510px;
+        max-height: 92vh;
+        overflow: auto;
+        background: #fff;
+        color: #292522;
+        border-radius: 22px;
+        box-shadow: 0 28px 100px rgba(0,0,0,.3);
+        animation: cv-enter .25s ease;
+      }
+
+      #modalCancelarVenda .cv-header {
+        padding: 25px 27px;
+        color: #fff;
+        background: linear-gradient(135deg, #382521, #743c36);
+      }
+
+      #modalCancelarVenda .cv-header-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 15px;
+      }
+
+      #modalCancelarVenda .cv-eyebrow {
+        color: #e8c4b8;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 9px;
+      }
+
+      #modalCancelarVenda .cv-title {
+        margin: 0;
+        color: #fff;
+        font-size: 25px;
+        font-weight: 750;
+        letter-spacing: -.6px;
+      }
+
+      #modalCancelarVenda .cv-reference {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #eadbd7;
+        overflow-wrap: anywhere;
+      }
+
+      #modalCancelarVenda .cv-close {
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        border: 1px solid rgba(255,255,255,.25);
+        border-radius: 11px;
+        color: #fff;
+        background: rgba(255,255,255,.1);
+        font-size: 22px;
+        cursor: pointer;
+      }
+
+      #modalCancelarVenda .cv-body {
+        padding: 25px 27px 27px;
+      }
+
+      #modalCancelarVenda .cv-warning {
+        display: flex;
+        gap: 13px;
+        padding: 15px;
+        margin-bottom: 23px;
+        border: 1px solid #f0d8d3;
+        border-radius: 14px;
+        background: #fff5f3;
+      }
+
+      #modalCancelarVenda .cv-warning-icon {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+        border-radius: 11px;
+        background: #f9e1dc;
+        color: #a33d32;
+        font-size: 19px;
+        font-weight: 800;
+      }
+
+      #modalCancelarVenda .cv-warning-title {
+        color: #873b32;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 5px;
+      }
+
+      #modalCancelarVenda .cv-warning-text {
+        color: #875e57;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      #modalCancelarVenda .cv-label {
+        display: block;
+        margin-bottom: 9px;
+        color: #463a33;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      #modalCancelarVenda .cv-required {
+        color: #b43c32;
+      }
+
+      #modalCancelarVenda .cv-textarea {
+        display: block;
+        width: 100%;
+        min-height: 125px;
+        resize: vertical;
+        padding: 14px 15px;
+        border: 1px solid #e5dcd5;
+        border-radius: 13px;
+        outline: none;
+        background: #fdfbf9;
+        color: #332b26;
+        font: inherit;
+        font-size: 13px;
+        line-height: 1.6;
+        transition: border-color .2s, box-shadow .2s;
+      }
+
+      #modalCancelarVenda .cv-textarea:focus {
+        border-color: #9e7960;
+        box-shadow: 0 0 0 3px rgba(158,121,96,.13);
+      }
+
+      #modalCancelarVenda .cv-textarea:disabled {
+        opacity: .65;
+        cursor: not-allowed;
+      }
+
+      #modalCancelarVenda .cv-help {
+        margin-top: 8px;
+        color: #968980;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      #modalCancelarVenda .cv-error {
+        display: none;
+        margin-top: 9px;
+        color: #a33131;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      #modalCancelarVenda .cv-error.show {
+        display: block;
+      }
+
+      #modalCancelarVenda .cv-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 25px;
+        padding-top: 19px;
+        border-top: 1px solid #eee9e5;
+      }
+
+      #modalCancelarVenda .cv-button {
+        min-height: 43px;
+        padding: 12px 17px;
+        border-radius: 11px;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: background .2s, opacity .2s;
+      }
+
+      #modalCancelarVenda .cv-button:disabled {
+        opacity: .6;
+        cursor: wait;
+      }
+
+      #modalCancelarVenda .cv-button-secondary {
+        border: 1px solid #e7ded7;
+        background: #fff;
+        color: #59483c;
+      }
+
+      #modalCancelarVenda .cv-button-secondary:hover {
+        background: #f8f4f0;
+      }
+
+      #modalCancelarVenda .cv-button-danger {
+        border: 1px solid #a33d32;
+        background: #a33d32;
+        color: #fff;
+      }
+
+      #modalCancelarVenda .cv-button-danger:hover {
+        background: #812d25;
+      }
+
+      @keyframes cv-fade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes cv-enter {
+        from {
+          opacity: 0;
+          transform: translateY(12px) scale(.99);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @media (max-width: 480px) {
+        #modalCancelarVenda { padding: 10px; }
+
+        #modalCancelarVenda .cv-panel {
+          border-radius: 17px;
+          max-height: 95dvh;
+        }
+
+        #modalCancelarVenda .cv-header {
+          padding: 21px 18px;
+        }
+
+        #modalCancelarVenda .cv-body {
+          padding: 20px 17px;
+        }
+
+        #modalCancelarVenda .cv-title {
+          font-size: 22px;
+        }
+
+        #modalCancelarVenda .cv-footer {
+          flex-direction: column-reverse;
+        }
+
+        #modalCancelarVenda .cv-button {
+          width: 100%;
+        }
+      }
+    </style>
+
+    <section class="cv-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cvTitulo">
+
+      <header class="cv-header">
+        <div class="cv-header-top">
+          <div>
+            <div class="cv-eyebrow">Gestão de vendas</div>
+            <h2 class="cv-title" id="cvTitulo">Cancelar venda</h2>
+            <div class="cv-reference">
+              Referência: ${escapar(id)}
+            </div>
+          </div>
+
+          <button type="button" class="cv-close"
+            data-cv-fechar aria-label="Fechar">×</button>
+        </div>
+      </header>
+
+      <div class="cv-body">
+        <div class="cv-warning">
+          <div class="cv-warning-icon">!</div>
+          <div>
+            <div class="cv-warning-title">
+              Atenção: ação importante
+            </div>
+            <div class="cv-warning-text">
+              Informe o motivo do cancelamento antes de confirmar.
+              A operação será validada pelo sistema e poderá afetar
+              o estoque e os pagamentos conforme as regras da venda.
+            </div>
+          </div>
+        </div>
+
+        <form id="cvFormulario">
+          <label class="cv-label" for="cvMotivo">
+            Motivo do cancelamento
+            <span class="cv-required">*</span>
+          </label>
+
+          <textarea
+            id="cvMotivo"
+            class="cv-textarea"
+            name="motivo"
+            maxlength="500"
+            required
+            placeholder="Ex.: venda registrada incorretamente, solicitação do cliente..."
+          ></textarea>
+
+          <div class="cv-help">
+            Campo obrigatório. Descreva o motivo para manter
+            o histórico da operação.
+          </div>
+
+          <div id="cvErro" class="cv-error" role="alert"></div>
+
+          <div class="cv-footer">
+            <button type="button"
+              class="cv-button cv-button-secondary"
+              data-cv-fechar>
+              Voltar
+            </button>
+
+            <button type="submit"
+              id="cvConfirmar"
+              class="cv-button cv-button-danger">
+              Confirmar cancelamento
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  `;
+
+  document.body.appendChild(modal);
+
+  const formulario = modal.querySelector("#cvFormulario");
+  const campoMotivo = modal.querySelector("#cvMotivo");
+  const botaoConfirmar = modal.querySelector("#cvConfirmar");
+  const erroElemento = modal.querySelector("#cvErro");
+
+  let enviando = false;
+
+  const fechar = () => {
+    if (enviando) return;
+    modal.remove();
+    document.removeEventListener("keydown", fecharEscape);
+  };
+
+  const fecharEscape = evento => {
+    if (evento.key === "Escape") fechar();
+  };
+
+  modal.querySelectorAll("[data-cv-fechar]").forEach(botao => {
+    botao.addEventListener("click", fechar);
+  });
+
+  modal.addEventListener("click", evento => {
+    if (evento.target === modal) fechar();
+  });
+
+  document.addEventListener("keydown", fecharEscape);
+
+  campoMotivo.focus();
+
+  campoMotivo.addEventListener("input", () => {
+    erroElemento.classList.remove("show");
+    erroElemento.textContent = "";
+  });
+
+  formulario.addEventListener("submit", async evento => {
+    evento.preventDefault();
+
+    if (enviando) return;
+
+    const motivo = campoMotivo.value.trim();
+
+    if (!motivo) {
+      erroElemento.textContent =
+        "Informe o motivo antes de cancelar a venda.";
+      erroElemento.classList.add("show");
+      campoMotivo.focus();
+      return;
+    }
+
+    if (motivo.length > 500) {
+      erroElemento.textContent =
+        "O motivo deve ter no máximo 500 caracteres.";
+      erroElemento.classList.add("show");
+      campoMotivo.focus();
+      return;
+    }
+
+    enviando = true;
+    campoMotivo.disabled = true;
+    botaoConfirmar.disabled = true;
+
+    modal.querySelectorAll("[data-cv-fechar]").forEach(botao => {
+      botao.disabled = true;
     });
 
-    $("detailModal").classList.remove("show");
-    mostrarAviso("Solicitação de cancelamento concluída.", "success");
-    await carregarTudo();
-  } catch (error) {
-    console.error("[VENDAS] Erro ao cancelar:", error);
-    mostrarAviso("Não foi possível cancelar a venda: " + error.message, "error");
+    botaoConfirmar.textContent = "Processando...";
+    erroElemento.classList.remove("show");
+
+    try {
+      await cancelarVenda(id, motivo);
+
+      modal.remove();
+      document.removeEventListener("keydown", fecharEscape);
+    } catch (error) {
+      console.error("[CANCELAMENTO] Falha na operação:", error);
+
+      erroElemento.textContent =
+        error.message || "Não foi possível cancelar a venda.";
+
+      erroElemento.classList.add("show");
+
+      enviando = false;
+      campoMotivo.disabled = false;
+      botaoConfirmar.disabled = false;
+      botaoConfirmar.textContent = "Tentar novamente";
+
+      modal.querySelectorAll("[data-cv-fechar]").forEach(botao => {
+        botao.disabled = false;
+      });
+
+      campoMotivo.focus();
+    }
+  });
+}
+
+
+/* =========================================================
+   CANCELAMENTO DE VENDA — REQUISIÇÃO À API
+   ========================================================= */
+
+async function cancelarVenda(id, motivo) {
+  const motivoNormalizado = String(motivo ?? "").trim();
+
+  if (!motivoNormalizado) {
+    throw new Error("O motivo do cancelamento é obrigatório.");
   }
+
+  console.log("[VENDAS] Enviando cancelamento:", {
+    vendaId: id,
+    motivo: motivoNormalizado
+  });
+
+  const resultado = await api(
+    `${CONFIG.VENDAS_BASE}/${encodeURIComponent(id)}/cancelar`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        motivo: motivoNormalizado
+      })
+    }
+  );
+
+  mostrarAviso("Venda cancelada com sucesso.", "success");
+
+  try {
+    await carregarTudo();
+  } catch (erroAtualizacao) {
+    console.error(
+      "[VENDAS] Venda cancelada, mas houve falha ao atualizar a tela:",
+      erroAtualizacao
+    );
+  }
+
+  return resultado;
 }
 
 /* =========================================================
