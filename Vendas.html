@@ -3023,7 +3023,7 @@ document.addEventListener("click", (event) => {
   if (action === "sale-detail") {
     buscarVendaDetalhe(id);
   } else if (action === "sale-cancel") {
-    cancelarVenda(id);
+    abrirModalCancelarVenda(botao.dataset.id);
   } else if (action === "order-detail") {
     buscarPedidoDetalhe(id);
   }
