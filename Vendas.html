@@ -1052,13 +1052,6 @@ function escapar(value) {
 
 
 function valorPedido(item) {
-  alert(
-    "DEBUG DO PEDIDO\n\n" +
-    "ID: " + (item?.id ?? item?._id ?? "SEM ID") + "\n\n" +
-    "TOTAL: " + JSON.stringify(item?.total) + "\n\n" +
-    "PAGAMENTO:\n" +
-    JSON.stringify(item?.pagamento, null, 2)
-  );
 
   const pagamento = item?.pagamento;
 
@@ -1177,24 +1170,11 @@ async function carregarVendas() {
 }
 
 async function carregarPedidos() {
-  alert("1. INICIANDO CARREGAMENTO DOS PEDIDOS");
 
   try {
     const data = await api(CONFIG.PEDIDOS_BASE);
 
-    alert(
-      "2. RESPOSTA BRUTA DA API /pedidos:\n\n" +
-      JSON.stringify(data, null, 2).slice(0, 5000)
-    );
-
     state.pedidos = normalizarLista(data);
-
-    alert(
-      "3. PEDIDOS NORMALIZADOS:\n\n" +
-      "Quantidade: " + state.pedidos.length + "\n\n" +
-      "Primeiro pedido:\n" +
-      JSON.stringify(state.pedidos[0] || null, null, 2)
-    );
 
     adicionarOpcoesStatus($("ordersStatus"), state.pedidos);
 
@@ -1377,10 +1357,6 @@ function vendasFiltradas() {
 }
 
 function pedidosFiltrados() {
-  alert(
-    "4. ANTES DOS FILTROS\n\n" +
-    "Pedidos no state: " + state.pedidos.length
-  );
 
   const query = $("ordersSearch").value.trim().toLowerCase();
   const from = $("ordersFrom").value;
@@ -1413,15 +1389,6 @@ function pedidosFiltrados() {
 
     return true;
   });
-
-  alert(
-    "5. DEPOIS DOS FILTROS\n\n" +
-    "Pedidos encontrados: " + resultado.length + "\n" +
-    "Busca: " + (query || "Nenhuma") + "\n" +
-    "Status: " + (status || "Todos") + "\n" +
-    "Data inicial: " + (from || "Não definida") + "\n" +
-    "Data final: " + (to || "Não definida")
-  );
 
   return resultado;
 }
@@ -1500,6 +1467,8 @@ function renderizarVendas() {
             class="btn small secondary"
             data-action="sale-detail"
             data-id="${escapar(idRegistro(item))}">
+            title="Ver detalhes da venda">
+            <i class="fas fa-eye" aria-hidden="true"></i>
             Detalhes
           </button>
 
@@ -1510,6 +1479,8 @@ function renderizarVendas() {
                   class="btn small danger"
                   data-action="sale-cancel"
                   data-id="${escapar(idRegistro(item))}">
+                  title="Cancelar venda">
+                  <i class="fas fa-ban" aria-hidden="true"></i>
                   Cancelar
                 </button>`
           }
@@ -3023,7 +2994,7 @@ document.addEventListener("click", (event) => {
   if (action === "sale-detail") {
     buscarVendaDetalhe(id);
   } else if (action === "sale-cancel") {
-    abrirModalCancelarVenda(botao.dataset.id);
+    abrirModalCancelarVenda(id);
   } else if (action === "order-detail") {
     buscarPedidoDetalhe(id);
   }
