@@ -236,12 +236,9 @@ async function carregarProdutos() {
   $("productGrid").innerHTML =
     '<div class="empty-products">Carregando produtos...</div>';
   try {
-    alert("1. Iniciando carregamento dos produtos...");
+    
     const resposta = await requisicao(ENDPOINTS.produtos);
-    alert(
-      "2. Resposta recebida da API.\nTipo: " +
-      (Array.isArray(resposta) ? "Array" : typeof resposta)
-    );
+   
     const lista = Array.isArray(resposta)
       ? resposta
       : resposta?.products ||
@@ -251,29 +248,17 @@ async function carregarProdutos() {
     if (!Array.isArray(lista)) {
       throw new Error("A API não retornou uma lista válida.");
     }
-    alert("3. Produtos recebidos da API: " + lista.length);
+    
     // Diagnóstico temporário: mostra os campos do primeiro produto.
     if (lista.length > 0) {
       const p = lista[0];
-      alert(
-        "4. Primeiro produto:\n" +
-        "ID: " + (p.id ?? "não informado") + "\n" +
-        "_id: " + (p._id ?? "não informado") + "\n" +
-        "Nome: " + (p.name ?? p.nome ?? "não informado") + "\n" +
-        "Status: " + (p.status ?? "não informado") + "\n" +
-        "SKUs: " + (Array.isArray(p.skus) ? p.skus.length : 0)
-      );
+      
     }
     state.produtos = lista.filter((produto) => {
       const ativo = produtoAtivo(produto);
       const disponivel = produtoDisponivel(produto);
       return ativo && disponivel;
     });
-    alert(
-      "5. Produtos após os filtros: " +
-      state.produtos.length +
-      "\nRecebidos: " + lista.length
-    );
     renderizarCategorias();
     renderizarProdutos();
     alert("6. Renderização concluída.");
@@ -445,7 +430,7 @@ function chaveCarrinho(productId, skuId) {
   return `${productId}::${skuId || "SEM_SKU"}`;
 }
 function adicionarProduto(produto, variante = null) {
-  alert("PDV 1: Função adicionarProduto iniciada.");
+  
   try {
     if (!produto) {
       alert("ERRO: O objeto produto está vazio.");
@@ -453,11 +438,7 @@ function adicionarProduto(produto, variante = null) {
       return;
     }
     const productId = idProduto(produto);
-    alert(
-      "PDV 2: Produto recebido.\n" +
-      "ID: " + productId + "\n" +
-      "Nome: " + nomeProduto(produto)
-    );
+    
     if (!productId) {
       alert("ERRO: Produto sem identificador.");
       mostrarAviso(
@@ -467,10 +448,7 @@ function adicionarProduto(produto, variante = null) {
       return;
     }
     const sku = variante ? idSku(variante) : null;
-    alert(
-      "PDV 3: Identificador verificado.\n" +
-      "SKU: " + (sku || "Sem SKU")
-    );
+    
     if (variante && !sku) {
       alert("ERRO: A variação não possui ID.");
       mostrarAviso(
@@ -485,11 +463,7 @@ function adicionarProduto(produto, variante = null) {
     const preco = variante
       ? precoSku(variante, produto)
       : precoProduto(produto);
-    alert(
-      "PDV 4: Estoque e preço calculados.\n" +
-      "Estoque: " + estoque + "\n" +
-      "Preço: " + preco
-    );
+    
     if (!Number.isFinite(estoque) || estoque <= 0) {
       alert("ERRO: Estoque inválido ou zerado.");
       mostrarAviso(
@@ -507,7 +481,7 @@ function adicionarProduto(produto, variante = null) {
       return;
     }
     const chave = chaveCarrinho(productId, sku);
-    alert("PDV 5: Chave do carrinho criada.\n" + chave);
+    
     const existente = state.carrinho.find(
       (item) => item.chave === chave
     );
@@ -536,21 +510,11 @@ function adicionarProduto(produto, variante = null) {
         estoqueDisponivel: estoque,
       };
       state.carrinho.push(novoItem);
-      alert(
-        "PDV 6: Item inserido no array.\n" +
-        "Nome: " + novoItem.nome + "\n" +
-        "Quantidade: " + novoItem.quantidade
-      );
+      
     }
-    alert(
-      "PDV 7: Total de itens no carrinho: " +
-      state.carrinho.reduce(
-        (total, item) => total + item.quantidade,
-        0
-      )
-    );
+    
     renderizarCarrinho();
-    alert("PDV 8: renderizarCarrinho executada.");
+    
   } catch (error) {
     alert(
       "ERRO AO ADICIONAR AO CARRINHO:\n" +
