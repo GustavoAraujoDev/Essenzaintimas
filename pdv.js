@@ -261,7 +261,6 @@ async function carregarProdutos() {
     });
     renderizarCategorias();
     renderizarProdutos();
-    alert("6. Renderização concluída.");
     mostrarAviso(
       `${state.produtos.length} produto(s) disponível(is).`,
       "success"
