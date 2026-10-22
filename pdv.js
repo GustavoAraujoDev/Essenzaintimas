@@ -778,30 +778,6 @@ async function baixarEstoqueDoItem(item) {
 
 
 async function registrarVenda(dados, itens) {
-  alert(
-    "[DEBUG 1 — REGISTRAR VENDA]\n\n" +
-    "Total: " + dados.total + "\n" +
-    "Desconto: " + dados.desconto + "\n" +
-    "Acréscimo: " + dados.acrescimo + "\n" +
-    "Itens: " + itens.length
-  );
-
-  alert(
-    "[DEBUG 2 — DADOS DO CARRINHO]\n\n" +
-    JSON.stringify(
-      itens.map((item) => ({
-        productId: item.productId,
-        skuId: item.skuId,
-        sku: item.sku,
-        nome: item.nome,
-        preco: item.preco,
-        precoUnitario: item.precoUnitario,
-        quantidade: item.quantidade,
-      })),
-      null,
-      2
-    )
-  );
 
   const body = {
     caixaId: null,
@@ -827,32 +803,15 @@ async function registrarVenda(dados, itens) {
     observacoes: $("observations").value.trim() || null,
     origem: "PDV",
   };
-
-  alert(
-    "[DEBUG 3 — BODY ENVIADO PARA /vendas]\n\n" +
-    JSON.stringify(body, null, 2)
-  );
-
+   
   try {
     const resposta = await requisicao(ENDPOINTS.vendas, {
       method: "POST",
       body: JSON.stringify(body),
     });
 
-    alert(
-      "[DEBUG 4 — RESPOSTA DA VENDA]\n\n" +
-      JSON.stringify(resposta, null, 2)
-    );
-
     return resposta;
   } catch (error) {
-    alert(
-      "[DEBUG 4 — ERRO DA API]\n\n" +
-      "Mensagem: " + error.message + "\n" +
-      "Status HTTP: " + (error.status ?? "desconhecido") + "\n" +
-      "Resposta: " + JSON.stringify(error.response ?? null, null, 2)
-    );
-
     throw error;
   }
 }
@@ -866,7 +825,6 @@ async function finalizarVenda() {
     dados = validarVenda();
     obterHeaders(true);
   } catch (error) {
-    alert("[DEBUG — VALIDAÇÃO]\n\n" + error.message);
     mostrarAviso(error.message, "error");
     return;
   }
@@ -886,24 +844,6 @@ async function finalizarVenda() {
 
   try {
     await carregarProdutosSilencioso();
-
-    alert(
-      "[DEBUG 5 — PRODUTOS DO CATÁLOGO]\n\n" +
-      JSON.stringify(
-        state.produtos.map((produto) => ({
-          id: produto.id,
-          _id: produto._id,
-          productId: produto.productId,
-          nome: produto.nome ?? produto.name,
-          price: produto.price,
-          preco: produto.preco,
-          stock: produto.stock,
-          skus: produto.skus ?? produto.variantes,
-        })),
-        null,
-        2
-      )
-    );
 
     for (const item of itens) {
       const produtoAtual = state.produtos.find(
@@ -928,22 +868,6 @@ async function finalizarVenda() {
         );
       }
 
-      alert(
-        "[DEBUG 6 — PREÇO E ESTOQUE]\n\n" +
-        "Produto: " + (item.nome ?? "Sem nome") + "\n" +
-        "ID enviado: " + item.productId + "\n" +
-        "SKU ID: " + (item.skuId ?? "Nenhum") + "\n" +
-        "Preço no carrinho: " + item.preco + "\n" +
-        "Preço unitário: " + item.precoUnitario + "\n" +
-        "Preço no produto: " +
-          (produtoAtual.preco ?? produtoAtual.price ?? "indefinido") + "\n" +
-        "Preço no SKU: " +
-          (varianteAtual?.price ?? varianteAtual?.preco ?? "indefinido") + "\n" +
-        "Estoque do produto: " + estoqueProduto(produtoAtual) + "\n" +
-        "Estoque do SKU: " +
-          (varianteAtual ? estoqueSku(varianteAtual) : "N/A")
-      );
-
       const estoqueAtual = varianteAtual
         ? estoqueSku(varianteAtual)
         : estoqueProduto(produtoAtual);
@@ -955,25 +879,9 @@ async function finalizarVenda() {
       }
     }
 
-    alert(
-      "[DEBUG 7]\nValidação concluída. Iniciando baixas de estoque."
-    );
-
     for (const item of itens) {
-      alert(
-        "[DEBUG 8 — BAIXA DE ESTOQUE]\n\n" +
-        "Produto: " + item.nome + "\n" +
-        "ID enviado: " + item.productId + "\n" +
-        "Quantidade: " + item.quantidade + "\n" +
-        "SKU ID: " + (item.skuId ?? "Nenhum")
-      );
-
       await baixarEstoqueDoItem(item);
     }
-
-    alert(
-      "[DEBUG 9]\nBaixas concluídas. Agora registrando a venda."
-    );
 
     const venda = await registrarVenda(dados, itens);
 
@@ -994,20 +902,11 @@ async function finalizarVenda() {
       venda?._id ||
       "Venda registrada";
 
-    alert("[DEBUG 10 — SUCESSO]\n\n" + codigo);
-
     mostrarAviso(
       `Venda concluída. Referência: ${codigo}`,
       "success"
     );
   } catch (error) {
-    alert(
-      "[DEBUG — FALHA NA FINALIZAÇÃO]\n\n" +
-      "Erro: " + error.message + "\n" +
-      "Status: " + (error.status ?? "N/A") + "\n" +
-      "Resposta: " + JSON.stringify(error.response ?? null)
-    );
-
     mostrarAviso(
       `Não foi possível concluir a venda: ${error.message}. Confira o estoque e o histórico antes de tentar novamente.`,
       "error"
@@ -1163,23 +1062,20 @@ function configurarEventos() {
    INICIALIZAÇÃO
    ========================================================= */
 
-alert("TESTE 1: JavaScript carregado.");
+
 document.addEventListener("DOMContentLoaded", async () => {
-  alert("TESTE 2: Página carregada.");
+  
   try {
-    alert("TESTE 3: Configurando eventos.");
+    
     configurarEventos();
     renderizarCarrinho();
-    alert("TESTE 4: Preparando autenticação.");
+    
     obterHeaders();
-    alert("TESTE 5: Chamando carregarProdutos.");
+    
     await carregarProdutos();
-    alert("TESTE 6: Carregamento finalizado.");
+    
   } catch (error) {
-    alert(
-      "ERRO NA INICIALIZAÇÃO:\n" +
-      (error?.message || String(error))
-    );
+   
     $("productGrid").innerHTML =
       '<div class="empty-products">Erro ao iniciar o PDV.</div>';
   }
