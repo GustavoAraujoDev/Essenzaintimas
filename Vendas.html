@@ -1496,15 +1496,6 @@ function renderizarVendas() {
 function renderizarPedidos() {
   const items = pedidosFiltrados();
 
-  alert(
-  "ESTRUTURA RECEBIDA PELO FRONTEND\n\n" +
-  JSON.stringify({
-    quantidade: items.length,
-    pagamento: items[0]?.pagamento,
-    totalDentroPagamento: items[0]?.pagamento?.total,
-    valorCalculado: valorRealPedido(items[0] ?? {})
-  }, null, 2)
-);
   // Busca valores em formatos alternativos da API.
   
 function valorRealPedido(item) {
@@ -1622,19 +1613,6 @@ function valorRealPedido(item) {
   atualizarKpi("ordersStatCanceled", canceladas.length);
   atualizarKpi("ordersStatToday", pedidosHoje.length);
   atualizarKpi("ordersStatCanceledValue", moeda(valorCancelado));
-
-  alert(
-    "KPIs CALCULADOS\n\n" +
-    "Pedidos: " + items.length + "\n" +
-    "Faturamento: " + moeda(faturamento) + "\n" +
-    "Ticket médio: " + moeda(ticketMedio) + "\n" +
-    "Pendentes: " + pendentes.length + "\n" +
-    "Em andamento: " + emAndamento.length + "\n" +
-    "Concluídos: " + concluidas.length + "\n" +
-    "Cancelados: " + canceladas.length + "\n" +
-    "Pedidos hoje: " + pedidosHoje.length + "\n" +
-    "Valor cancelado: " + moeda(valorCancelado)
-  );
 
   const tabela = $("ordersBody");
 
