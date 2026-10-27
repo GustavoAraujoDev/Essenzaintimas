@@ -14,11 +14,11 @@
  */
 
 const API_BASE = (
-  window.API_BASE_URL || "https://essenzaintimasapi.onrender.com"
+  "https://essenzaintimasapi.onrender.com"
 ).replace(/\/+$/, "");
 
 const RELATORIO_BASE = (
-  window.RELATORIO_VENDAS_PATH || "/vendas"
+  "/vendas"
 ).replace(/\/+$/, "");
 
 const ENDPOINTS = {
