@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#26211E">
+  <title>Relatório de Vendas | Essenza Íntimas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./relatorioVendas.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="./relatorioVendas.js" defer></script>
+</head>
+
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="./index.html">
+        <span class="brand-symbol">E</span>
+        <span>
+          <strong>ESSENZA</strong>
+          <small>ÍNTIMAS</small>
+        </span>
+      </a>
+
+      <div class="topbar-right">
+        <span class="status-dot"></span>
+        <span>Relatórios do PDV</span>
+      </div>
+    </header>
+
+    <main class="container">
+      <nav class="breadcrumb">
+        <a href="./admin.html">Painel administrativo</a>
+        <span>/</span>
+        <span>Relatório de vendas</span>
+      </nav>
+
+      <section class="page-heading">
+        <div>
+          <span class="eyebrow">GESTÃO COMERCIAL</span>
+          <h1>Relatório de vendas</h1>
+          <p>Acompanhe o desempenho das vendas, faturamento e resultados do seu negócio.</p>
+        </div>
+
+        <button type="button" id="btn-atualizar" class="btn btn-primary">
+          <span aria-hidden="true">↻</span>
+          Atualizar relatório
+        </button>
+      </section>
+
+      <section class="filter-card">
+        <div class="section-heading">
+          <div>
+            <h2>Filtros</h2>
+            <p>Defina o período e os critérios da consulta.</p>
+          </div>
+          <button type="button" id="btn-limpar" class="btn btn-ghost">
+            Limpar filtros
+          </button>
+        </div>
+
+        <form id="form-filtros">
+          <div class="filters-grid">
+            <label>
+              Data inicial
+              <input type="date" id="data-inicial" name="dataInicial">
+            </label>
+
+            <label>
+              Data final
+              <input type="date" id="data-final" name="dataFinal">
+            </label>
+
+            <label>
+              Status da venda
+              <select id="status" name="status">
+                <option value="">Todos os status</option>
+                <option value="CONCLUIDA">Concluída</option>
+                <option value="PENDENTE">Pendente</option>
+                <option value="CANCELADA">Cancelada</option>
+                <option value="DEVOLVIDA">Devolvida</option>
+                <option value="PARCIALMENTE_DEVOLVIDA">Parcialmente devolvida</option>
+              </select>
+            </label>
+
+            <label>
+              Forma de pagamento
+              <select id="metodo-pagamento" name="metodoPagamento">
+                <option value="">Todas as formas</option>
+                <option value="DINHEIRO">Dinheiro</option>
+                <option value="PIX">PIX</option>
+                <option value="CARTAO_CREDITO">Cartão de crédito</option>
+                <option value="CARTAO_DEBITO">Cartão de débito</option>
+                <option value="VALE">Vale</option>
+                <option value="OUTRO">Outro</option>
+              </select>
+            </label>
+
+            <label class="filter-search">
+              Operador
+              <input
+                type="text"
+                id="operador"
+                name="operador"
+                placeholder="Nome ou ID do operador"
+                maxlength="150"
+              >
+            </label>
+
+            <label class="filter-search">
+              Buscar venda
+              <input
+                type="text"
+                id="busca"
+                name="busca"
+                placeholder="Código da venda ou cliente"
+                maxlength="150"
+              >
+            </label>
+          </div>
+
+          <div class="filter-actions">
+            <span id="periodo-selecionado" class="filter-hint">
+              Selecione o período desejado.
+            </span>
+            <button type="submit" class="btn btn-primary" id="btn-filtrar">
+              Consultar vendas
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="metrics-grid" aria-label="Indicadores do relatório">
+        <article class="metric-card">
+          <div class="metric-top">
+            <span>Faturamento</span>
+            <span class="metric-icon">R$</span>
+          </div>
+          <strong id="metric-faturamento">R$ 0,00</strong>
+          <small>Conforme os critérios consultados</small>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-top">
+            <span>Vendas</span>
+            <span class="metric-icon">#</span>
+          </div>
+          <strong id="metric-vendas">0</strong>
+          <small>Quantidade de operações</small>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-top">
+            <span>Ticket médio</span>
+            <span class="metric-icon">↗</span>
+          </div>
+          <strong id="metric-ticket">R$ 0,00</strong>
+          <small>Faturamento dividido pelas vendas</small>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-top">
+            <span>Lucro bruto</span>
+            <span class="metric-icon">%</span>
+          </div>
+          <strong id="metric-lucro">R$ 0,00</strong>
+          <small>Conforme o cálculo do servidor</small>
+        </article>
+      </section>
+
+      <section class="report-card">
+        <div class="section-heading report-heading">
+          <div>
+            <h2>Vendas registradas</h2>
+            <p id="resumo-resultados">Nenhuma consulta realizada.</p>
+          </div>
+
+          <div class="export-actions">
+            <button type="button" id="btn-csv" class="btn btn-outline">
+              ↓ Exportar CSV
+            </button>
+            <button type="button" id="btn-pdf" class="btn btn-outline">
+              ↓ Exportar PDF
+            </button>
+          </div>
+        </div>
+
+        <div id="estado-relatorio" class="empty-state">
+          <span class="empty-icon">↗</span>
+          <strong>Seu relatório está pronto para consultar</strong>
+          <p>Selecione os filtros acima e clique em “Consultar vendas”.</p>
+        </div>
+
+        <div class="table-wrapper" id="tabela-wrapper" hidden>
+          <table>
+            <thead>
+              <tr>
+                <th>Venda</th>
+                <th>Data e hora</th>
+                <th>Cliente</th>
+                <th>Operador</th>
+                <th>Pagamento</th>
+                <th>Status</th>
+                <th class="text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-vendas"></tbody>
+          </table>
+        </div>
+
+        <div class="table-footer" id="table-footer" hidden>
+          <span id="contador-pagina"></span>
+          <div class="pagination">
+            <button type="button" id="btn-anterior" class="btn btn-ghost">
+              Anterior
+            </button>
+            <button type="button" id="btn-proximo" class="btn btn-ghost">
+              Próxima
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>Essenza Íntimas</span>
+        <span>Relatório de gestão comercial</span>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
